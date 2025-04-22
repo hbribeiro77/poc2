@@ -1,0 +1,81 @@
+/* Estilos para o container principal usando CSS Grid */
+.mainGridContainer {
+  display: grid;
+  /* Simplificado para colunas iguais dentro do Container de tamanho fixo */
+  grid-template-columns: 1fr 1fr;
+  gap: var(--mantine-spacing-md);
+  align-items: start;
+}
+
+/* Estilo para o grupo de botões inferior ocupar as duas colunas */
+.bottomButtonsGroupContainer {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 110px);
+  gap: var(--mantine-spacing-sm);
+  /* Revertido para space-between agora que a largura total é controlada */
+  justify-content: space-between;
+}
+
+/* Media query - ajustar se necessário para o novo container */
+@media (max-width: 768px) {
+  .mainGridContainer {
+    grid-template-columns: 1fr;
+  }
+  .bottomButtonsGroupContainer {
+     grid-column: 1;
+     justify-content: center;
+  }
+}
+
+/* Estilos base para o botão quadrado */
+.squareButton {
+  text-align: center;
+  width: 110px; /* Largura desejada */
+  height: 110px; /* Altura desejada */
+  min-width: 110px; /* Forçar largura mínima */
+  min-height: 110px; /* Forçar altura mínima */
+  flex-basis: 110px; /* Base flex para o tamanho */
+  border: 1px solid var(--mantine-color-gray-3);
+  border-radius: var(--mantine-radius-md);
+  background-color: var(--mantine-color-white);
+  color: var(--mantine-color-blue-6);
+  position: relative;
+  box-shadow: var(--mantine-shadow-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0; /* Manter para garantir */
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+/* Estilo para o botão quando está ativo ou é um dos botões do topo */
+.squareButtonActive {
+  background-color: var(--mantine-color-blue-6); /* Cor primária para fundo ativo (#228be6) */
+  color: var(--mantine-color-white);
+}
+
+/* Classe específica para contador/alerta quando o botão está ativo */
+.squareButtonActive .indicatorText {
+  color: var(--mantine-color-white);
+}
+
+/* Classe específica para contador/alerta quando o botão está inativo */
+.squareButton .indicatorText {
+   color: var(--mantine-color-blue-6);
+}
+
+/* Classe para o ícone de dropdown */
+.squareButton .dropdownIcon,
+.squareButtonActive .dropdownIcon {
+   color: inherit; /* Herda a cor do texto do botão */
+}
+
+/* Classe para o ícone de alerta */
+.squareButton .alertIcon {
+  color: var(--mantine-color-orange-6); /* Laranja para alerta */
+}
+
+.squareButtonActive .alertIcon {
+  color: var(--mantine-color-white);
+} 

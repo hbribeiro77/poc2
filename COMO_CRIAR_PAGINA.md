@@ -14,14 +14,16 @@ Este guia descreve os passos para adicionar uma nova página de protótipo (func
     *   Dentro do novo diretório (ex: `src/app/processos/`), crie um arquivo chamado `page.js`.
 
 3.  **Estrutura Básica da Página (`page.js`):**
-    *   Copie e cole a estrutura básica abaixo no seu novo `page.js`. Ela já inclui a diretiva `"use client"`, os imports básicos do Mantine para o layout de duas colunas e a estrutura `Flex` com a imagem lateral e um placeholder para o conteúdo.
-    *   **Importante:** Ajuste o nome da função (ex: `ProcessosPage`) e o conteúdo do placeholder (título e texto). Se precisar de ícones específicos para o título (como fizemos em Pastas), importe-os do `@tabler/icons-react`.
-    *   **Nota:** Se a nova página for um formulário de **cadastro** ou similar, você provavelmente vai querer incluir a imagem estática do menu superior (`menucadastro.png`). O código para isso está comentado na seção "Imagem Superior Estática" abaixo; basta descomentá-lo e ajustar o `src` se necessário.
+    *   Copie e cole a estrutura básica abaixo no seu novo `page.js`. Ela já inclui a diretiva `"use client"`, os imports básicos do Mantine para o layout de duas colunas e a estrutura `Flex` com a imagem lateral.
+    *   A coluna da direita agora usa um `Card` que envolve um `Box` interno para controlar o padding, similar às páginas `/solicitacoes` e `/documentos`.
+    *   **Importante:** Ajuste o nome da função (ex: `ProcessosPage`) e o conteúdo (título e texto). Se precisar de ícones específicos para o título, importe-os do `@tabler/icons-react`.
+    *   **Nota:** Se a nova página for um formulário de **cadastro** ou similar, você provavelmente vai querer incluir a imagem estática do menu superior (`menucadastro.png`). O código para isso está comentado na seção "Imagem Superior Estática" abaixo; basta descomentá-lo.
 
     ```jsx
     'use client';
 
     import { Box, Flex, Card, Title, Text, Image, Group, ThemeIcon } from '@mantine/core';
+    import Link from 'next/link';
     // Adicione imports de ícones específicos se necessário, ex:
     // import { IconScale } from '@tabler/icons-react';
 
@@ -35,36 +37,38 @@ Este guia descreve os passos para adicionar uma nova página de protótipo (func
           <Flex gap={0} pb="xl"> {/* pb="xl" para dar espaço para o link "Voltar" */}
 
             {/* Coluna Esquerda (Imagem Lateral Estática) */}
-            <Box style={{ maxWidth: 250, height: '100%' }}>
+            <Box style={{ maxWidth: 250, height: '100%' }}> {/* Ajustado height para 100% como em solicitacoes */}
               <Image
                   src="/menulateral.png"
                   alt="Menu Lateral"
-                  height="70%"
+                  height="70%" {/* Mantido height 70% como no exemplo original, pode ajustar se necessário */}
                   fit="contain"
               />
             </Box>
 
             {/* Coluna Direita (Conteúdo da Nova Página) */}
             <Box style={{ flex: 1 }}>
+              {/* Card envolve todo o conteúdo da coluna direita */}
               <Card shadow="sm" padding={0} radius="md" withBorder>
                 {/* Box interno controla o padding do conteúdo */}
                 <Box pt={0} px="lg" pb="lg"> {/* Padding: sem topo, com horizontal/inferior */}
 
                   {/* Imagem Superior Estática (OPCIONAL - DESCOMENTE PARA PÁGINAS DE CADASTRO) */}
+                  {/* Verifique se esta é a posição correta conforme /solicitacoes */}
                   {/*
                   <Image
-                    src="/menucadastro.png" // <-- VERIFIQUE SE ESTE É O CAMINHO CORRETO
+                    src="/menucadastro.png"
                     alt="Menu Superior"
                     width="100%"
-                    mb="lg"
+                    mb="lg" // Margem inferior para separar do título
                   />
                   */}
 
-                  {/* Título da Página (Exemplo com Ícone) */}
+                  {/* Título da Página (Estrutura com Group/ThemeIcon/Text) */}
                   <Group align="center" mb="lg" bg="gray.1" p="sm">
                     <ThemeIcon variant="light" size="lg">
-                       {/* Mude o ícone */}
-                       {/* <IconScale stroke={1.5} /> */}
+                       {/* Mude o ícone - Usando um placeholder genérico */}
+                       <Text>?</Text>
                     </ThemeIcon>
                     {/* Mude o Texto e a Cor */}
                     <Text fw={500} size="xl" c="blue"> {/* Use uma cor do tema ou hex */}
@@ -92,9 +96,9 @@ Este guia descreve os passos para adicionar uma nova página de protótipo (func
     ```
 
 4.  **Adicionar Conteúdo Específico:**
-    *   Dentro do `<Box pt={0} px="lg" pb="lg">` na coluna da direita, substitua o `<Text>` placeholder pelo conteúdo real do seu protótipo, usando componentes Mantine conforme necessário. Adicione ou remova a imagem superior e ajuste o título/ícone.
-    *   **Lembrete:** Se for uma página de cadastro, **descomente** a seção ` {/* Imagem Superior Estática ... */}` no código acima para incluir o menu fake do topo (`menucadastro.png`). Ajuste o `src` se o nome ou local da imagem for diferente.
-    *   Ajuste o título/ícone.
+    *   Dentro do `<Box pt={0} px="lg" pb="lg">` na coluna da direita, substitua o `<Text>` placeholder pelo conteúdo real do seu protótipo.
+    *   Se for uma página de cadastro, **descomente** a seção ` {/* Imagem Superior Estática ... */}` no código acima para incluir o menu `menucadastro.png`. Certifique-se de que a posição dela (antes do `<Group>` do título) está correta.
+    *   Ajuste o título/ícone/cor no `<Group>` do título.
 
 5.  **Adicionar Card no Hub (`src/app/page.js`):**
     *   Abra o arquivo `src/app/page.js`.
@@ -149,4 +153,14 @@ Este guia descreve os passos para adicionar uma nova página de protótipo (func
     *   Acesse a nova rota (ex: `/processos`) e verifique se a página carrega com o layout e conteúdo esperados.
     *   **Importante:** Rode `npm test` para garantir que a adição do card no Hub não quebrou os testes existentes da página principal.
 
-Pronto! Seguindo esses passos, você pode adicionar novas páginas de protótipo mantendo a estrutura e o estilo do projeto. 
+Pronto! Seguindo esses passos, você pode adicionar novas páginas de protótipo mantendo a estrutura e o estilo do projeto.
+
+### Exemplos Criados
+
+Seguindo estes passos, foram criadas as páginas:
+
+*   `/notificacoes` (exemplo inicial)
+*   `/listadepastas` (página em branco -> com conteúdo)
+*   `/solicitacoes` (com imagem de menu)
+*   `/documentos` (com imagem de menu -> com CadastroHeader)
+*   `/pasta` (template padrão sem header de cadastro) 
