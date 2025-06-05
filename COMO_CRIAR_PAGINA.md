@@ -14,6 +14,7 @@ Este guia descreve os passos para adicionar uma nova página de protótipo (func
     *   Dentro do novo diretório (ex: `src/app/processos/`), crie um arquivo chamado `page.js`.
 
 3.  **Estrutura Básica da Página (`page.js`):**
+    *   **Nota sobre o Layout:** Este template destina-se a páginas de protótipo que utilizam um **menu lateral estático (a imagem `/menulateral.png`)** e não incluem o cabeçalho principal da Defensoria nem o menu lateral interativo global (geralmente provido por um componente como `AppShell`). Se a sua página requer o layout completo da aplicação com todos os elementos de navegação globais, este template precisará ser adaptado, ou um template diferente (se existir) deverá ser usado.
     *   Copie e cole a estrutura básica abaixo no seu novo `page.js`. Ela já inclui a diretiva `"use client"`, os imports básicos do Mantine para o layout de duas colunas e a estrutura `Flex` com a imagem lateral.
     *   A coluna da direita agora usa um `Card` que envolve um `Box` interno para controlar o padding, similar às páginas `/solicitacoes` e `/documentos`.
     *   **Importante:** Ajuste o nome da função (ex: `ProcessosPage`) e o conteúdo (título e texto). Se precisar de ícones específicos para o título, importe-os do `@tabler/icons-react`.
@@ -22,7 +23,7 @@ Este guia descreve os passos para adicionar uma nova página de protótipo (func
     ```jsx
     'use client';
 
-    import { Box, Flex, Card, Title, Text, Image, Group, ThemeIcon } from '@mantine/core';
+    import { Box, Flex, Card, Title, Text, Image, Group } from '@mantine/core';
     import Link from 'next/link';
     // Adicione imports de ícones específicos se necessário, ex:
     // import { IconScale } from '@tabler/icons-react';
@@ -64,16 +65,16 @@ Este guia descreve os passos para adicionar uma nova página de protótipo (func
                   />
                   */}
 
-                  {/* Título da Página (Estrutura com Group/ThemeIcon/Text) */}
-                  <Group align="center" mb="lg" bg="gray.1" p="sm">
-                    <ThemeIcon variant="light" size="lg">
-                       {/* Mude o ícone - Usando um placeholder genérico */}
-                       <Text>?</Text>
-                    </ThemeIcon>
-                    {/* Mude o Texto e a Cor */}
-                    <Text fw={500} size="xl" c="blue"> {/* Use uma cor do tema ou hex */}
+                  {/* Título da Página (Estilo Minha Defensoria) */}
+                  {/* Lembre-se de importar o ícone desejado de '@tabler/icons-react' */}
+                  {/* Ex: import { IconSettings } from '@tabler/icons-react'; */}
+                  <Group justify="space-between" align="center" mb="xl">
+                    <Title order={2} style={{ display: 'flex', alignItems: 'center' }}>
+                      {/* Substitua o span abaixo pelo seu ícone Tabler importado */}
+                      {/* Ex: <IconSettings size={28} style={{ marginRight: 'var(--mantine-spacing-xs)' }} /> */}
+                      <span style={{ width: 28, height: 28, marginRight: 'var(--mantine-spacing-xs)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: '1px dashed #adb5bd', color: '#495057', fontFamily: 'monospace', fontSize: '12px' }}>Icon</span>
                       Título da Nova Página
-                    </Text>
+                    </Title>
                   </Group>
 
                   {/* Conteúdo Principal da Página (Placeholder) */}
@@ -98,7 +99,7 @@ Este guia descreve os passos para adicionar uma nova página de protótipo (func
 4.  **Adicionar Conteúdo Específico:**
     *   Dentro do `<Box pt={0} px="lg" pb="lg">` na coluna da direita, substitua o `<Text>` placeholder pelo conteúdo real do seu protótipo.
     *   Se for uma página de cadastro, **descomente** a seção ` {/* Imagem Superior Estática ... */}` no código acima para incluir o menu `menucadastro.png`. Certifique-se de que a posição dela (antes do `<Group>` do título) está correta.
-    *   Ajuste o título/ícone/cor no `<Group>` do título.
+    *   Ajuste o texto do título e o ícone (lembre-se de importá-lo de `@tabler/icons-react`) no componente `<Title>` dentro do `<Group>` do título.
 
 5.  **Adicionar Card no Hub (`src/app/page.js`):**
     *   Abra o arquivo `src/app/page.js`.
@@ -163,4 +164,66 @@ Seguindo estes passos, foram criadas as páginas:
 *   `/listadepastas` (página em branco -> com conteúdo)
 *   `/solicitacoes` (com imagem de menu)
 *   `/documentos` (com imagem de menu -> com CadastroHeader)
-*   `/pasta` (template padrão sem header de cadastro) 
+*   `/pasta` (template padrão sem header de cadastro)
+
+### Adaptando o Conteúdo Interno
+
+O template de página fornecido acima (`page.js`) descreve a estrutura externa comum para protótipos com menu lateral estático e um card para o conteúdo principal.
+
+**Importante:** A seção `<Text>Conteúdo do protótipo virá aqui...</Text>` (ou qualquer outro conteúdo de exemplo dentro do `<Card>` principal) é um **placeholder**. Ao criar sua nova página:
+
+1.  **Substitua este placeholder** pela funcionalidade, componentes e texto específicos que sua nova página deve ter.
+2.  Se estiver se baseando visualmente em uma página existente (ex: `/notificacoes`) para a *estrutura externa*, certifique-se de que o conteúdo *interno* que você está adicionando é o correto para a *nova* página, e não uma cópia da funcionalidade completa da página de referência, a menos que replicar essa funcionalidade também seja o objetivo explícito.
+
+4.  **Adicionar Conteúdo Específico:**
+    *   Dentro do `<Box pt={0} px="lg" pb="lg">` na coluna da direita, substitua o `<Text>` placeholder pelo conteúdo real do seu protótipo.
+    *   Se for uma página de cadastro, **descomente** a seção ` {/* Imagem Superior Estática ... */}` no código acima para incluir o menu `menucadastro.png`. Certifique-se de que a posição dela (antes do `<Group>` do título) está correta.
+    *   Ajuste o texto do título e o ícone (lembre-se de importá-lo de `@tabler/icons-react`) no componente `<Title>` dentro do `<Group>` do título.
+
+    ```jsx
+    // Dentro de <SimpleGrid> em src/app/page.js
+
+    {/* Exemplo: NOVO Card para Consulta de Processos */}
+    <Card shadow="sm" padding="lg" radius="md" withBorder>
+      <Group justify="space-between" mt="md" mb="xs">
+        {/* Mude o título */}
+        <Text fw={500}>Consulta de Processos</Text>
+      </Group>
+
+      <Text size="sm" c="dimmed">
+        {/* Mude a descrição */}
+        Protótipo para consultar informações de processos.
+      </Text>
+
+      {/* Mude o href */}
+      <Link href="/processos">
+        <Button variant="light" color="blue" fullWidth mt="md" radius="md">
+          Acessar Protótipo
+        </Button>
+      </Link>
+    </Card>
+    ```
+
+    ```jsx
+    // Dentro de <SimpleGrid> em src/app/page.js
+
+    {/* Exemplo: NOVO Card para Consulta de Processos */}
+    <Card shadow="sm" padding="lg" radius="md" withBorder>
+      <Group justify="space-between" mt="md" mb="xs">
+        {/* Mude o título */}
+        <Text fw={500}>Consulta de Processos</Text>
+      </Group>
+
+      <Text size="sm" c="dimmed">
+        {/* Mude a descrição */}
+        Protótipo para consultar informações de processos.
+      </Text>
+
+      {/* Mude o href */}
+      <Link href="/processos">
+        <Button variant="light" color="blue" fullWidth mt="md" radius="md">
+          Acessar Protótipo
+        </Button>
+      </Link>
+    </Card>
+    ``` 

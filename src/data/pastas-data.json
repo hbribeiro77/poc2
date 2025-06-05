@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "processoPrincipal": "8001482-47.2021.8.21.0001",
+    "tags": ["Réu preso"],
+    "status": "Ativa",
+    "ultimoAtendimento": "29/08/2024",
+    "comarca": "Comarca de Porto Alegre",
+    "orgaoJulgador": "Vara de Execução de Penas e Medidas Alternativas da Comarca de Porto Alegre",
+    "area": "Criminal",
+    "classe": "Execução da Pena",
+    "assunto": "DIREITO PENAL / Parte Geral / Suspensão condicional da pena",
+    "descricao": "Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa mi. Aliquam in hendrerit urna.",
+    "processosAssociados": [
+      "8001482-47.2021.8.21.0001",
+      "8001482-47.2021.8.21.0002",
+      "8001482-47.2021.8.21.0003",
+      "8001482-47.2021.8.21.0004",
+      "8001482-47.2021.8.21.0005"
+    ]
+  },
+  {
+    "id": 2,
+    "processoPrincipal": "8001482-47.2021.8.21.0001",
+    "tags": [],
+    "status": "Arquivada",
+    "ultimoAtendimento": "29/08/2024",
+    "comarca": "Porto Alegre - Foro Regional do 4º Distrito",
+    "orgaoJulgador": "Juízo do 9º Juizado Especial Cível e Criminal do FReg do 4º Distrito da Comarca de Porto Alegre",
+    "area": "Criminal",
+    "classe": "Crimes Contra a Propriedade Intelectual",
+    "assunto": "DIREITO PENAL / Crimes contra a Propriedade Intelectual / Violação de direito autoral",
+    "descricao": "Pellentesque volutpat tellus eget interdum.",
+    "processosAssociados": [
+      "8001482-47.2021.8.21.0001"
+    ]
+  }
+] 

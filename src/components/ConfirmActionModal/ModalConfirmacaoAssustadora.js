@@ -15,6 +15,7 @@ export default function ModalConfirmacaoAssustadora({
   alertColor,
   alertMessage,
   bodyText,
+  children,
   checkboxLabel,
   confirmButtonLabel,
   confirmButtonColor,
@@ -87,6 +88,8 @@ export default function ModalConfirmacaoAssustadora({
           {alertMessage}
         </Alert>
 
+        {children}
+
         <Text size="sm">
             {bodyText}
         </Text>
@@ -95,7 +98,7 @@ export default function ModalConfirmacaoAssustadora({
             label={checkboxLabel}
             checked={isChecked}
             onChange={(event) => setIsChecked(event.currentTarget.checked)}
-            mt="md"
+            mt="xs"
             styles={{ label: { fontWeight: 500 } }}
         />
 

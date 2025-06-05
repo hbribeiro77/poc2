@@ -1,0 +1,161 @@
+{
+  "1ª DEFENSORIA PÚBLICA ESPECIALIZADA DO JÚRI DO FORO CENTRAL": [
+    {
+      "id": "defValeria",
+      "nome": "Valéria Rios P. Azevedo",
+      "matricula": "123456",
+      "cargo": "Defensor(a) Público(a)",
+      "funcoes": [{ "nome": "Gerente de Defensoria", "removivel": false }]
+    },
+    {
+      "id": "tecHumberto",
+      "nome": "Humberto Borges Ribeiro",
+      "matricula": "3925811",
+      "cargo": "Técnico Administrativo",
+      "funcoes": [
+        { "nome": "Gerente de Defensoria", "removivel": true },
+        { "nome": "Revisor de Atendimento", "removivel": true }
+      ]
+    },
+    {
+      "id": "tecAna",
+      "nome": "Ana Paula S. Pereira",
+      "matricula": "789012",
+      "cargo": "Técnico Administrativo",
+      "funcoes": [{ "nome": "Administrador de agenda", "removivel": true }]
+    },
+    {
+      "id": "anaCarlos",
+      "nome": "Carlos Alberto Nobre",
+      "matricula": "345678",
+      "cargo": "Analista Processual",
+      "funcoes": [{ "nome": "Revisor de Peça", "removivel": true }]
+    },
+    { "id": "estJoao", "nome": "João Silva", "matricula": "e112233445", "cargo": "Estagiário", "funcoes": [] },
+    { "id": "estMaria", "nome": "Maria Oliveira", "matricula": "e223344556", "cargo": "Estagiário", "funcoes": [] },
+    { "id": "estPedro", "nome": "Pedro Santos", "matricula": "e334455667", "cargo": "Estagiário", "funcoes": [] },
+    { "id": "estSofia", "nome": "Sofia Costa", "matricula": "e445566778", "cargo": "Estagiário", "funcoes": [] },
+    { "id": "estLucas", "nome": "Lucas Martins", "matricula": "e556677889", "cargo": "Estagiário", "funcoes": [] },
+    { "id": "estLaura", "nome": "Laura Almeida", "matricula": "e667788990", "cargo": "Estagiário", "funcoes": [] },
+    {
+      "id": "terJose",
+      "nome": "José Ferreira",
+      "matricula": "t123789",
+      "cargo": "Terceirizado",
+      "funcoes": []
+    }
+  ],
+  "2ª DEFENSORIA PÚBLICA ESPECIALIZADA DO JÚRI DO FORO CENTRAL": [
+    {
+      "id": "defFernando",
+      "nome": "Fernando C. Albuquerque",
+      "matricula": "654321",
+      "cargo": "Defensor(a) Público(a)",
+      "funcoes": [{ "nome": "Gerente de Defensoria", "removivel": false }]
+    },
+    {
+      "id": "tecMariana",
+      "nome": "Mariana Lima",
+      "matricula": "109876",
+      "cargo": "Técnico Administrativo",
+      "funcoes": [{ "nome": "Administrador de agenda", "removivel": true }]
+    },
+    {
+      "id": "tecRicardo",
+      "nome": "Ricardo Nunes",
+      "matricula": "210987",
+      "cargo": "Técnico Administrativo",
+      "funcoes": []
+    },
+    {
+      "id": "anaBeatriz",
+      "nome": "Beatriz Costa",
+      "matricula": "876543",
+      "cargo": "Analista Processual",
+      "funcoes": [
+        { "nome": "Revisor de Atendimento", "removivel": true },
+        { "nome": "Revisor de Peça", "removivel": true }
+      ]
+    },
+    { "id": "estGabriel", "nome": "Gabriel Pereira", "matricula": "e778899001", "cargo": "Estagiário", "funcoes": [] },
+    { "id": "estJulia", "nome": "Júlia Rodrigues", "matricula": "e889900112", "cargo": "Estagiário", "funcoes": [] },
+    { "id": "estMatheus", "nome": "Matheus Alves", "matricula": "e990011223", "cargo": "Estagiário", "funcoes": [] },
+    { "id": "estIsabela", "nome": "Isabela Sousa", "matricula": "e001122334", "cargo": "Estagiário", "funcoes": [] },
+    {
+      "id": "terAntonio",
+      "nome": "Antônio Barbosa",
+      "matricula": "t654321",
+      "cargo": "Terceirizado",
+      "funcoes": []
+    }
+  ],
+  "3ª DEFENSORIA PÚBLICA ESPECIALIZADA DO JÚRI DO FORO CENTRAL": [
+    {
+      "id": "defMarcia_3",
+      "nome": "Márcia Oliveira Lima",
+      "matricula": "DEF3001",
+      "cargo": "Defensor(a) Público(a)",
+      "funcoes": [{ "nome": "Gerente de Defensoria", "removivel": false }]
+    },
+    {
+      "id": "tecRafael_3",
+      "nome": "Rafael Costa Almeida",
+      "matricula": "TEC3002",
+      "cargo": "Técnico Administrativo",
+      "funcoes": [{ "nome": "Revisor de Atendimento", "removivel": true }]
+    },
+    {
+      "id": "tecBeatriz_3",
+      "nome": "Beatriz Martins Silva",
+      "matricula": "TEC3003",
+      "cargo": "Técnico Administrativo",
+      "funcoes": [{ "nome": "Administrador de agenda", "removivel": true }]
+    },
+    {
+      "id": "anaLucas_3",
+      "nome": "Lucas Pereira Santos",
+      "matricula": "ANA3004",
+      "cargo": "Analista Processual",
+      "funcoes": [{ "nome": "Revisor de Peça", "removivel": true }]
+    },
+    { "id": "estFernanda_3", "nome": "Fernanda Barbosa", "matricula": "e300000001", "cargo": "Estagiário", "funcoes": [] },
+    { "id": "estGustavo_3", "nome": "Gustavo Azevedo", "matricula": "e300000002", "cargo": "Estagiário", "funcoes": [] },
+    { "id": "terCamila_3", "nome": "Camila Rodrigues", "matricula": "t300003", "cargo": "Terceirizado", "funcoes": [] },
+    {
+      "id": "tecHumberto",
+      "nome": "Humberto Borges Ribeiro",
+      "matricula": "3925811",
+      "cargo": "Técnico Administrativo",
+      "funcoes": []
+    }
+  ],
+  "_genericTeam": [
+    {
+      "id": "defGen",
+      "nome": "Nome Defensor(a) Genérico(a)",
+      "cargo": "Defensor(a) Público(a)",
+      "funcoes": [{ "nome": "Gerente de Defensoria", "removivel": false }]
+    },
+    {
+      "id": "tecGen1",
+      "nome": "Nome Técnico(a) Genérico(a) 1",
+      "cargo": "Técnico Administrativo",
+      "funcoes": [{ "nome": "Revisor de Atendimento", "removivel": true }]
+    },
+    {
+      "id": "tecGen2",
+      "nome": "Nome Técnico(a) Genérico(a) 2",
+      "cargo": "Técnico Administrativo",
+      "funcoes": [{ "nome": "Administrador de agenda", "removivel": true }]
+    },
+    {
+      "id": "anaGen",
+      "nome": "Nome Analista Genérico(a)",
+      "cargo": "Analista Processual",
+      "funcoes": [{ "nome": "Revisor de Peça", "removivel": true }]
+    },
+    { "id": "estGen1", "nome": "Estagiário Genérico 1", "matricula": "e123456789", "cargo": "Estagiário", "funcoes": [] },
+    { "id": "estGen2", "nome": "Estagiário Genérico 2", "matricula": "e987654321", "cargo": "Estagiário", "funcoes": [] },
+    { "id": "terGen", "nome": "Terceirizado Genérico", "matricula": "t123456", "cargo": "Terceirizado", "funcoes": [] }
+  ]
+} 

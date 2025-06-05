@@ -16,12 +16,15 @@ export default function SolicitacoesPage() {
 
         {/* Coluna Esquerda (Imagem Lateral Estática) */}
         <Box style={{ maxWidth: 250, height: '100%' }}>
-          <Image
-              src="/menulateral.png"
-              alt="Menu Lateral"
+          <Link href="/minha-defensoria" passHref>
+            <Image
+              src="/menulateralminhadefensoria.png"
+              alt="Menu Lateral Minha Defensoria"
               height="70%"
               fit="contain"
-          />
+              style={{ cursor: 'pointer' }} // Adiciona cursor de ponteiro
+            />
+          </Link>
         </Box>
 
         {/* Coluna Direita (Conteúdo da Nova Página) */}

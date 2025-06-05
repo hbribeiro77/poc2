@@ -1,9 +1,20 @@
 "use client"; // Necessário para usar hooks/componentes do Mantine que dependem do client
 
-import { Title, Text, Container, Card, Button, Group, Space, Grid } from '@mantine/core';
+import React, { useState } from 'react';
+import { Title, Text, Container, Card, Button, Group, Space, Grid, NumberInput } from '@mantine/core';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
+  const router = useRouter();
+  const [folderCount, setFolderCount] = useState(10);
+
+  const handleNavigateToGeneratedList = () => {
+    if (folderCount > 0) {
+      router.push(`/listadepastas?generate=${folderCount}`);
+    }
+  };
+
   return (
     <Container size="lg" py="xl">
       <Title order={1} ta="center" mb="md">
@@ -153,6 +164,117 @@ export default function HomePage() {
               href="/pasta" // <<< Link para /pasta (singular)
             >
               Acessar Pasta
+            </Button>
+          </Card>
+        </Grid.Col>
+
+        {/* Card para Minha Defensoria */}
+        <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
+          <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
+            <Group justify="space-between" mt="md" mb="xs">
+              <Text fw={500}>Minha Defensoria</Text>
+            </Group>
+
+            <Text size="sm" c="dimmed" mb="md">
+              Acessar a página Minha Defensoria (apenas menu lateral).
+            </Text>
+
+            <Button
+              variant="light"
+              color="blue"
+              fullWidth
+              mt="auto"
+              radius="md"
+              component={Link}
+              href="/minha-defensoria"
+            >
+              Acessar Página
+            </Button>
+          </Card>
+        </Grid.Col>
+
+        {/* Card para Controle da Lista de Pastas */}
+        <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
+          <Card shadow="sm" padding="lg" radius="md" withBorder h="100%" display="flex" style={{ flexDirection: 'column' }}>
+            <Group justify="space-between" mt="md" mb="xs">
+              <Text fw={500}>Gerar Lista de Pastas</Text>
+            </Group>
+
+            <Text size="sm" c="dimmed">
+              Gere e acesse uma lista com uma quantidade específica de pastas (dados fictícios).
+            </Text>
+
+            <NumberInput
+              label="Quantidade a Gerar"
+              placeholder="Digite a quantidade"
+              value={folderCount}
+              onChange={(value) => setFolderCount(Number(value) || 0)}
+              min={1}
+              step={1}
+              mt="md"
+              mb="md"
+            />
+
+            <Button
+              variant="light"
+              color="teal"
+              fullWidth
+              mt="auto"
+              radius="md"
+              onClick={handleNavigateToGeneratedList}
+              disabled={folderCount <= 0}
+            >
+              Ver Lista Gerada
+            </Button>
+          </Card>
+        </Grid.Col>
+
+        {/* NOVO Card: Configurações */}
+        <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
+          <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
+            <Group justify="space-between" mt="md" mb="xs">
+              <Text fw={500}>Configurações</Text>
+            </Group>
+
+            <Text size="sm" c="dimmed" mb="md">
+              Acessar as configurações do sistema e preferências.
+            </Text>
+
+            <Button
+              variant="light"
+              color="blue"
+              fullWidth
+              mt="auto"
+              radius="md"
+              component={Link}
+              href="/configuracoes"
+            >
+              Acessar Configurações
+            </Button>
+          </Card>
+        </Grid.Col>
+
+        {/* NOVO Card: Contatos */}
+        <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
+          <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
+            <Group justify="space-between" mt="md" mb="xs">
+              <Text fw={500}>Contatos</Text>
+            </Group>
+
+            <Text size="sm" c="dimmed" mb="md">
+              Acessar a seção de gerenciamento de contatos.
+            </Text>
+
+            <Button
+              variant="light"
+              color="blue"
+              fullWidth
+              mt="auto"
+              radius="md"
+              component={Link}
+              href="/contatos"
+            >
+              Acessar Contatos
             </Button>
           </Card>
         </Grid.Col>
