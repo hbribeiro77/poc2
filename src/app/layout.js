@@ -2,6 +2,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import '@mantine/core/styles.css';
 import "./globals.css";
 import { ColorSchemeScript, MantineProvider } from '@mantine/core';
+import { ChatManagerProvider } from "../contexts/ChatManagerContext";
+import ChatManager from "../components/ChatManager/ChatManager";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,7 +28,10 @@ export default function RootLayout({ children }) {
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`} style={{ backgroundColor: '#f8f9fa' }}>
         <MantineProvider defaultColorScheme="light">
+          <ChatManagerProvider>
             {children}
+            <ChatManager />
+          </ChatManagerProvider>
         </MantineProvider>
       </body>
     </html>

@@ -246,7 +246,24 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
     *   **Interface:** Utiliza o componente `WhatsappChatModal` para renderizar a UI do chat, exibindo as informações do processo e do assistido no cabeçalho.
     *   **Persistência:** Todo o histórico de chat é salvo automaticamente no `localStorage`, garantindo que a conversa seja mantida entre as sessões.
 
-8.  **Componente Reutilizável `PastaActionButton.js`**
+8.  **Refatoração da Modal de Arquivamento e Integração**
+    *   **Objetivo:** Centralizar a lógica de arquivamento em um componente reutilizável, limpando o código de outras páginas e garantindo consistência.
+    *   **Criação do Componente `ArchivePastaModal.js`:**
+        *   A lógica e a interface da modal de arquivamento, que antes estavam na página `/pasta`, foram extraídas para este novo componente.
+        *   O componente é totalmente encapsulado, gerenciando seus próprios estados internos (motivo, observação) e se comunicando com o componente "pai" através de `props` (`opened`, `onClose`, `onConfirm`).
+    *   **Refatoração da Página da Pasta (`/pasta`):**
+        *   O código da modal foi removido da página e substituído por uma única chamada ao `<ArchivePastaModal />`.
+        *   A função `handleConfirmArchive` foi simplificada para apenas receber os dados do componente da modal.
+    *   **Refatoração da Lista de Pastas (`/listadepastas`):**
+        *   O componente `PastaListItem.js` foi simplificado, removendo sua lógica interna e modal de arquivamento duplicada.
+        *   A página `listadepastas/page.js` agora gerencia a exibição da `ArchivePastaModal`.
+        *   Clicar no ícone de arquivar em um item da lista agora aciona a modal centralizada, que por sua vez atualiza o estado da lista na página principal.
+    *   **Correção de Bugs:**
+        *   Durante o processo, foram corrigidos bugs de `render` nas páginas `/componentes` e `/pasta` que foram causados por uma refatoração anterior do componente `ApprovalChatModal`, garantindo a estabilidade da aplicação.
+    *   **Atualização da Galeria de Componentes (`/componentes`):**
+        *   O novo componente `ArchivePastaModal` foi adicionado à galeria para fácil visualização e teste.
+
+9.  **Componente Reutilizável `PastaActionButton.js`**
     *   Movido para seu próprio arquivo: `src/components/PastaActionButton/PastaActionButton.js`.
     *   Utilizado em `PastaHeader.js` e `DefensoriaActionButtons.js`.
     *   **Props Principais:** `title`, `icon`, `count`, `alert`, `onClick`, `isActive`.
@@ -255,7 +272,7 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
         *   **Inativo (`isActive={false}`):** Fundo branco, texto/ícone/contador azuis (`#228be6`), borda azul clara. Hover com fundo cinza claro.
     *   Exibe um contador numérico ou um ícone de alerta no canto superior direito.
 
-9.  **Componente Reutilizável `ModalConfirmacaoAssustadora.js`**
+10. **Componente Reutilizável `ModalConfirmacaoAssustadora.js`**
     *   Modal genérica para ações que exigem atenção.
     *   Apresenta Alerta, título, mensagem, checkbox de ciência (obrigatório para habilitar confirmação) e botões de Confirmar/Cancelar.
     *   Foi modificada para aceitar `children`, permitindo a inclusão de conteúdo customizado (como `Radio.Group` e `Textarea`).
@@ -282,11 +299,11 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
 
 ## Novas Seções (Placeholders)
 
-10. **Configurações (`/configuracoes`)**
+11. **Configurações (`/configuracoes`)**
     *   Página placeholder destinada a futuras opções de configuração do sistema e preferências do usuário.
     *   Utiliza o layout padrão de duas colunas com `menulateral.png`.
 
-11. **Documentos (`/documentos`)**
+12. **Documentos (`/documentos`)**
     *   Página placeholder destinada à funcionalidade de gerenciamento de documentos.
     *   Utiliza o componente `CadastroHeader` (com dados mockados) e o layout padrão de duas colunas com `menulateral.png`.
 

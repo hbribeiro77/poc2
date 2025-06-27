@@ -18,16 +18,17 @@ import {
   IconTrash, IconPlus, IconUser, IconMessageChatbot, IconFileText,
   IconLicense, IconFile, IconMessageCircle, IconScale, IconInfoCircle, IconChevronLeft,
   IconAlertTriangle, IconArchive, IconArchiveOff, IconFileDescription, IconNotes, IconClipboardText,
-  IconBrandWhatsapp, IconLayoutDashboard
+  IconBrandWhatsapp, IconLayoutDashboard, IconDotsVertical
 } from '@tabler/icons-react';
 
 // IMPORTA o componente PastaActionButton de seu novo local
 import PastaActionButton from '../PastaActionButton/PastaActionButton';
 import SendMessageModal from '../SendMessageModal/SendMessageModal';
-import ApprovalChatModal from '../ApprovalChatModal/ApprovalChatModal';
+import { useChatManager } from '../../hooks/useChatManager';
 
 // --- Componente Principal PastaHeader ---
 export default function PastaHeader({ pastaData, onOpenReactivateConfirmModal, onOpenArchiveModal, dadosLayout, onSectionSelect, showVisaoGeralButton }) {
+  const { openChat } = useChatManager();
   const [isDadosVisible, setIsDadosVisible] = useState(false);
   const [editedArea, setEditedArea] = useState(pastaData?.area || '');
   const [editedAssunto, setEditedAssunto] = useState(pastaData?.assunto || '');
@@ -35,9 +36,6 @@ export default function PastaHeader({ pastaData, onOpenReactivateConfirmModal, o
   const [infoModalOpened, setInfoModalOpened] = useState(false);
   const [sendMessageModalOpen, setSendMessageModalOpen] = useState(false);
   const [selectedContactForMessage, setSelectedContactForMessage] = useState(null);
-  const [approvalChatModalOpen, setApprovalChatModalOpen] = useState(false);
-  const [approvalChatContact, setApprovalChatContact] = useState(null);
-  const [approvalChatTemplateLabel, setApprovalChatTemplateLabel] = useState('');
   const theme = useMantineTheme();
 
   // Verifica se pastaData existe para evitar erros
@@ -106,6 +104,22 @@ export default function PastaHeader({ pastaData, onOpenReactivateConfirmModal, o
   // Handlers para a Modal de Informações
   const openInfoModal = () => setInfoModalOpened(true);
   const closeInfoModal = () => setInfoModalOpened(false);
+
+  const handleOpenApprovalChat = (contact) => {
+    // Cria um objeto `pasta` com a estrutura esperada pelo openChat
+    const chatPastaData = {
+      id: `${pastaData.numeroProcesso}-${contact.id}`, // ID único para o chat
+      assistido: contact.nome,
+      telefone: contact.telefone,
+      processoPrincipal: pastaData.numeroProcesso,
+      assunto: `Aprovação de Peça - ${pastaData.assunto}`,
+      descricao: `Conversa para aprovação de peça com ${contact.nome}.`,
+    };
+    openChat(chatPastaData, { 
+      initialMessage: 'Olá! Preciso da sua aprovação para a seguinte providência: [Descrição da Providência]. Você aprova?',
+      templateType: 'peca' 
+    });
+  };
 
   /* == Bloco de Conteúdo: Informações de Leitura == */
   const readOnlyInfo = (
@@ -503,26 +517,14 @@ export default function PastaHeader({ pastaData, onOpenReactivateConfirmModal, o
           </Group>
       </Modal>
 
-      <SendMessageModal
-        opened={sendMessageModalOpen}
-        onClose={() => setSendMessageModalOpen(false)}
-        contact={selectedContactForMessage}
-        onSend={({ contact, template }) => {
-          if (template === 'aprov_providencia') {
-            setApprovalChatContact(contact);
-            setApprovalChatTemplateLabel('Aprovação de providência');
-            setApprovalChatModalOpen(true);
-          }
-          // Aqui pode-se adicionar lógica para outros templates, se necessário
-        }}
-      />
-
-      <ApprovalChatModal
-        opened={approvalChatModalOpen}
-        onClose={() => setApprovalChatModalOpen(false)}
-        contact={approvalChatContact}
-        templateLabel={approvalChatTemplateLabel}
-      />
+      {selectedContactForMessage && (
+          <SendMessageModal
+              opened={sendMessageModalOpen}
+              onClose={() => setSendMessageModalOpen(false)}
+              contact={selectedContactForMessage}
+              templateLabel="Envio de Documento por E-mail"
+          />
+      )}
 
     </Paper>
   );

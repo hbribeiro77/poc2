@@ -5,47 +5,27 @@ import { Paper, Group, Text, Badge, ActionIcon, Stack, Title, Box, useMantineThe
 import { IconFolder, IconPlus, IconArrowDown, IconArchive, IconArchiveOff, IconBrandWhatsapp } from '@tabler/icons-react';
 import ModalConfirmacaoAssustadora from '../ConfirmActionModal/ModalConfirmacaoAssustadora'; // Importar o modal
 
-export default function PastaListItem({ pasta, onArchive, onUnarchive, onStartChat, chatBehavior = 'inline', onChatClick }) {
+export default function PastaListItem({ pasta, onUnarchive, onChatClick, onArchiveClick }) {
   const [expanded, setExpanded] = useState(false);
-  const [modalOpened, setModalOpened] = useState(false); // Estado para o modal DE ARQUIVAMENTO
-  const [unarchiveModalOpened, setUnarchiveModalOpened] = useState(false); // Estado para o modal DE DESARQUIVAMENTO
-  const [selectedReason, setSelectedReason] = useState(''); // Estado para o motivo selecionado
-  const [archiveObservation, setArchiveObservation] = useState(''); // Estado para a observação
-  const theme = useMantineTheme(); // Hook para acessar o tema
+  const [unarchiveModalOpened, setUnarchiveModalOpened] = useState(false);
+  const theme = useMantineTheme();
 
   const toggleExpanded = () => setExpanded((prev) => !prev);
 
-  // Verifica se a tag "Réu preso" existe
   const hasReuPreso = pasta.tags && pasta.tags.includes('Réu preso');
   
-  // Define a cor da borda esquerda com a nova lógica
   let borderLeftColor;
   if (pasta.status === 'Arquivada') {
-    borderLeftColor = '#7d7d7d'; // Cinza para arquivadas
-  } else { // Se for Ativa
-    borderLeftColor = hasReuPreso ? theme.colors.yellow[6] : '#1b7847'; // Amarelo se réu preso, senão verde
+    borderLeftColor = '#7d7d7d';
+  } else {
+    borderLeftColor = hasReuPreso ? theme.colors.yellow[6] : '#1b7847';
   }
 
-  // Define o estilo do Paper
   const paperStyle = {
     borderLeft: `5px solid ${borderLeftColor}`,
     transition: 'all 0.2s ease',
   };
 
-  // Handlers do Modal
-  const openModal = () => setModalOpened(true);
-  const closeModal = () => {
-    setModalOpened(false);
-    setSelectedReason(''); // Resetar motivo ao fechar
-    setArchiveObservation(''); // Resetar observação ao fechar
-  };
-
-  const handleConfirmArchive = () => {
-    onArchive(pasta.id, selectedReason, archiveObservation);
-    closeModal();
-  };
-
-  // Handlers do Modal de DESARQUIVAMENTO
   const openUnarchiveModal = () => setUnarchiveModalOpened(true);
   const closeUnarchiveModal = () => setUnarchiveModalOpened(false);
 
@@ -53,21 +33,20 @@ export default function PastaListItem({ pasta, onArchive, onUnarchive, onStartCh
     onUnarchive(pasta.id);
     closeUnarchiveModal();
   };
+  
+  const handleArchiveIconClick = () => {
+    if (pasta.status === 'Arquivada') {
+      openUnarchiveModal();
+    } else {
+      if (onArchiveClick) {
+        onArchiveClick(pasta.id);
+      }
+    }
+  };
 
   const handleWhatsappClick = () => {
-    // Se uma função onChatClick for fornecida, use-a.
     if (onChatClick) {
       onChatClick(pasta);
-      return;
-    }
-
-    // Comportamento original
-    if (chatBehavior === 'newTab') {
-      // Salva os dados da pasta e o histórico atual (se houver) no localStorage para a nova aba ler
-      localStorage.setItem(`chatPastaData-${pasta.id}`, JSON.stringify(pasta));
-      window.open(`/chat/${pasta.id}`, '_blank');
-    } else if (onStartChat) {
-      onStartChat();
     }
   };
 
@@ -111,7 +90,7 @@ export default function PastaListItem({ pasta, onArchive, onUnarchive, onStartCh
           <ActionIcon 
             variant="subtle" 
             color="gray" 
-            onClick={pasta.status === 'Arquivada' ? openUnarchiveModal : openModal}
+            onClick={handleArchiveIconClick}
           >
             {pasta.status === 'Arquivada' ? <IconArchiveOff size={16} /> : <IconArchive size={16} />}
           </ActionIcon>
@@ -200,37 +179,6 @@ export default function PastaListItem({ pasta, onArchive, onUnarchive, onStartCh
               </Text>
           </Box>
       )}
-
-      {/* Modal de confirmação de arquivamento */}
-      <ModalConfirmacaoAssustadora
-        opened={modalOpened}
-        onClose={closeModal}
-        onConfirm={handleConfirmArchive}
-        title="Arquivar Pasta"
-        message="Você tem certeza que deseja arquivar esta pasta? Esta ação pode ter implicações importantes."
-      >
-        <Stack>
-          <Radio.Group
-            name="motivoArquivamento"
-            label="Selecione o motivo do arquivamento"
-            withAsterisk
-            value={selectedReason}
-            onChange={setSelectedReason}
-          >
-            <Stack mt="xs">
-              {motivosArquivamento.map((motivo) => (
-                <Radio key={motivo} value={motivo} label={motivo} />
-              ))}
-            </Stack>
-          </Radio.Group>
-          <Textarea
-            label="Observação (Opcional)"
-            placeholder="Adicione uma observação se necessário"
-            value={archiveObservation}
-            onChange={(event) => setArchiveObservation(event.currentTarget.value)}
-          />
-        </Stack>
-      </ModalConfirmacaoAssustadora>
 
       {/* Modal de confirmação de DESARQUIVAMENTO */}
       <ModalConfirmacaoAssustadora

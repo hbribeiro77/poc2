@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { Overlay, Paper, Portal, Button, Group, Text, Box, ActionIcon, Badge, Transition } from '@mantine/core';
+import { Overlay, Paper, Portal, Button, Group, Text, Box, ActionIcon, Badge, Transition, useMantineTheme } from '@mantine/core';
 import { IconArrowUpRight, IconMinus, IconArrowsDiagonal2, IconX, IconBrandWhatsapp, IconMaximize, IconMinimize as IconRestoreDown } from '@tabler/icons-react';
 import DraggableElement from '../DraggableElement/DraggableElement';
 import classes from './DraggableModal.module.css';
@@ -13,24 +13,27 @@ export default function DraggableModal({
   onClose, 
   children, 
   title = "Janela Flutuante", // Nova prop para o título no modo minimizado
+  isMinimized,
+  isMaximized,
+  onMinimize,
+  onMaximize,
+  onRestore,
+  messageCount = 0,
   width = '32.81vw', // Largura final
   height = '93.97vh', // Altura final
   padding = 'md',
   withCloseButton = true,
   initialSize = { width: '30vw', height: '80vh' },
   initialPosition,
-  messageCount = 0,
-  onRestore,
   maximizedStyles: maximizedStylesOverride,
   onToggleMaximize,
   initialAlignment = 'center',
   ...otherProps 
 }) {
+  const theme = useMantineTheme();
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [isMaximized, setIsMaximized] = useState(false);
   const [dimensions, setDimensions] = useState({ width, height }); // 3. Usa os novos padrões no estado inicial
   const [isResizing, setIsResizing] = useState(false);
   const [isHoverExpanded, setIsHoverExpanded] = useState(false);
@@ -68,13 +71,6 @@ export default function DraggableModal({
       setDimensions({ width, height });
     }
   }, [opened, width, height]);
-
-  // Reseta o estado de minimização quando o modal é fechado
-  useEffect(() => {
-    if (!opened) {
-      setIsMinimized(false);
-    }
-  }, [opened]);
 
   // Desativa o drag se estiver maximizado
   const handleMouseDown = useCallback((e) => {
@@ -147,28 +143,21 @@ export default function DraggableModal({
   }, [isDragging, isResizing, handleMouseMove, handleMouseUp, handleResizeMouseMove, handleResizeMouseUp]);
 
   const handleMinimize = () => {
-    setIsMinimized(true);
+    if (onMinimize) onMinimize();
   };
 
   const handleToggleMaximize = () => {
-    const nextState = !isMaximized;
-    setIsMaximized(nextState);
-    if (onToggleMaximize) {
-      onToggleMaximize(nextState);
-    }
+    if (onMaximize) onMaximize();
   };
 
   const handleRestore = () => {
-    setIsMinimized(false);
-    if (onRestore) {
-      onRestore();
-    }
+    if (onRestore) onRestore();
   };
 
   const handleHeaderMouseDown = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsMinimized(false);
+    handleMinimize();
   };
 
   const handleMinimizedBoxMouseEnter = () => {
@@ -299,8 +288,38 @@ export default function DraggableModal({
               p={0}
               {...otherProps}
             >
-              {/* Passa a função de maximizar para os filhos */}
-              {typeof children === 'function' ? children({ minimize: handleMinimize, isMaximized, toggleMaximize: handleToggleMaximize }) : children}
+              {/* CABEÇALHO GENÉRICO DO MODAL */}
+              <Box
+                className="drag-handle"
+                style={{
+                  backgroundColor: theme.colors.dark[7],
+                  color: theme.white,
+                  borderTopLeftRadius: 'var(--mantine-radius-md)',
+                  borderTopRightRadius: 'var(--mantine-radius-md)',
+                  cursor: isDragging ? 'grabbing' : 'move',
+                  padding: 'var(--mantine-spacing-sm) var(--mantine-spacing-md)',
+                }}
+              >
+                <Group justify="space-between" align="center">
+                  <Text fw={700}>{title}</Text>
+                  <Group gap="xs">
+                    <ActionIcon variant="transparent" onClick={handleMinimize} aria-label="Minimizar">
+                      <IconMinus size={20} color={theme.white} />
+                    </ActionIcon>
+                    <ActionIcon variant="transparent" onClick={handleToggleMaximize} aria-label="Maximizar/Restaurar">
+                      {isMaximized ? <IconRestoreDown size={20} color={theme.white} /> : <IconMaximize size={20} color={theme.white} />}
+                    </ActionIcon>
+                    <ActionIcon variant="transparent" onClick={onClose} aria-label="Fechar">
+                      <IconX size={20} color={theme.white} />
+                    </ActionIcon>
+                  </Group>
+                </Group>
+              </Box>
+
+              {/* CONTEÚDO DO MODAL (CHILDREN) */}
+              <Box style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+                {typeof children === 'function' ? children({ minimize: handleMinimize, isMaximized: isMaximized, toggleMaximize: handleToggleMaximize }) : children}
+              </Box>
               
               {/* Oculta a alça de redimensionamento quando maximizado */}
               {!isMaximized && (

@@ -22,6 +22,7 @@ import {
 import Link from 'next/link';
 import PastaHeader from '../../components/PastaHeader/PastaHeader';
 import ModalConfirmacaoAssustadora from '../../components/ConfirmActionModal/ModalConfirmacaoAssustadora';
+import ArchivePastaModal from '../../components/ArchivePastaModal/ArchivePastaModal';
 import AtendimentosPastaTable from '../../components/AtendimentosPastaTable/AtendimentosPastaTable';
 import AtendimentoChatModal from '../../components/AtendimentoChatModal/AtendimentoChatModal';
 import PecaseOficiosList from '../../components/PecaseOficiosList/PecaseOficiosList';
@@ -66,8 +67,6 @@ export default function PastaPage() {
   const [selectedLayout, setSelectedLayout] = useState('atual');
   const [archiveModalOpened, setArchiveModalOpened] = useState(false);
   const [reactivateModalOpened, setReactivateModalOpened] = useState(false);
-  const [motivoSelecionado, setMotivoSelecionado] = useState(null);
-  const [archiveObservation, setArchiveObservation] = useState('');
   const [activePastaSection, setActivePastaSection] = useState('atendimentos'); // Inicia com atendimentos aberto
   const [showVisaoGeral, setShowVisaoGeral] = useState(false);
 
@@ -87,27 +86,20 @@ export default function PastaPage() {
   const [atendimentosActivePage, setAtendimentosActivePage] = useState(1);
   const [atendimentosItemsPerPage, setAtendimentosItemsPerPage] = useState('5');
 
-  const handleOpenArchiveModal = () => {
-    setMotivoSelecionado(null);
-    setArchiveModalOpened(true);
-  };
-  const handleCloseArchiveModal = () => {
-    setArchiveModalOpened(false);
-    setArchiveObservation('');
-  };
+  const handleOpenArchiveModal = () => setArchiveModalOpened(true);
+  const handleCloseArchiveModal = () => setArchiveModalOpened(false);
 
   const handleOpenReactivateModal = () => setReactivateModalOpened(true);
   const handleCloseReactivateModal = () => setReactivateModalOpened(false);
 
-  const handleConfirmArchive = () => {
-    if (!motivoSelecionado) return;
+  const handleConfirmArchive = ({ motivo, observacao }) => {
     const timestamp = new Date();
     const user = "Humberto Borges Ribeiro (3925811)";
     setPastaData({
       ...pastaData,
       status: 'Arquivada',
-      motivoArquivamento: motivoSelecionado,
-      observacaoArquivamento: archiveObservation,
+      motivoArquivamento: motivo,
+      observacaoArquivamento: observacao,
       lastStatusChangeBy: user,
       lastStatusChangeAt: timestamp
     });
@@ -267,49 +259,11 @@ export default function PastaPage() {
         />
       </Group>
 
-      <ModalConfirmacaoAssustadora
+      <ArchivePastaModal
         opened={archiveModalOpened}
         onClose={handleCloseArchiveModal}
         onConfirm={handleConfirmArchive}
-        title="Confirmar Arquivamento de Pasta"
-        alertIcon={<IconAlertCircle size={16} style={{ color: theme.colors.yellow[8] }}/>}
-        alertColor="yellow"
-        alertMessage="Atenção! Arquivar a pasta a oculta na lista de pastas de seus assistidos e tem impacto direto nos relatórios de inteligência de negócio."
-        checkboxLabel="Declaro ciência das implicações e confirmo o arquivamento desta pasta."
-        confirmButtonLabel="Confirmar Arquivamento"
-      >
-        <Stack gap="xs">
-         <Radio.Group
-           value={motivoSelecionado}
-           onChange={setMotivoSelecionado}
-           label="Selecione o motivo do arquivamento:"
-           withAsterisk
-         >
-           <Stack mt="xs">
-             {[ 
-                'Conclusão do Caso/Atendimento',
-                'Perda de Contato com o Assistido',
-                'Encaminhamento para Outro Órgão/Setor',
-                'Arquivamento Administrativo'
-             ].map((motivo) => (
-               <Radio key={motivo} value={motivo} label={<Text fw={700} size="sm">{motivo}</Text>} />
-             ))}
-           </Stack>
-         </Radio.Group>
-         {/* Textarea foi removida da UI mas a lógica está aqui caso precise voltar */}
-         {/* <Textarea
-            label="Observação adicional (opcional):"
-            value={archiveObservation}
-            onChange={(event) => setArchiveObservation(event.currentTarget.value)}
-            autosize
-            minRows={2}
-            mt="md"
-         /> */}
-         <Text size="sm" mt="md"> 
-           Todas as alterações são auditadas e sujeitas a revisão.
-         </Text>
-       </Stack>
-     </ModalConfirmacaoAssustadora>
+      />
 
       <ModalConfirmacaoAssustadora
         opened={reactivateModalOpened}

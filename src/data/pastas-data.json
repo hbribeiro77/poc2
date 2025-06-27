@@ -1,6 +1,8 @@
 [
   {
     "id": 1,
+    "assistido": "Marta Wayne",
+    "telefone": "(51) 99238-7768",
     "processoPrincipal": "8001482-47.2021.8.21.0001",
     "tags": ["Réu preso"],
     "status": "Ativa",
@@ -21,6 +23,8 @@
   },
   {
     "id": 2,
+    "assistido": "Beatriz a Fofoqueira",
+    "telefone": "(51) 98877-6655",
     "processoPrincipal": "8001482-47.2021.8.21.0001",
     "tags": [],
     "status": "Arquivada",
@@ -37,6 +41,8 @@
   },
   {
     "id": 3,
+    "assistido": "Juliana Paes",
+    "telefone": "(21) 99999-8888",
     "processoPrincipal": "9012345-12.2023.8.21.0010",
     "tags": [],
     "status": "Ativa",
@@ -53,6 +59,8 @@
   },
   {
     "id": 4,
+    "assistido": "Seu Madruga",
+    "telefone": "(11) 91234-5678",
     "processoPrincipal": "7005555-99.2022.8.21.0022",
     "tags": [],
     "status": "Ativa",

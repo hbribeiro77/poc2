@@ -5,28 +5,29 @@ import { Box, Title, Text, Button, Divider, Flex, Stack, Paper, TextInput, Grid,
 import Link from 'next/link';
 import ModalConfirmacaoAssustadora from '../../components/ConfirmActionModal/ModalConfirmacaoAssustadora';
 import SendMessageModal from '../../components/SendMessageModal/SendMessageModal';
-import ApprovalChatModal from '../../components/ApprovalChatModal/ApprovalChatModal';
 import AtendimentoChatModal from '../../components/AtendimentoChatModal/AtendimentoChatModal';
 import EquipeTrabalhoTable from '../../components/EquipeTrabalhoTable/EquipeTrabalhoTable';
 import dadosEquipe from '../../data/dadosEquipesDefensorias.json';
 import AtendimentosPastaTable from '../../components/AtendimentosPastaTable/AtendimentosPastaTable';
 import PecaParaAprovarCard from '../../components/PecaParaAprovarCard/PecaParaAprovarCard';
 import dadosPecas from '../../data/pecas-para-aprovar-data.json';
+import { useChatManager } from '../../hooks/useChatManager';
+import ArchivePastaModal from '../../components/ArchivePastaModal/ArchivePastaModal';
 
 export default function ComponentGalleryPage() {
+  const { openChat } = useChatManager();
   const [modalAssustadoraOpened, setModalAssustadoraOpened] = useState(false);
   const [modalAssustadoraTitle, setModalAssustadoraTitle] = useState('Confirmar Ação Crítica');
   const [modalAssustadoraMessage, setModalAssustadoraMessage] = useState('Você tem certeza de que deseja executar esta ação? Ela não poderá ser desfeita e terá consequências permanentes no sistema.');
   const [modalAssustadoraCheckboxLabel, setModalAssustadoraCheckboxLabel] = useState('Estou ciente das consequências e desejo prosseguir.');
   const [modalSendMessageOpened, setModalSendMessageOpened] = useState(false);
-  const [modalApprovalChatOpened, setModalApprovalChatOpened] = useState(false);
   const [modalAtendimentoOpened, setModalAtendimentoOpened] = useState(false);
+  const [archiveModalOpened, setArchiveModalOpened] = useState(false);
 
   const [mockContact, setMockContact] = useState({
     nome: 'Marge Simpson',
     contato: '(51) 98765-4321',
   });
-  const [approvalTemplateLabel, setApprovalTemplateLabel] = useState('Aprovação de providência');
   const [atendimentoPastaProcesso, setAtendimentoPastaProcesso] = useState('0010998-63.2024.8.21.7000');
 
   const [teamData] = useState(dadosEquipe['1ª DEFENSORIA PÚBLICA ESPECIALIZADA DO JÚRI DO FORO CENTRAL'] || []);
@@ -48,6 +49,24 @@ export default function ComponentGalleryPage() {
   const [pecaRascunho] = useState(dadosPecas.find(p => p.status === 'Rascunho'));
   const [pecaAprovada] = useState(dadosPecas.find(p => p.status === 'Aprovada'));
   const [cardStatus, setCardStatus] = useState('Rascunho');
+
+  const handleOpenDemoChat = () => {
+    const mockPasta = {
+      id: 'demo-chat-1',
+      assistido: 'Homer Simpson',
+      telefone: '(99) 95555-1234',
+      processoPrincipal: 'DEMO-001-2025',
+      assunto: 'Demonstração de Componente',
+      descricao: 'Este é um chat de demonstração aberto a partir da galeria de componentes.',
+    };
+    
+    openChat(mockPasta, { initialAlignment: 'right' });
+  };
+
+  const handleArchiveConfirm = (data) => {
+    console.log('Dados do arquivamento recebidos:', data);
+    setArchiveModalOpened(false);
+  };
 
   return (
     <Box p="xl">
@@ -120,17 +139,21 @@ export default function ComponentGalleryPage() {
         </Paper>
 
         <Paper withBorder shadow="sm" p="lg">
-            <Title order={4} mb="sm">Modal de Chat de Aprovação</Title>
+            <Title order={4} mb="sm">Modal de Arquivamento de Pasta</Title>
             <Text mb="md">
-                Usada para obter a aprovação do assistido para uma providência. Simula uma pequena conversa com resposta automática.
+                Componente reutilizável para arquivar uma pasta. Coleta o motivo, uma observação opcional e exige confirmação.
             </Text>
-            <Divider my="md" label="Configurações Interativas" />
-            <TextInput
-                label="Rótulo do Modelo de Mensagem"
-                value={approvalTemplateLabel}
-                onChange={(event) => setApprovalTemplateLabel(event.currentTarget.value)}
-            />
-            <Button onClick={() => setModalApprovalChatOpened(true)} mt="lg">Abrir Modal de Chat de Aprovação</Button>
+            <Button onClick={() => setArchiveModalOpened(true)}>Abrir Modal de Arquivamento</Button>
+        </Paper>
+
+        <Paper withBorder shadow="sm" p="lg">
+            <Title order={4} mb="sm">Sistema de Chat Flutuante</Title>
+            <Text mb="md">
+                Demonstra o sistema de chat reutilizável. Clicar no botão abaixo usará o 
+                <code>useChatManager</code> para abrir uma nova janela de chat. A janela é arrastável, 
+                minimizável e o histórico persiste no localStorage.
+            </Text>
+            <Button onClick={handleOpenDemoChat}>Abrir Chat de Demonstração</Button>
         </Paper>
 
         <Paper withBorder shadow="sm" p="lg">
@@ -248,29 +271,20 @@ export default function ComponentGalleryPage() {
         opened={modalSendMessageOpened}
         onClose={() => setModalSendMessageOpened(false)}
         contact={mockContact}
-        onSend={(data) => {
-            console.log('Dados para envio:', data);
-            setModalSendMessageOpened(false);
-        }}
-      />
-
-      <ApprovalChatModal
-        opened={modalApprovalChatOpened}
-        onClose={() => setModalApprovalChatOpened(false)}
-        contact={mockContact}
-        templateLabel={approvalTemplateLabel}
+        templateLabel="Envio de Documento"
       />
 
       <AtendimentoChatModal
         opened={modalAtendimentoOpened}
         onClose={() => setModalAtendimentoOpened(false)}
-        contact={mockContact}
         pastaProcesso={atendimentoPastaProcesso}
-        onSave={(data) => {
-          console.log('Atendimento Salvo:', data);
-          setModalAtendimentoOpened(false);
-        }}
-        initialData={null}
+        contact={mockContact}
+      />
+
+      <ArchivePastaModal
+        opened={archiveModalOpened}
+        onClose={() => setArchiveModalOpened(false)}
+        onConfirm={handleArchiveConfirm}
       />
 
       <Divider my="xl" />

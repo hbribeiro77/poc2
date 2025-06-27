@@ -7,7 +7,7 @@ import PastaListItem from '../../components/PastaListItem/PastaListItem';
 import pastasDataFromJson from '../../data/pastas-data.json';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import ApprovalChatModal from '../../components/ApprovalChatModal/ApprovalChatModal';
+import { useChatManager } from '../../hooks/useChatManager';
 
 function generateFakePastas(count) {
   const generatedPastas = [];
@@ -41,6 +41,7 @@ function generateFakePastas(count) {
       classe: `Classe Genérica ${i}`,
       assunto: assuntos[Math.floor(Math.random() * assuntos.length)],
       descricao: `Descrição automática para pasta gerada número ${i}.`,
+      assistido: `Assistido Gerado ${i}`,
       processosAssociados: [`${processoNum}-47.${ano}.8.21.${String(comarcaIndex + 1).padStart(4, '0')}`]
     });
   }
@@ -49,26 +50,19 @@ function generateFakePastas(count) {
 
 export default function PastasPage() {
   const searchParams = useSearchParams();
+  const { openChat, chats, simulateNewMessage } = useChatManager();
 
   const [pastasToDisplay, setPastasToDisplay] = useState([]);
   const [isMounted, setIsMounted] = useState(false);
   const [activeTab, setActiveTab] = useState('ativas');
-
-  // Estados para o modal de chat de aprovação
-  const [approvalModalOpened, setApprovalModalOpened] = useState(false);
-  const [selectedPastaForChat, setSelectedPastaForChat] = useState(null);
-  const [isChatMaximized, setIsChatMaximized] = useState(false);
-
-  // --- NOVO ESTADO CENTRALIZADO PARA CHATS ---
-  const [chatsState, setChatsState] = useState({});
 
   const SIDEBAR_WIDTH = 250;
 
   const customMaximizedStyles = {
     width: `calc(100vw - ${SIDEBAR_WIDTH}px)`,
     height: '100vh',
-    left: `${SIDEBAR_WIDTH}px`,
     top: 0,
+    left: `${SIDEBAR_WIDTH}px`,
   };
 
   useEffect(() => {
@@ -84,114 +78,11 @@ export default function PastasPage() {
     }
   }, [searchParams]);
 
-  const ensureChatState = (pastaId) => {
-    setChatsState(prev => {
-      if (!prev[pastaId]) {
-        return { ...prev, [pastaId]: { messages: [], unreadCount: 0, isActive: true } };
-      }
-      return prev;
+  const handleChatClick = (pasta) => {
+    openChat(pasta, { 
+      maximizedStyles: customMaximizedStyles,
+      initialAlignment: 'right'
     });
-  };
-
-  const handleOpenApprovalChat = (pasta) => {
-    ensureChatState(pasta.id);
-    setSelectedPastaForChat(pasta);
-    setApprovalModalOpened(true);
-    setChatsState(prev => ({ ...prev, [pasta.id]: { ...prev[pasta.id], unreadCount: 0 } }));
-  };
-
-  const handleSendMessage = (text) => {
-    if (!selectedPastaForChat) return;
-    const pastaId = selectedPastaForChat.id;
-    const { id, assunto, descricao } = selectedPastaForChat;
-    const formattedText = `${text}\n\n---\nID: ${id}\nAssunto: ${assunto}\nDescrição: ${descricao}`;
-    const newMessage = {
-      id: `defensor-${Date.now()}`,
-      sender: 'defensor',
-      name: 'Humberto Borges Ribeiro',
-      text: formattedText,
-      timestamp: new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-    };
-
-    setChatsState(prev => ({
-      ...prev,
-      [pastaId]: { ...prev[pastaId], messages: [...prev[pastaId].messages, newMessage] }
-    }));
-
-    setTimeout(() => {
-      const assistidoResponse = {
-        id: `assistido-reply-${Date.now()}`,
-        sender: 'assistido',
-        name: 'Marta Wayne',
-        text: 'Ok, recebido. Obrigado!',
-        timestamp: new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-      };
-      setChatsState(prev => ({
-        ...prev,
-        [pastaId]: {
-          ...prev[pastaId],
-          messages: [...prev[pastaId].messages, assistidoResponse],
-          unreadCount: prev[pastaId].unreadCount + 1,
-        }
-      }));
-    }, 2000);
-  };
-  
-  const handleEndChat = () => {
-    if (!selectedPastaForChat) return;
-    const pastaId = selectedPastaForChat.id;
-    const endMessage = {
-      id: `system-${Date.now()}`,
-      sender: 'system',
-      text: 'Conversa encerrada pelo atendente.',
-      timestamp: new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-    };
-    setChatsState(prev => ({
-      ...prev,
-      [pastaId]: { 
-        ...prev[pastaId], 
-        messages: [...prev[pastaId].messages, endMessage],
-        isActive: false 
-      }
-    }));
-  };
-
-  const handleContinueChat = () => {
-    if (!selectedPastaForChat) return;
-    const pastaId = selectedPastaForChat.id;
-    setChatsState(prev => ({
-      ...prev,
-      [pastaId]: { 
-        ...prev[pastaId], 
-        isActive: true 
-      }
-    }));
-  };
-
-  const handleSimulateNewMessage = () => {
-    if (!selectedPastaForChat) return;
-    const pastaId = selectedPastaForChat.id;
-    const assistidoResponse = {
-      id: `assistido-${Date.now()}`,
-      sender: 'assistido',
-      name: 'Marta Wayne',
-      text: 'Olá! Fiquei com uma dúvida sobre a petição...',
-      timestamp: new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-    };
-    setChatsState(prev => ({
-      ...prev,
-      [pastaId]: {
-        ...prev[pastaId],
-        messages: [...prev[pastaId].messages, assistidoResponse],
-        unreadCount: prev[pastaId].unreadCount + 1,
-      }
-    }));
-  };
-
-  const handleRestore = () => {
-    if (!selectedPastaForChat) return;
-    const pastaId = selectedPastaForChat.id;
-    setChatsState(prev => ({ ...prev, [pastaId]: { ...prev[pastaId], unreadCount: 0 } }));
   };
 
   const handleArchivePasta = (pastaId, reason, observation) => {
@@ -212,6 +103,15 @@ export default function PastasPage() {
           : pasta
       )
     );
+  };
+
+  const handleSimulateNewMessage = () => {
+    const lastChat = chats.length > 0 ? chats[chats.length - 1] : null;
+    if (lastChat) {
+      simulateNewMessage(lastChat.id);
+    } else {
+      console.log("Nenhum chat aberto para simular mensagem.");
+    }
   };
 
   const countAtivas = pastasToDisplay.filter(p => p.status === 'Ativa').length;
@@ -240,37 +140,12 @@ export default function PastasPage() {
     color: '#0d99ff'
   };
 
-  const handleCloseModal = () => {
-    setApprovalModalOpened(false);
-    setSelectedPastaForChat(null);
-  };
-  
-  const activeChatState = selectedPastaForChat ? chatsState[selectedPastaForChat.id] : null;
-
-  const markAsRead = (pastaId) => {
-    setChatsState(prev => ({
-      ...prev,
-      [pastaId]: { ...prev[pastaId], unreadCount: 0 }
-    }));
-  };
+  if (!isMounted) {
+    return null; 
+  }
 
   return (
     <Box style={{ height: '100vh', boxSizing: 'border-box' }}>
-      {/* Botão de simulação discreto */}
-      {!isChatMaximized && (
-        <ActionIcon
-            variant="light"
-            radius="xl"
-            size="lg"
-            onClick={handleSimulateNewMessage}
-            style={{ position: 'fixed', top: 20, left: SIDEBAR_WIDTH + 20, zIndex: 1001 }}
-            disabled={!approvalModalOpened}
-            title="Simular recebimento de nova mensagem"
-        >
-          <Text size="sm" fw={700}>+1</Text>
-        </ActionIcon>
-      )}
-      
       <Flex
           style={{ height: '100%' }}
       >
@@ -284,127 +159,116 @@ export default function PastasPage() {
             />
         </Box>
 
-        {/* Coluna Central (Conteúdo Principal com Rolagem INTERNA) */}
-        <Card
-            shadow="sm"
-            padding="lg"
-            radius="md"
-            withBorder
-            style={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                overflowY: 'auto',
-                height: '100%',
-                marginLeft: '1rem'
-            }}
-        >
-            <Image 
-            src="/menucadastro.png"
-            alt="Menu de Cadastro"
-            width="100%"
-            mb="lg"
-            />
+        {/* Wrapper para posicionamento relativo do ActionIcon */}
+        <Box style={{ flex: 1, position: 'relative' }}> 
+          <ActionIcon
+              variant="light"
+              radius="xl"
+              size="lg"
+              onClick={handleSimulateNewMessage}
+              style={{ position: 'absolute', top: 20, left: 32, zIndex: 10 }}
+              disabled={chats.length === 0}
+              title="Simular recebimento de nova mensagem"
+          >
+            <Text size="sm" fw={700}>+1</Text>
+          </ActionIcon>
 
-            <Tabs value={activeTab} onChange={setActiveTab} mb="lg">
-            <Tabs.List grow>
-                <Tabs.Tab
-                value="ativas"
-                leftSection={<IconFolderCheck size={14} />}
-                style={tabStyle}
-                >
-                Pastas ativas ({countAtivas})
-                </Tabs.Tab>
-                <Tabs.Tab
-                value="arquivadas"
-                leftSection={<IconArchive size={14} />}
-                style={tabStyle}
-                >
-                Pastas Arquivadas ({countArquivadas})
-                </Tabs.Tab>
-                <Tabs.Tab
-                value="todas"
-                leftSection={<IconFolders size={14} />}
-                style={tabStyle}
-                >
-                Todas as Pastas ({countTodas})
-                </Tabs.Tab>
+          <Card
+              shadow="sm"
+              padding="lg"
+              radius="md"
+              withBorder
+              style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflowY: 'auto',
+                  height: '100%',
+                  marginLeft: '1rem'
+              }}
+          >
+              <Image 
+              src="/menucadastro.png"
+              alt="Menu de Cadastro"
+              width="100%"
+              mb="lg"
+              />
 
-                <Group justify="flex-end" gap="xs" wrap="nowrap" style={{ flexGrow: 1, marginRight: 'var(--mantine-spacing-md)' }}>
-                <Button variant="subtle" size="xs" leftSection={<IconSettings size={14}/>} style={tabStyle}>
-                    Configurações de exibição
-                </Button>
-                <Button variant="subtle" size="xs" leftSection={<IconSortDescending size={14}/>} style={tabStyle}>
-                        Remover destaque
-                </Button>
-                <Badge color="orange" variant="light">RÉU PRESO</Badge>
-                <Select
-                    placeholder="Último atendimento"
-                    data={[]}
-                    size="xs"
-                    style={{ minWidth: 150 }}
-                    rightSectionWidth={20}
-                />
-                <ActionIcon variant="filled" color="green" size="lg">
-                    <IconSortDescending size={18}/>
-                </ActionIcon>
-                </Group>
-            </Tabs.List>
-            </Tabs>
-            
-            <Group align="center" mb="lg" bg="gray.1" p="sm">
-            <ThemeIcon variant="light" size="lg"><IconFolders stroke={1.5} /></ThemeIcon>
-            <Text fw={500} size="lg">Pastas do Assistido</Text>
-            </Group>
+              <Tabs value={activeTab} onChange={setActiveTab} mb="lg">
+              <Tabs.List grow>
+                  <Tabs.Tab
+                  value="ativas"
+                  leftSection={<IconFolderCheck size={14} />}
+                  style={tabStyle}
+                  >
+                  Pastas ativas ({countAtivas})
+                  </Tabs.Tab>
+                  <Tabs.Tab
+                  value="arquivadas"
+                  leftSection={<IconArchive size={14} />}
+                  style={tabStyle}
+                  >
+                  Pastas Arquivadas ({countArquivadas})
+                  </Tabs.Tab>
+                  <Tabs.Tab
+                  value="todas"
+                  leftSection={<IconFolders size={14} />}
+                  style={tabStyle}
+                  >
+                  Todas as Pastas ({countTodas})
+                  </Tabs.Tab>
 
-            <Stack>
-            {isMounted ? (
-                filteredPastas.length === 0 ? (
-                <Alert variant="light" color="blue" title="Nenhuma pasta encontrada." icon={<IconInfoCircle />}>Não há pastas para exibir (verifique o filtro aplicado ou aguarde o carregamento).</Alert>
-                ) : (
-                filteredPastas.map(pasta => (
-                    <PastaListItem
-                    key={pasta.id}
-                    pasta={pasta}
-                    onArchive={handleArchivePasta}
-                    onUnarchive={handleUnarchivePasta}
-                    onChatClick={handleOpenApprovalChat}
-                    unreadCount={chatsState[pasta.id]?.unreadCount || 0}
-                    />
-                ))
-                )
-            ) : (
-                <Alert variant="light" color="gray" title="Carregando lista de pastas..." icon={<IconInfoCircle />}>A lista de pastas será exibida em breve.</Alert>
-            )}
-            </Stack>
-            <Divider my="md" />
-            <Flex justify="center" align="center" style={{ padding: '1rem 0' }}>
-                <Button component={Link} href="/" variant="subtle">
-                    Voltar à Central de Protótipos
-                </Button>
-            </Flex>
-        </Card>
+                  <Group justify="flex-end" gap="xs" wrap="nowrap" style={{ flexGrow: 1, marginRight: 'var(--mantine-spacing-md)' }}>
+                  <Button variant="subtle" size="xs" leftSection={<IconSettings size={14}/>} style={tabStyle}>
+                      Configurações de exibição
+                  </Button>
+                  <Button variant="subtle" size="xs" leftSection={<IconSortDescending size={14}/>} style={tabStyle}>
+                          Remover destaque
+                  </Button>
+                  <Badge color="orange" variant="light">RÉU PRESO</Badge>
+                  <Select
+                      placeholder="Último atendimento"
+                      data={[]}
+                      size="xs"
+                      style={{ minWidth: 150 }}
+                      rightSectionWidth={20}
+                  />
+                  <ActionIcon variant="filled" color="green" size="lg">
+                      <IconSortDescending size={18}/>
+                  </ActionIcon>
+                  </Group>
+              </Tabs.List>
+              </Tabs>
+              
+              <Group align="center" mb="lg" bg="gray.1" p="sm">
+              <ThemeIcon variant="light" size="lg"><IconFolders stroke={1.5} /></ThemeIcon>
+              <Text fw={500} size="lg">Pastas do Assistido</Text>
+              </Group>
+
+              <Stack>
+              {filteredPastas.length === 0 ? (
+                  <Alert variant="light" color="blue" title="Nenhuma pasta encontrada." icon={<IconInfoCircle />}>Não há pastas para exibir (verifique o filtro aplicado ou aguarde o carregamento).</Alert>
+              ) : (
+                  filteredPastas.map(pasta => (
+                      <PastaListItem
+                      key={pasta.id}
+                      pasta={pasta}
+                      onArchive={handleArchivePasta}
+                      onUnarchive={handleUnarchivePasta}
+                      onChatClick={handleChatClick}
+                      />
+                  ))
+              )}
+              </Stack>
+              <Divider my="md" />
+              <Flex justify="center" align="center" style={{ padding: '1rem 0' }}>
+                  <Button component={Link} href="/" variant="subtle">
+                      Voltar à Central de Protótipos
+                  </Button>
+              </Flex>
+          </Card>
+        </Box>
       </Flex>
-
-      {selectedPastaForChat && activeChatState && (
-        <ApprovalChatModal
-          opened={approvalModalOpened}
-          onClose={handleCloseModal}
-          pasta={selectedPastaForChat}
-          contact={{ nome: 'Marta Wayne', telefone: '(51) 99238-7768' }}
-          messageCount={activeChatState.unreadCount}
-          onRestore={handleRestore}
-          chatHistory={activeChatState.messages}
-          onSendMessage={handleSendMessage}
-          isChatActive={activeChatState.isActive}
-          onEndChat={handleEndChat}
-          onContinueChat={handleContinueChat}
-          onScrolledToUnread={() => markAsRead(selectedPastaForChat.id)}
-          maximizedStyles={customMaximizedStyles}
-          onToggleMaximize={setIsChatMaximized}
-          initialAlignment="right"
-        />
-      )}
     </Box>
   );
 } 

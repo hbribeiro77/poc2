@@ -10,6 +10,7 @@ import pastasDataFromJson from '../../data/pastas-data.json'; // Renomeado para 
 // por enquanto, apenas a Image é usada na coluna esquerda.
 // Importa useSearchParams para ler parâmetros da URL
 import { useSearchParams } from 'next/navigation';
+import ArchivePastaModal from '../../components/ArchivePastaModal/ArchivePastaModal'; // Importado
 
 // --- Função para Gerar Dados Fictícios ---
 function generateFakePastas(count) {
@@ -62,6 +63,10 @@ export default function PastasPage() {
   const [isMounted, setIsMounted] = useState(false);
   // NOVO ESTADO: para controlar a aba ativa
   const [activeTab, setActiveTab] = useState('ativas');
+  
+  // Estados para a nova modal
+  const [archiveModalOpened, setArchiveModalOpened] = useState(false);
+  const [selectedPastaId, setSelectedPastaId] = useState(null);
 
   useEffect(() => {
     // Este código só roda no cliente, após a montagem inicial.
@@ -81,15 +86,28 @@ export default function PastasPage() {
     // A dependência [searchParams] garante que isso re-execute se a URL mudar.
   }, [searchParams]);
 
-  // Função para ARQUIVAR uma pasta
-  const handleArchivePasta = (pastaId, reason, observation) => {
+  const handleOpenArchiveModal = (pastaId) => {
+    setSelectedPastaId(pastaId);
+    setArchiveModalOpened(true);
+  };
+
+  const handleCloseArchiveModal = () => {
+    setArchiveModalOpened(false);
+    setSelectedPastaId(null);
+  };
+  
+  // Função para ARQUIVAR uma pasta (ajustada)
+  const handleArchivePasta = ({ motivo, observacao }) => {
+    if (!selectedPastaId) return;
+
     setPastasToDisplay(currentPastas =>
       currentPastas.map(pasta =>
-        pasta.id === pastaId
-          ? { ...pasta, status: 'Arquivada', motivoArquivamento: reason, observacaoArquivamento: observation }
+        pasta.id === selectedPastaId
+          ? { ...pasta, status: 'Arquivada', motivoArquivamento: motivo, observacaoArquivamento: observacao }
           : pasta
       )
     );
+    handleCloseArchiveModal(); // Fecha a modal após a ação
   };
 
   // Função para DESARQUIVAR uma pasta
@@ -252,8 +270,12 @@ export default function PastasPage() {
                       <PastaListItem 
                          key={pasta.id} 
                          pasta={pasta} 
-                         onArchive={handleArchivePasta} // << Passando handler de arquivar
-                         onUnarchive={handleUnarchivePasta} // << Passando handler de desarquivar
+                         onUnarchive={handleUnarchivePasta}
+                         onArchiveClick={handleOpenArchiveModal}
+                         onChatClick={() => {
+                           console.log(`Clicou no chat da pasta ${pasta.id}`);
+                           // Aqui entraria a lógica para abrir o chat flutuante
+                         }}
                       />
                   ))
                   )
@@ -274,6 +296,12 @@ export default function PastasPage() {
         </Box>
 
       </Flex>
+
+      <ArchivePastaModal
+        opened={archiveModalOpened}
+        onClose={handleCloseArchiveModal}
+        onConfirm={handleArchivePasta}
+      />
 
       {/* Link discreto para voltar ao Hub */}
       <Group justify="center" mt="xl" pb="xl"> 
