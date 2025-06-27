@@ -34,5 +34,37 @@
     "processosAssociados": [
       "8001482-47.2021.8.21.0001"
     ]
+  },
+  {
+    "id": 3,
+    "processoPrincipal": "9012345-12.2023.8.21.0010",
+    "tags": [],
+    "status": "Ativa",
+    "ultimoAtendimento": "15/07/2024",
+    "comarca": "Comarca de Caxias do Sul",
+    "orgaoJulgador": "1ª Vara Cível da Comarca de Caxias do Sul",
+    "area": "Cível",
+    "classe": "Procedimento Comum Cível",
+    "assunto": "DIREITO CIVIL / Obrigações / Inadimplemento",
+    "descricao": "Ação de cobrança de dívida. Curabitur vitae erat eleifend, semper arcu vel, lacinia neque.",
+    "processosAssociados": [
+      "9012345-12.2023.8.21.0010"
+    ]
+  },
+  {
+    "id": 4,
+    "processoPrincipal": "7005555-99.2022.8.21.0022",
+    "tags": [],
+    "status": "Ativa",
+    "ultimoAtendimento": "03/06/2024",
+    "comarca": "Comarca de Pelotas",
+    "orgaoJulgador": "Vara de Família da Comarca de Pelotas",
+    "area": "Família",
+    "classe": "Alimentos - Lei Especial Nº 5.478/68",
+    "assunto": "DIREITO DE FAMÍLIA / Alimentos / Fixação",
+    "descricao": "Pedido de pensão alimentícia. Nam pulvinar, elit vel consequat feugiat, sem enim.",
+    "processosAssociados": [
+      "7005555-99.2022.8.21.0022"
+    ]
   }
 ] 

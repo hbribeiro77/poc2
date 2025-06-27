@@ -24,8 +24,10 @@ export default function RootLayout({ children }) {
       <head>
         <ColorSchemeScript defaultColorScheme="light" />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <MantineProvider defaultColorScheme="light">{children}</MantineProvider>
+      <body className={`${geistSans.variable} ${geistMono.variable}`} style={{ backgroundColor: '#f8f9fa' }}>
+        <MantineProvider defaultColorScheme="light">
+            {children}
+        </MantineProvider>
       </body>
     </html>
   );

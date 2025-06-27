@@ -1,0 +1,44 @@
+[
+  {
+    "evento": 6,
+    "data": "22/08/2020",
+    "tipo": "protocolo",
+    "descricao": "Protocolada peça do tipo INICIAL - PROCESSO DE CONHECIMENTO para BART SIMPSON referente ao evento 4"
+  },
+  {
+    "evento": 5,
+    "data": "21/08/2020",
+    "tipo": "juntada",
+    "descricao": "Juntada de DOCUMENTOS",
+    "tags": ["RG", "CPF", "Laudo"]
+  },
+  {
+    "evento": 4,
+    "data": "20/08/2020",
+    "tipo": "elaborada",
+    "descricao": "Elaborada peça do tipo INICIAL - PROCESSO DE CONHECimento para BART SIMPSON",
+    "tarefa": "revisar petição inicial (em andamento por Ricardo de Moura Rivaldo) em um mês",
+    "tag_principal": "Peça: Inicial - Processo de conhecimento"
+  },
+  {
+    "evento": 3,
+    "data": "19/08/2020",
+    "tipo": "contato",
+    "descricao": "Contato telefônico FRUSTRADO"
+  },
+  {
+    "evento": 2,
+    "data": "19/08/2020",
+    "tipo": "atendimento",
+    "descricao": "Atendimento para BART SIMPSON cuja providência é PETIÇÃO INICIAL",
+    "tarefa": "Fazer petição inicial (em andamento por Humberto Borges Ribeiro) em um mês",
+    "tag_principal": "Atendimento - Petição Inicial"
+  },
+  {
+    "evento": 1,
+    "data": "12/08/2020",
+    "tipo": "atendimento",
+    "descricao": "Atendimento para BART SIMPSON cuja providência é RETORNO",
+    "tag_principal": "Atendimento - Retorno"
+  }
+] 

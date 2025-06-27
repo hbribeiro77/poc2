@@ -20,7 +20,7 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
  ├── public/
  │   ├── menulateral.png   # Imagem do menu lateral estático (usado em /listadepastas, /pasta)
  │   ├── menulateralminhadefensoria.png # Imagem do menu lateral para /minha-defensoria e /solicitacoes
- │   └── menucadastro.png  # Imagem do menu superior estático (usado em /listadepastas)
+ │   ├── menucadastro.png  # Imagem do menu superior estático (usado em /listadepastas)
  │   └── ... (outros arquivos como SVGs)
  ├── src/
  │   ├── app/
@@ -29,22 +29,47 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
  │   │   ├── page.test.js    # Teste para a página principal (Hub)
  │   │   ├── globals.css     # Estilos globais (pode incluir imports do Mantine)
  │   │   ├── favicon.ico     # Ícone da aba do navegador
+ │   │   ├── chat/
+ │   │   │   └── [pastaId]/
+ │   │   │       └── page.js     # Página de chat com o assistido
  │   │   ├── minha-defensoria/ # Rota confirmada
  │   │   │   └── page.js     # Componente da página Minha Defensoria
  │   │   ├── configuracoes/  # Nova seção (placeholder)
  │   │   │   └── page.js     # Componente da página de Configurações
  │   │   ├── notificacoes/
  │   │   │   └── page.js     # Componente da página de Notificações
- │   │   ├── listadepastas/  # Rota confirmada
- │   │   │   └── page.js     # Componente da página de Lista de Pastas
- │   │   ├── pasta/
- │   │   │   └── page.js     # Componente da página de Pasta Individual
+ │   │   ├── listadepastas/  # Rota original (legado)
+ │   │   │   └── page.js
+ │   │   ├── listadepastas-v2/ # Evolução da UI
+ │   │   │   └── page.js
+ │   │   ├── listadepastas-v3/ # Versão mais recente com UI refinada
+ │   │   │   └── page.js
+ │   │   ├── listadepastas-v4/ # Nova versão de lista de pastas
+ │   │   │   └── page.js
+ │   │   ├── pasta/          # Rota original (legado)
+ │   │   │   └── page.js
+ │   │   ├── pasta-v2/         # Evolução da UI
+ │   │   │   └── page.js
  │   │   ├── solicitacoes/   # Rota confirmada
  │   │   │   └── page.js     # Componente da página de Solicitações (placeholder para cadastro)
  │   │   ├── documentos/     # Nova seção (placeholder)
  │   │   │   └── page.js     # Componente da página de Documentos
  │   │   └── ... (outras pastas como hooks, utils, etc. se houver)
  │   ├── components/
+ │   │   ├── ChatUI/
+ │   │   │   └── ChatUI.js                      # Componente de UI para o chat
+ │   │   ├── WhatsappChatModal/
+ │   │   │   └── WhatsappChatModal.js           # Modal que simula a interface do WhatsApp
+ │   │   ├── SendMessageModal/
+ │   │   │   └── SendMessageModal.js            # Modal para envio de mensagens padronizadas
+ │   │   ├── ApprovalChatModal/
+ │   │   │   └── ApprovalChatModal.js           # Modal de chat para aprovação de peças
+ │   │   ├── PecaParaAprovarCard/
+ │   │   │   └── PecaParaAprovarCard.js         # Card para peças pendentes de aprovação
+ │   │   ├── PecaseOficiosList/
+ │   │   │   └── PecaseOficiosList.js           # Lista de peças e ofícios
+ │   │   ├── VisaoGeralTimeline/
+ │   │   │   └── VisaoGeralTimeline.js          # Timeline de eventos para a visão geral
  │   │   ├── ConfirmActionModal/
  │   │   │   ├── ModalConfirmacaoAssustadora.js       # Componente modal reutilizável
  │   │   │   └── ModalConfirmacaoAssustadora.test.js  # Testes para o modal
@@ -63,6 +88,8 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
  │   ├── data/                                      # Dados mockados
  │   │   ├── pastas-data.json                       # JSON com dados de pastas
  │   │   └── dadosEquipesDefensorias.json           # JSON com dados das equipes para Minha Defensoria
+ │   │   ├── pecas-para-aprovar-data.json         # JSON com dados de peças para aprovação
+ │   │   └── visao-geral-data.json                # JSON com dados para a timeline de visão geral
  │   └── ... (outras pastas como hooks, utils, etc. se houver)
  ├── .git/               # Repositório Git
  ├── .next/              # Cache e build do Next.js
@@ -94,9 +121,10 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
 2.  **Notificações (`/notificacoes`)**
     *   Lista de notificações com paginação simulada. Layout de duas colunas. (Sem alterações recentes significativas)
 
-3.  **Lista de Pastas (`/listadepastas`)**
+3.  **Lista de Pastas (`/listadepastas`, `/listadepastas-v2`, `/listadepastas-v3`)**
     *   Layout de duas colunas (menu lateral estático à esquerda, conteúdo à direita).
     *   Exibe uma lista de pastas, podendo carregar dados de um JSON (`pastas-data.json`) ou gerar dados fictícios via parâmetro URL (`?generate=N`).
+    *   **Versões:** A funcionalidade evoluiu através das versões, com a `v3` sendo a mais recente e refinada em termos de UI, melhorando a organização das abas e da barra de ferramentas.
     *   **Abas de Filtragem:**
         *   "Pastas ativas", "Pastas Arquivadas", "Todas as Pastas".
         *   Exibem contadores dinâmicos da quantidade de pastas em cada categoria.
@@ -111,7 +139,8 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
         *   Cada pasta é renderizada por este componente.
         *   Possui borda esquerda colorida indicando status (verde para ativa, amarelo para ativa com "Réu preso", cinza para arquivada).
         *   Exibe badges "ASSISTIDO" e condicionalmente "RÉU PRESO".
-        *   Ações: Ícone para adicionar (sem funcionalidade), ícone para arquivar/desarquivar (funcional).
+        *   Ações: Ícone para adicionar (sem funcionalidade), ícone para arquivar/desarquivar (funcional) e **ícone de chat**.
+        *   **Ação de Chat:** O clique no ícone de chat salva os dados da pasta no `localStorage` e abre a página `/chat/[pastaId]` em uma nova aba para iniciar a conversa.
         *   Detalhes exibidos: Processo Principal, Comarca, Órgão Julgador, Área, Classe, Assunto (clicável, mas sem ação definida), Descrição.
         *   Se arquivada, exibe "Motivo do arquivamento" com a observação opcional (em itálico e entre parênteses).
         *   Exibe "Último Atendimento" e data.
@@ -123,8 +152,30 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
             *   Ambas modais exigem checkbox de ciência.
             *   As ações de arquivar/desarquivar atualizam o estado da lista de pastas na página principal.
 
-4.  **Pasta Individual (`/pasta`)**
-    *   **Objetivo:** Exibir detalhes e permitir o gerenciamento do status e dados de uma pasta específica.
+4.  **Lista de Pastas v4 (`/listadepastas-v4`)**
+    *   **Objetivo:** Evoluir a interação de chat, substituindo a navegação para uma nova página por uma experiência de modal flutuante e persistente, permitindo que o usuário continue navegando na lista de pastas enquanto conversa.
+    *   **Diferença Chave vs. v3:** O clique no ícone de chat em um `PastaListItem` não abre mais uma nova aba. Em vez disso, ele abre um **modal de chat flutuante** (`ApprovalChatModal` dentro de um `DraggableModal`).
+    *   **Componente `DraggableModal.js`:**
+        *   **Arrastável (Drag):** O modal pode ser movido livremente pela tela.
+        *   **Redimensionável (Resize):** Possui uma alça no canto inferior direito para redimensionamento. As dimensões são salvas em `vw` e `vh` para manter a proporção.
+        *   **Minimizar:** Um botão no cabeçalho minimiza o modal para um botão flutuante no canto da tela (semelhante a chats do Messenger).
+        *   **Maximizar/Restaurar:** Alterna o tamanho do modal entre as dimensões definidas pelo usuário e um estado maximizado (com um offset para não cobrir o menu lateral).
+        *   **Fechar:** Fecha o modal, mas mantém o estado da conversa salvo.
+        *   **Interação com Fundo:** O modal não bloqueia a interação com a página principal. O usuário pode clicar em outros itens da lista enquanto o chat está aberto.
+    *   **Botão Minimizado Interativo:**
+        *   **Estado Padrão:** Um botão redondo com o ícone do WhatsApp, posicionado de forma flutuante.
+        *   **Efeito Hover:** Ao passar o mouse, o botão se expande para mostrar o título do chat (nome do assistido).
+        *   **Notificações:** Quando uma nova mensagem é simulada enquanto o chat está minimizado, o botão exibe uma animação "pulsante" e um contador (`Badge`) de mensagens não lidas.
+    *   **Gerenciamento de Chat na Página (`listadepastas-v4/page.js`):**
+        *   **Estado Centralizado:** A página agora gerencia o estado de qual chat está ativo, o histórico de mensagens de todas as conversas e o estado de visibilidade/minimização do modal.
+        *   **Persistência de Histórico:** As conversas de cada pasta são salvas. Se o usuário fechar o modal e abri-lo novamente para a mesma pasta, o histórico da conversa é restaurado.
+        *   **Simulação de Chat:** Um botão "Simular Nova Mensagem" na página permite adicionar uma mensagem do "assistido" ao chat ativo, demonstrando o sistema de notificação.
+        *   **Foco Automático:** Ao abrir ou restaurar o modal, o foco é colocado automaticamente no campo de digitação da mensagem.
+    *   **Modificações em `PastaListItem.js`:**
+        *   O componente foi refatorado para aceitar uma prop `onChatClick`. Isso o torna mais flexível, permitindo que a página pai (`listadepastas-v4`) defina o que acontece quando o ícone de chat é clicado (neste caso, abrir o modal em vez de navegar).
+
+5.  **Pasta Individual (`/pasta`, `/pasta-v2`)**
+    *   **Objetivo:** Exibir detalhes e permitir o gerenciamento do status e dados de uma pasta específica. A versão `v2` representa um refinamento da interface.
     *   **Layout:** Segue o padrão de duas colunas.
     *   **Componente Principal:** Utiliza o `PastaHeader` para exibir as informações e ações principais.
     *   **`PastaHeader.js`:**
@@ -149,25 +200,27 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
         *   **Desarquivamento:** Acionada pelo `PastaHeader`. Utiliza `ModalConfirmacaoAssustadora`. Exibe motivo do arquivamento.
         *   **Modal de Informações (no `PastaHeader.js`):** Acionada pelo ícone 'i' no cabeçalho. É uma modal padrão do Mantine, com cabeçalho escuro, exibindo os metadados da pasta.
 
-5.  **Minha Defensoria (`/minha-defensoria`)**
+6.  **Minha Defensoria (`/minha-defensoria`)**
     *   **Objetivo:** Permitir a visualização e gerenciamento da equipe de trabalho da defensoria selecionada, além de acesso rápido a outras funcionalidades do contexto da defensoria do usuário.
     *   **Layout:** Segue o padrão de duas colunas. O menu lateral esquerdo utiliza a imagem `menulateralminhadefensoria.png` e funciona como um link para a própria página `/minha-defensoria`.
     *   **Seleção de Defensoria:** Um `Select` permite ao usuário escolher qual defensoria visualizar (1ª a 8ª), carregando dinamicamente a equipe correspondente.
     *   **Botões de Ação (`DefensoriaActionButtons.js`):
         *   Renderiza um grupo de botões utilizando o componente `PastaActionButton`.
         *   Botões disponíveis (com respectivos ícones):
-            *   "Visão Geral" (`IconLayoutDashboard`)
+            *   **"Visão Geral" (`IconLayoutDashboard`):** Funcionalidade implementada. Mostra uma timeline de eventos da pasta.
+            *   **"Peças e Ofícios" (`IconFileText`):** Funcionalidade implementada. Exibe uma lista de peças para aprovação.
             *   "Modelos e Favoritos" (`IconStar`)
             *   "Mensagens recebidas" (`IconMail`)
             *   "Documentos recebidos" (`IconFileDownload`)
             *   "Certidões recebidas" (`IconCertificate`)
             *   "Assistidos atendidos" (`IconListCheck`)
-        *   O botão "Visão Geral" é destacado como ativo por padrão (fundo azul `#228be6`, texto/ícone branco).
-        *   Botões inativos possuem fundo branco e texto/ícone azul (`#228be6`).
-        *   Atualmente, o clique nos botões apenas registra no console.
+        *   O clique nos botões alterna a visualização do conteúdo principal da página entre a Visão Geral, a lista de Peças/Ofícios e a Equipe de Trabalho.
     *   **Alerta de "Não Pertence à Equipe":**
         *   Exibido se o usuário logado (Humberto) não fizer parte da equipe da defensoria selecionada.
         *   Mensagem: "Você está visualizando uma Defensoria da qual não integra a equipe de trabalho. Para solicitar acesso e permissões de alteração, por favor, contate o Gerente desta Defensoria. A visualização dos membros está disponível."
+    *   **Conteúdo Dinâmico (Novas Funcionalidades):**
+        *   **Visão Geral:** Renderiza o componente `VisaoGeralTimeline`, que exibe uma linha do tempo com eventos da defensoria, carregados de `visao-geral-data.json`.
+        *   **Peças e Ofícios:** Renderiza o componente `PecaseOficiosList`, que mostra cards (`PecaParaAprovarCard`) com peças pendentes de aprovação, carregadas de `pecas-para-aprovar-data.json`. Cada card possui ações para "Ver peça", "Aprovar" e "Reprovar".
     *   **Equipe de Trabalho (`EquipeTrabalhoTable.js`):
         *   Exibe os membros da defensoria selecionada em uma tabela paginada.
         *   Os controles de paginação (número de páginas e seletor de itens por página) são exibidos mesmo que haja apenas uma página de resultados (desde que a equipe não esteja vazia).
@@ -183,7 +236,17 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
         *   **Botão "Adicionar Usuário à Equipe":** Visível no cabeçalho da seção da equipe e habilitado se o usuário logado for Gerente e pertencer à equipe. (Funcionalidade ainda é placeholder).
     *   **Dados da Equipe:** Carregados de `src/data/dadosEquipesDefensorias.json`.
 
-6.  **Componente Reutilizável `PastaActionButton.js`**
+7.  **Chat com Assistido (`/chat/[pastaId]`)**
+    *   **Objetivo:** Fornecer uma interface de comunicação direta com o assistido, simulando um chat de WhatsApp.
+    *   **Fluxo de Início:**
+        *   Iniciado a partir do ícone de chat na `PastaListItem` em qualquer uma das páginas de lista de pastas.
+        *   Os dados da pasta clicada são salvos no `localStorage` do navegador.
+        *   A página de chat é aberta em uma nova aba, lendo o ID da pasta da URL.
+    *   **Carregamento de Dados:** A página busca os dados da pasta e o histórico de conversas do `localStorage`. Se os dados não forem encontrados, exibe uma mensagem de erro.
+    *   **Interface:** Utiliza o componente `WhatsappChatModal` para renderizar a UI do chat, exibindo as informações do processo e do assistido no cabeçalho.
+    *   **Persistência:** Todo o histórico de chat é salvo automaticamente no `localStorage`, garantindo que a conversa seja mantida entre as sessões.
+
+8.  **Componente Reutilizável `PastaActionButton.js`**
     *   Movido para seu próprio arquivo: `src/components/PastaActionButton/PastaActionButton.js`.
     *   Utilizado em `PastaHeader.js` e `DefensoriaActionButtons.js`.
     *   **Props Principais:** `title`, `icon`, `count`, `alert`, `onClick`, `isActive`.
@@ -192,7 +255,7 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
         *   **Inativo (`isActive={false}`):** Fundo branco, texto/ícone/contador azuis (`#228be6`), borda azul clara. Hover com fundo cinza claro.
     *   Exibe um contador numérico ou um ícone de alerta no canto superior direito.
 
-7.  **Componente Reutilizável `ModalConfirmacaoAssustadora.js`**
+9.  **Componente Reutilizável `ModalConfirmacaoAssustadora.js`**
     *   Modal genérica para ações que exigem atenção.
     *   Apresenta Alerta, título, mensagem, checkbox de ciência (obrigatório para habilitar confirmação) e botões de Confirmar/Cancelar.
     *   Foi modificada para aceitar `children`, permitindo a inclusão de conteúdo customizado (como `Radio.Group` e `Textarea`).
@@ -219,11 +282,11 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
 
 ## Novas Seções (Placeholders)
 
-8.  **Configurações (`/configuracoes`)**
+10. **Configurações (`/configuracoes`)**
     *   Página placeholder destinada a futuras opções de configuração do sistema e preferências do usuário.
     *   Utiliza o layout padrão de duas colunas com `menulateral.png`.
 
-9.  **Documentos (`/documentos`)**
+11. **Documentos (`/documentos`)**
     *   Página placeholder destinada à funcionalidade de gerenciamento de documentos.
     *   Utiliza o componente `CadastroHeader` (com dados mockados) e o layout padrão de duas colunas com `menulateral.png`.
 

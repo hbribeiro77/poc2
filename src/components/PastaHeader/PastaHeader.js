@@ -12,24 +12,32 @@ import {
   Divider,
   Flex,
   Modal,
-  SimpleGrid
+  ScrollArea
 } from '@mantine/core';
 import {
   IconTrash, IconPlus, IconUser, IconMessageChatbot, IconFileText,
   IconLicense, IconFile, IconMessageCircle, IconScale, IconInfoCircle, IconChevronLeft,
-  IconAlertTriangle, IconArchive, IconArchiveOff, IconFileDescription, IconNotes, IconClipboardText
+  IconAlertTriangle, IconArchive, IconArchiveOff, IconFileDescription, IconNotes, IconClipboardText,
+  IconBrandWhatsapp, IconLayoutDashboard
 } from '@tabler/icons-react';
 
 // IMPORTA o componente PastaActionButton de seu novo local
 import PastaActionButton from '../PastaActionButton/PastaActionButton';
+import SendMessageModal from '../SendMessageModal/SendMessageModal';
+import ApprovalChatModal from '../ApprovalChatModal/ApprovalChatModal';
 
 // --- Componente Principal PastaHeader ---
-export default function PastaHeader({ pastaData, onOpenReactivateConfirmModal, onOpenArchiveModal, dadosLayout, onSectionSelect }) {
+export default function PastaHeader({ pastaData, onOpenReactivateConfirmModal, onOpenArchiveModal, dadosLayout, onSectionSelect, showVisaoGeralButton }) {
   const [isDadosVisible, setIsDadosVisible] = useState(false);
   const [editedArea, setEditedArea] = useState(pastaData?.area || '');
   const [editedAssunto, setEditedAssunto] = useState(pastaData?.assunto || '');
   const [editedDescricao, setEditedDescricao] = useState(pastaData?.descricao || '');
   const [infoModalOpened, setInfoModalOpened] = useState(false);
+  const [sendMessageModalOpen, setSendMessageModalOpen] = useState(false);
+  const [selectedContactForMessage, setSelectedContactForMessage] = useState(null);
+  const [approvalChatModalOpen, setApprovalChatModalOpen] = useState(false);
+  const [approvalChatContact, setApprovalChatContact] = useState(null);
+  const [approvalChatTemplateLabel, setApprovalChatTemplateLabel] = useState('');
   const theme = useMantineTheme();
 
   // Verifica se pastaData existe para evitar erros
@@ -243,9 +251,34 @@ export default function PastaHeader({ pastaData, onOpenReactivateConfirmModal, o
           <Grid.Col span={{ base: 12, md: 4 }}>
               <Group wrap="nowrap" align="flex-start">
               <ThemeIcon variant="light" size="lg" radius="xl"><IconUser stroke={1.5} /></ThemeIcon>
-              <Stack gap={0}>
-                  <Text fw={500} size="sm">{pastaData.assistido}</Text>
-                  <Text size="xs" c="dimmed">Assistido</Text>
+              <Stack gap={2}>
+                  {pastaData.contatos && pastaData.contatos.map((contato) => {
+                    const relacao = contato.relacao === 'Assistido Principal' ? 'Assistido' : 'Familiar';
+                    return (
+                      <Box key={contato.id} mb={8}>
+                        <Group gap="xs" align="baseline">
+                          <Text fw={500} size="sm">{contato.nome}</Text>
+                          <Group gap={4} align="center">
+                            <Text size="xs" c="dimmed">{contato.telefone}</Text>
+                            {contato.hasWhatsapp && (
+                              <ActionIcon
+                                variant="subtle"
+                                color="green"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedContactForMessage(contato);
+                                  setSendMessageModalOpen(true);
+                                }}
+                              >
+                                <IconBrandWhatsapp size={14} color={theme.colors.green[6]} />
+                              </ActionIcon>
+                            )}
+                          </Group>
+                        </Group>
+                        <Text size="xs" c="dimmed">{relacao}</Text>
+                      </Box>
+                    );
+                  })}
               </Stack>
               </Group>
           </Grid.Col>
@@ -273,143 +306,223 @@ export default function PastaHeader({ pastaData, onOpenReactivateConfirmModal, o
           </Grid.Col>
       </Grid>
 
-      {/* 3. Barra de Ações com botões quadrados */}
-      <Group mt="md" gap="sm" grow style={{ justifyContent: 'space-between'}} >
-         <PastaActionButton title="Assistidos, parte adversa e qualificação" icon={IconUser} onClick={() => {}} />
-         <PastaActionButton title="Atendimentos" icon={IconMessageChatbot} count={pastaData.counts.atendimentos} onClick={() => onSectionSelect('atendimentos')} />
-         <PastaActionButton title="Peças e ofícios" icon={IconFileText} count={pastaData.counts.pecas} onClick={() => onSectionSelect('pecas')} />
-         <PastaActionButton title="Requisição de certidões" icon={IconLicense} count={pastaData.counts.certidoes} onClick={() => onSectionSelect('certidoes')} />
-         <PastaActionButton title="Documentos" icon={IconFile} count={pastaData.counts.documentos} onClick={() => onSectionSelect('documentos')} />
-         <PastaActionButton title="Observações" icon={IconMessageCircle} count={pastaData.counts.observacoes} onClick={() => onSectionSelect('observacoes')} />
-         <PastaActionButton title="Processos" icon={IconScale} onClick={() => {}} />
-         <PastaActionButton title="Dados da pasta" icon={IconClipboardText} onClick={handleDadosClick} />
-       </Group>
+      <Divider my="md" />
 
-       {/* 4. Seção Condicional - Dados da Pasta Editáveis */}
-       {isDadosVisible && (
-          <Paper mt="lg" p="md" withBorder radius="md" shadow="xs">
-              {/* Título Fixo */}
-               <Group justify="space-between" mb="md">
-                   <Group>
-                       <ThemeIcon variant="light"><IconClipboardText size={20} /></ThemeIcon>
-                       <Title order={5}>Dados da Pasta</Title>
-                   </Group>
-                    {/* Poderia ter um botão de fechar aqui também */}
-               </Group>
-
-               {/* == Renderização Condicional do Layout == */} 
-               {dadosLayout === 'atual' && (
-                  <>
-                      {readOnlyInfo}
-                      {editableFields}
-                  </>
-               )}
-
-               {/* == Renderização Condicional do Layout (usando prop) == */}
-                {dadosLayout === 'colunas' && (
-                    <Flex gap="md" direction={{ base: 'column', md: 'row' }}> { /* Restaurado gap, Empilha em mobile */}
-                        {/* Coluna Esquerda: Edição (INVERTIDO) */}
-                        <Box style={{ flex: 1 }}> { /* Removido padding */}
-                           {editableFields}
-                        </Box>
-
-                        {/* Divisor Vertical */}
-                        <Divider orientation="vertical" />
-
-                        {/* Coluna Direita: Informações (INVERTIDO) */}
-                        <Box style={{ flex: 1 }}> { /* Removido padding */}
-                           {readOnlyInfo}
-                        </Box>
-                    </Flex>
-                )}
-
-                {dadosLayout === 'agrupado' && (
-                    <>
-                        {readOnlyInfo}
-                        <Divider my="md" label="Editar Dados" labelPosition="center" />
-                        {editableFields}
-                    </>
-                )}
-
-               {/* Botões Fixos */}
-               <Group justify="flex-end" mt="lg">
-                   <Button variant="default" onClick={handleDadosCancel}>
-                       Cancelar
-                   </Button>
-                   <Button color="teal" onClick={handleDadosSave}>
-                       Salvar
-                   </Button>
+      {/* 4. Barra de Botões */}
+      <Group justify="center">
+        <ScrollArea>
+          <Group gap="xs" wrap="nowrap">
+            {showVisaoGeralButton && (
+              <PastaActionButton
+                title="Visão Geral"
+                icon={IconLayoutDashboard}
+                onClick={() => onSectionSelect('visaoGeral')}
+                isActive={dadosLayout === 'visaoGeral'}
+              />
+            )}
+            <PastaActionButton
+              title="Assistidos, parte adversa e qualificação"
+              icon={IconUser}
+              onClick={() => onSectionSelect('assistidos')}
+              isActive={dadosLayout === 'assistidos'}
+            />
+            <PastaActionButton
+              title="Atendimentos"
+              icon={IconMessageChatbot}
+              count={pastaData.counts.atendimentos}
+              onClick={() => onSectionSelect('atendimentos')}
+              isActive={dadosLayout === 'atendimentos'}
+            />
+            <PastaActionButton
+              title="Peças e ofícios"
+              icon={IconFileText}
+              count={pastaData.counts.pecas}
+              onClick={() => onSectionSelect('pecas')}
+              isActive={dadosLayout === 'pecas'}
+            />
+            <PastaActionButton
+              title="Requisição de certidões"
+              icon={IconLicense}
+              alert
+              onClick={() => onSectionSelect('certidoes')}
+              isActive={dadosLayout === 'certidoes'}
+            />
+            <PastaActionButton
+              title="Documentos"
+              icon={IconFile}
+              count={pastaData.counts.documentos}
+              onClick={() => onSectionSelect('documentos')}
+              isActive={dadosLayout === 'documentos'}
+            />
+            <PastaActionButton
+              title="Observações"
+              icon={IconMessageCircle}
+              count={pastaData.counts.observacoes}
+              onClick={() => onSectionSelect('observacoes')}
+              isActive={dadosLayout === 'observacoes'}
+            />
+            <PastaActionButton
+              title="Processos"
+              icon={IconScale}
+              onClick={() => onSectionSelect('processos')}
+              isActive={dadosLayout === 'processos'}
+            />
+            <PastaActionButton
+              title="Dados da pasta"
+              icon={IconClipboardText}
+              onClick={handleDadosClick}
+              isActive={isDadosVisible}
+            />
+          </Group>
+        </ScrollArea>
       </Group>
-          </Paper>
-       )}
 
-       {/* Modal Padrão para Exibir Informações */}
-       <Modal
-          opened={infoModalOpened}
-          onClose={closeInfoModal}
-          title="Informações da Pasta #58148128"
-          centered
-          size="lg"
-          styles={infoModalStyles}
-       >
-          <Stack gap="xs" mt="md">
-             {/* Data Criação */}
-             <Grid align="baseline">
-                <Grid.Col span={4}><Text size="sm" fw={700} ta="right">Data de criação:</Text></Grid.Col>
-                <Grid.Col span={8}><Text size="sm">{pastaData.dataCriacao ? formatTimestamp(pastaData.dataCriacao) : '01/01/2023'}</Text></Grid.Col>
-             </Grid>
-              {/* Criado por */}
-             <Grid align="baseline">
-                <Grid.Col span={4}><Text size="sm" fw={700} ta="right">Criado por:</Text></Grid.Col>
-                <Grid.Col span={8}><Text size="sm">{pastaData.criadoPor || 'Usuário Sistema (12345)'}</Text></Grid.Col>
-             </Grid>
-             {/* Defensoria */}
-             <Grid align="baseline">
-                <Grid.Col span={4}><Text size="sm" fw={700} ta="right">Defensoria:</Text></Grid.Col>
-                <Grid.Col span={8}><Text size="sm">{pastaData.defensoria || 'Defensoria Exemplo POA'}</Text></Grid.Col>
-             </Grid>
-              {/* Status e Detalhes de Arquivamento */}
-             {pastaData.status !== 'Ativa' ? (
-                 <>
-                   <Grid align="baseline">
-                      <Grid.Col span={4}><Text size="sm" fw={700} ta="right">Status:</Text></Grid.Col>
-                      <Grid.Col span={8}><Text size="sm">Arquivada</Text></Grid.Col>
-                   </Grid>
-                   <Grid align="baseline">
-                      <Grid.Col span={4}><Text size="sm" fw={700} ta="right">Data de Arquivamento:</Text></Grid.Col>
-                      <Grid.Col span={8}><Text size="sm">{formatTimestamp(pastaData.lastStatusChangeAt) || 'N/A'}</Text></Grid.Col>
-                   </Grid>
-                   <Grid align="baseline">
-                      <Grid.Col span={4}><Text size="sm" fw={700} ta="right">Motivo do Arquivamento:</Text></Grid.Col>
-                      <Grid.Col span={8}>
-                         <Text size="sm">
-                            {pastaData.motivoArquivamento || 'N/A'}
-                            {pastaData.observacaoArquivamento && (
-                            <Text span style={{ fontStyle: 'italic', marginLeft: '4px' }}>
-                               ({pastaData.observacaoArquivamento})
-                            </Text>
-                            )}
-                         </Text>
-                      </Grid.Col>
-                   </Grid>
-                   <Grid align="baseline">
-                      <Grid.Col span={4}><Text size="sm" fw={700} ta="right">Arquivado por:</Text></Grid.Col>
-                      <Grid.Col span={8}><Text size="sm">{pastaData.lastStatusChangeBy || 'N/A'}</Text></Grid.Col>
-                   </Grid>
-                 </>
-              ) : (
-                   <Grid align="baseline">
-                      <Grid.Col span={4}><Text size="sm" fw={700} ta="right">Status:</Text></Grid.Col>
-                      <Grid.Col span={8}><Text size="sm">Ativa</Text></Grid.Col>
-                   </Grid>
-              )}
-          </Stack>
-
-          {/* Footer Customizado */}
-           <Group justify="flex-end" mt="xl">
-              <Button color="blue" onClick={closeInfoModal}>Fechar</Button>
+      {/* 5. Seção de Dados da Pasta (Condicional) */}
+      {isDadosVisible && (
+        <Paper withBorder p="md" mt="lg" radius="md">
+          {/* Título Fixo */}
+           <Group justify="space-between" mb="md">
+               <Group>
+                   <ThemeIcon variant="light"><IconClipboardText size={20} /></ThemeIcon>
+                   <Title order={5}>Dados da Pasta</Title>
+               </Group>
+                {/* Poderia ter um botão de fechar aqui também */}
            </Group>
-       </Modal>
+
+           {/* == Renderização Condicional do Layout == */} 
+           {dadosLayout === 'atual' && (
+              <>
+                  {readOnlyInfo}
+                  {editableFields}
+              </>
+           )}
+
+           {/* == Renderização Condicional do Layout (usando prop) == */}
+            {dadosLayout === 'colunas' && (
+                <Flex gap="md" direction={{ base: 'column', md: 'row' }}> { /* Restaurado gap, Empilha em mobile */}
+                    {/* Coluna Esquerda: Edição (INVERTIDO) */}
+                    <Box style={{ flex: 1 }}> { /* Removido padding */}
+                       {editableFields}
+                    </Box>
+
+                    {/* Divisor Vertical */}
+                    <Divider orientation="vertical" />
+
+                    {/* Coluna Direita: Informações (INVERTIDO) */}
+                    <Box style={{ flex: 1 }}> { /* Removido padding */}
+                       {readOnlyInfo}
+                    </Box>
+                </Flex>
+            )}
+
+            {dadosLayout === 'agrupado' && (
+                <>
+                    {readOnlyInfo}
+                    <Divider my="md" label="Editar Dados" labelPosition="center" />
+                    {editableFields}
+                </>
+            )}
+
+           {/* Botões Fixos */}
+           <Group justify="flex-end" mt="lg">
+               <Button variant="default" onClick={handleDadosCancel}>
+                   Cancelar
+               </Button>
+               <Button color="teal" onClick={handleDadosSave}>
+                   Salvar
+               </Button>
+    </Group>
+        </Paper>
+      )}
+
+      {/* Modal Padrão para Exibir Informações */}
+      <Modal
+         opened={infoModalOpened}
+         onClose={closeInfoModal}
+         title="Informações da Pasta #58148128"
+         centered
+         size="lg"
+         styles={infoModalStyles}
+      >
+         <Stack gap="xs" mt="md">
+            {/* Data Criação */}
+            <Grid align="baseline">
+               <Grid.Col span={4}><Text size="sm" fw={700} ta="right">Data de criação:</Text></Grid.Col>
+               <Grid.Col span={8}><Text size="sm">{pastaData.dataCriacao ? formatTimestamp(pastaData.dataCriacao) : '01/01/2023'}</Text></Grid.Col>
+            </Grid>
+             {/* Criado por */}
+            <Grid align="baseline">
+               <Grid.Col span={4}><Text size="sm" fw={700} ta="right">Criado por:</Text></Grid.Col>
+               <Grid.Col span={8}><Text size="sm">{pastaData.criadoPor || 'Usuário Sistema (12345)'}</Text></Grid.Col>
+            </Grid>
+            {/* Defensoria */}
+            <Grid align="baseline">
+               <Grid.Col span={4}><Text size="sm" fw={700} ta="right">Defensoria:</Text></Grid.Col>
+               <Grid.Col span={8}><Text size="sm">{pastaData.defensoria || 'Defensoria Exemplo POA'}</Text></Grid.Col>
+            </Grid>
+             {/* Status e Detalhes de Arquivamento */}
+            {pastaData.status !== 'Ativa' ? (
+                <>
+                  <Grid align="baseline">
+                     <Grid.Col span={4}><Text size="sm" fw={700} ta="right">Status:</Text></Grid.Col>
+                     <Grid.Col span={8}><Text size="sm">Arquivada</Text></Grid.Col>
+                  </Grid>
+                  <Grid align="baseline">
+                     <Grid.Col span={4}><Text size="sm" fw={700} ta="right">Data de Arquivamento:</Text></Grid.Col>
+                     <Grid.Col span={8}><Text size="sm">{formatTimestamp(pastaData.lastStatusChangeAt) || 'N/A'}</Text></Grid.Col>
+                  </Grid>
+                  <Grid align="baseline">
+                     <Grid.Col span={4}><Text size="sm" fw={700} ta="right">Motivo do Arquivamento:</Text></Grid.Col>
+                     <Grid.Col span={8}>
+                        <Text size="sm">
+                           {pastaData.motivoArquivamento || 'N/A'}
+                           {pastaData.observacaoArquivamento && (
+                           <Text span style={{ fontStyle: 'italic', marginLeft: '4px' }}>
+                              ({pastaData.observacaoArquivamento})
+                           </Text>
+                           )}
+                        </Text>
+                     </Grid.Col>
+                  </Grid>
+                  <Grid align="baseline">
+                     <Grid.Col span={4}><Text size="sm" fw={700} ta="right">Arquivado por:</Text></Grid.Col>
+                     <Grid.Col span={8}><Text size="sm">{pastaData.lastStatusChangeBy || 'N/A'}</Text></Grid.Col>
+                  </Grid>
+                </>
+             ) : (
+                  <Grid align="baseline">
+                     <Grid.Col span={4}><Text size="sm" fw={700} ta="right">Status:</Text></Grid.Col>
+                     <Grid.Col span={8}><Text size="sm">Ativa</Text></Grid.Col>
+                  </Grid>
+             )}
+         </Stack>
+
+         {/* Footer Customizado */}
+          <Group justify="flex-end" mt="xl">
+             <Button color="blue" onClick={closeInfoModal}>Fechar</Button>
+          </Group>
+      </Modal>
+
+      <SendMessageModal
+        opened={sendMessageModalOpen}
+        onClose={() => setSendMessageModalOpen(false)}
+        contact={selectedContactForMessage}
+        onSend={({ contact, template }) => {
+          if (template === 'aprov_providencia') {
+            setApprovalChatContact(contact);
+            setApprovalChatTemplateLabel('Aprovação de providência');
+            setApprovalChatModalOpen(true);
+          }
+          // Aqui pode-se adicionar lógica para outros templates, se necessário
+        }}
+      />
+
+      <ApprovalChatModal
+        opened={approvalChatModalOpen}
+        onClose={() => setApprovalChatModalOpen(false)}
+        contact={approvalChatContact}
+        templateLabel={approvalChatTemplateLabel}
+      />
 
     </Paper>
   );

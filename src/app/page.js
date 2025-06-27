@@ -83,6 +83,81 @@ export default function HomePage() {
           </Card>
         </Grid.Col>
 
+        {/* NOVO Card: Lista de Pastas V2 */}
+        <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
+          <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
+            <Group justify="space-between" mt="md" mb="xs">
+              <Text fw={500}>Lista de Pastas V2</Text>
+            </Group>
+
+            <Text size="sm" c="dimmed" mb="md">
+              Cópia da lista de pastas para novos desenvolvimentos.
+            </Text>
+
+            <Button
+              variant="light"
+              color="blue"
+              fullWidth
+              mt="auto"
+              radius="md"
+              component={Link}
+              href="/listadepastas-v2"
+            >
+              Acessar Protótipo V2
+            </Button>
+          </Card>
+        </Grid.Col>
+
+        {/* NOVO Card: Lista de Pastas V3 */}
+        <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
+          <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
+            <Group justify="space-between" mt="md" mb="xs">
+              <Text fw={500}>Lista de Pastas V3</Text>
+            </Group>
+
+            <Text size="sm" c="dimmed" mb="md">
+              Cópia da lista de pastas v2 para novos desenvolvimentos.
+            </Text>
+
+            <Button
+              variant="light"
+              color="blue"
+              fullWidth
+              mt="auto"
+              radius="md"
+              component={Link}
+              href="/listadepastas-v3"
+            >
+              Acessar Protótipo V3
+            </Button>
+          </Card>
+        </Grid.Col>
+
+        {/* NOVO Card: Lista de Pastas V4 */}
+        <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
+          <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
+            <Group justify="space-between" mt="md" mb="xs">
+              <Text fw={500}>Lista de Pastas V4</Text>
+            </Group>
+
+            <Text size="sm" c="dimmed" mb="md">
+              Cópia da lista de pastas v3 para novos desenvolvimentos.
+            </Text>
+
+            <Button
+              variant="light"
+              color="blue"
+              fullWidth
+              mt="auto"
+              radius="md"
+              component={Link}
+              href="/listadepastas-v4"
+            >
+              Acessar Protótipo V4
+            </Button>
+          </Card>
+        </Grid.Col>
+
         {/* NOVO Card: Solicitacoes */}
         <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
           <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
@@ -193,6 +268,31 @@ export default function HomePage() {
           </Card>
         </Grid.Col>
 
+        {/* Card para Galeria de Componentes */}
+        <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
+          <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
+            <Group justify="space-between" mt="md" mb="xs">
+              <Text fw={500}>Galeria de Componentes</Text>
+            </Group>
+
+            <Text size="sm" c="dimmed" mb="md">
+              Visualizar os componentes de UI reutilizáveis disponíveis no projeto.
+            </Text>
+
+            <Button
+              variant="light"
+              color="teal"
+              fullWidth
+              mt="auto"
+              radius="md"
+              component={Link}
+              href="/componentes"
+            >
+              Acessar Galeria
+            </Button>
+          </Card>
+        </Grid.Col>
+
         {/* Card para Controle da Lista de Pastas */}
         <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
           <Card shadow="sm" padding="lg" radius="md" withBorder h="100%" display="flex" style={{ flexDirection: 'column' }}>
@@ -275,6 +375,31 @@ export default function HomePage() {
               href="/contatos"
             >
               Acessar Contatos
+            </Button>
+          </Card>
+        </Grid.Col>
+
+        {/* Card Pasta v2 */}
+        <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
+          <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
+            <Group justify="space-between" mt="md" mb="xs">
+              <Title order={5}>Pasta v2</Title>
+            </Group>
+
+            <Text size="sm" c="dimmed" mb="md">
+              Protótipo alternativo para visualização de pasta individual (nova versão).
+            </Text>
+
+            <Button
+              variant="light"
+              color="blue"
+              fullWidth
+              mt="auto"
+              radius="md"
+              component={Link}
+              href="/pasta-v2"
+            >
+              Acessar Pasta v2
             </Button>
           </Card>
         </Grid.Col>

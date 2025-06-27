@@ -2,11 +2,10 @@
 
 import React, { useState } from 'react';
 import { Paper, Group, Text, Badge, ActionIcon, Stack, Title, Box, useMantineTheme, Radio, Textarea } from '@mantine/core';
-import { IconFolder, IconPlus, IconTrash, IconArrowDown, IconArchive, IconAlertTriangle, IconInfoCircle, IconArchiveOff } from '@tabler/icons-react';
-import Link from 'next/link'; // Manter para o link interno se necessário, ou remover se o link for só controle de estado
+import { IconFolder, IconPlus, IconArrowDown, IconArchive, IconArchiveOff, IconBrandWhatsapp } from '@tabler/icons-react';
 import ModalConfirmacaoAssustadora from '../ConfirmActionModal/ModalConfirmacaoAssustadora'; // Importar o modal
 
-export default function PastaListItem({ pasta, onArchive, onUnarchive }) {
+export default function PastaListItem({ pasta, onArchive, onUnarchive, onStartChat, chatBehavior = 'inline', onChatClick }) {
   const [expanded, setExpanded] = useState(false);
   const [modalOpened, setModalOpened] = useState(false); // Estado para o modal DE ARQUIVAMENTO
   const [unarchiveModalOpened, setUnarchiveModalOpened] = useState(false); // Estado para o modal DE DESARQUIVAMENTO
@@ -30,7 +29,7 @@ export default function PastaListItem({ pasta, onArchive, onUnarchive }) {
   // Define o estilo do Paper
   const paperStyle = {
     borderLeft: `5px solid ${borderLeftColor}`,
-    // Mantém um padding interno, mas remove a borda padrão
+    transition: 'all 0.2s ease',
   };
 
   // Handlers do Modal
@@ -42,9 +41,7 @@ export default function PastaListItem({ pasta, onArchive, onUnarchive }) {
   };
 
   const handleConfirmArchive = () => {
-    // Chama a função passada pelo pai para arquivar
     onArchive(pasta.id, selectedReason, archiveObservation);
-    // Aqui viria a lógica real de arquivamento (ex: chamada API)
     closeModal();
   };
 
@@ -53,10 +50,25 @@ export default function PastaListItem({ pasta, onArchive, onUnarchive }) {
   const closeUnarchiveModal = () => setUnarchiveModalOpened(false);
 
   const handleConfirmUnarchive = () => {
-    // Chama a função passada pelo pai para desarquivar
     onUnarchive(pasta.id);
-    // Aqui viria a lógica real de desarquivamento
     closeUnarchiveModal();
+  };
+
+  const handleWhatsappClick = () => {
+    // Se uma função onChatClick for fornecida, use-a.
+    if (onChatClick) {
+      onChatClick(pasta);
+      return;
+    }
+
+    // Comportamento original
+    if (chatBehavior === 'newTab') {
+      // Salva os dados da pasta e o histórico atual (se houver) no localStorage para a nova aba ler
+      localStorage.setItem(`chatPastaData-${pasta.id}`, JSON.stringify(pasta));
+      window.open(`/chat/${pasta.id}`, '_blank');
+    } else if (onStartChat) {
+      onStartChat();
+    }
   };
 
   const motivosArquivamento = [
@@ -72,15 +84,12 @@ export default function PastaListItem({ pasta, onArchive, onUnarchive }) {
       <Group justify="space-between" mb="md">
         <Group gap="xs" align="center">
           <IconFolder size={20} color="var(--mantine-color-gray-7)"/>
-          {/* Novos Badges Fixos/Condicionais */}
           <Badge color="blue" variant="light" size="sm">ASSISTIDO</Badge>
           {hasReuPreso && (
             <Badge color="orange" variant="filled" size="sm">RÉU PRESO</Badge>
           )}
         </Group>
-        {/* Grupo da Direita no Cabeçalho: Status + Ações */}
         <Group gap="xs" align="center"> 
-          {/* Badge de Status Movido para cá */}
           <Badge 
               color={pasta.status === 'Ativa' ? 'green' : 'gray'} 
               variant="light" 
@@ -92,11 +101,17 @@ export default function PastaListItem({ pasta, onArchive, onUnarchive }) {
            <ActionIcon variant="subtle" color="gray">
               <IconPlus size={16} />
            </ActionIcon>
-          {/* Ícone Condicional Arquivar/Desarquivar com onClick condicional */}
+           <ActionIcon 
+             variant="subtle" 
+             color="green" 
+             onClick={handleWhatsappClick}
+           >
+              <IconBrandWhatsapp size={16} />
+           </ActionIcon>
           <ActionIcon 
             variant="subtle" 
             color="gray" 
-            onClick={pasta.status === 'Arquivada' ? openUnarchiveModal : openModal} // << onClick Condicional
+            onClick={pasta.status === 'Arquivada' ? openUnarchiveModal : openModal}
           >
             {pasta.status === 'Arquivada' ? <IconArchiveOff size={16} /> : <IconArchive size={16} />}
           </ActionIcon>
@@ -105,27 +120,22 @@ export default function PastaListItem({ pasta, onArchive, onUnarchive }) {
 
       {/* Corpo Detalhado da Pasta */}
       <Group justify="space-between" align="flex-start" mb="sm" wrap="nowrap"> 
-          {/* Coluna Esquerda Detalhes - Ajustar gap */}
           <Stack gap="xs" style={{ flex: 1 }}>
-             {/* Processo Principal */}
               <Group wrap="nowrap" gap="xs" align="baseline">
                   <Text size="sm" fw={500} w={180}>Processo Principal:</Text>
                   <Text size="sm" fw={700}>{pasta.processoPrincipal}</Text>
               </Group>
 
-              {/* Comarca */}
               <Group wrap="nowrap" gap="xs" align="baseline">
                   <Text size="sm" fw={500} w={180}>Comarca:</Text>
                   <Text size="sm">{pasta.comarca}</Text>
               </Group>
 
-              {/* Órgão Julgador */}
                <Group wrap="nowrap" gap="xs" align="baseline">
                   <Text size="sm" fw={500} w={180}>Órgão Julgador:</Text>
                   <Text size="sm">{pasta.orgaoJulgador}</Text>
               </Group>
 
-              {/* Área e Classe */}
               <Group wrap="nowrap" gap="xs" align="baseline">
                   <Text size="sm" fw={500} w={180}>Área:</Text>
                   <Group gap="xs">
@@ -135,29 +145,21 @@ export default function PastaListItem({ pasta, onArchive, onUnarchive }) {
                   </Group>
               </Group>
 
-              {/* Assunto */}
                <Group wrap="nowrap" gap="xs" align="baseline">
                   <Text size="sm" fw={500} w={180}>Assunto:</Text>
-                  {/* Usar um span ou div clicável em vez de Link se for só para estado */}
                   <Text size="sm" c="blue" style={{ cursor: 'pointer' }}>{pasta.assunto}</Text>
               </Group>
 
-              {/* Descrição */}
               <Group wrap="nowrap" gap="xs" align="baseline">
                   <Text size="sm" fw={500} w={180}>Descrição:</Text>
                   <Text size="sm">{pasta.descricao}</Text>
               </Group>
 
-              {/* Motivo do Arquivamento (Condicional) - Nova Linha */}
               {pasta.status === 'Arquivada' && (
                   <Group wrap="nowrap" gap="xs" align="baseline">
-                      {/* Label com largura fixa para alinhar */}
                       <Text size="sm" fw={500} w={180}>Motivo do arquivamento:</Text>
-                      {/* Exibe o motivo e a observação opcional */}
                       <Text size="sm">
-                        {/* Motivo */}
                         {pasta.motivoArquivamento || 'Não informado'}
-                        {/* Observação Opcional em Itálico */}
                         {pasta.observacaoArquivamento && (
                           <Text span style={{ fontStyle: 'italic', marginLeft: '4px' }}>
                             ({pasta.observacaoArquivamento})
@@ -168,21 +170,16 @@ export default function PastaListItem({ pasta, onArchive, onUnarchive }) {
               )}
           </Stack>
           
-          {/* Coluna Direita - Reestruturado com Stack */}
           <Stack gap={2} align="flex-end" style={{ marginLeft: 'var(--mantine-spacing-lg)' }}>
-              {/* Grupo para Último Atendimento + Data */}
               <Group gap="xs" wrap="nowrap">
               <Text size="sm" fw={500}>Último Atendimento</Text>
               <Text size="xs">{pasta.ultimoAtendimento}</Text>
               </Group>
-              {/* Badge de Status REMOVIDO daqui */}
           </Stack>
       </Group>
       
-      {/* Processos Associados e Link (Renderização Condicional) */}
       {pasta.processosAssociados && pasta.processosAssociados.length > 1 && (
           <Box mt="md">
-              {/* Renderiza a lista apenas se expanded for true */}
               {expanded && (
                   <Box mb="xs">
                       <Title order={6} mb="xs">Processos Associados</Title>
@@ -193,82 +190,63 @@ export default function PastaListItem({ pasta, onArchive, onUnarchive }) {
                       </Stack>
                   </Box>
               )}
-              {/* Link/Botão para expandir/recolher - Estilo Atualizado */}
               <Text
                 component="span"
-                size="xs"
-                c="blue"
-                mt="xs"
                 onClick={toggleExpanded}
-                style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center' }}
+                style={{ cursor: 'pointer', color: theme.colors.blue[6], display: 'inline-flex', alignItems: 'center' }}
               >
-                  Visualizar todos os processos da pasta
-                  <Badge color="yellow" size="xs" variant='filled' radius="sm" style={{ marginLeft: '4px'}}>
-                    <IconArrowDown size={12} />
-                  </Badge>
+                  {expanded ? 'Recolher Processos' : `+${pasta.processosAssociados.length - 1} Processos Associados`}
+                  <IconArrowDown size={16} style={{ transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
               </Text>
           </Box>
       )}
 
-      {/* Instância do Modal de Confirmação */}
+      {/* Modal de confirmação de arquivamento */}
       <ModalConfirmacaoAssustadora
         opened={modalOpened}
         onClose={closeModal}
         onConfirm={handleConfirmArchive}
-        title="Confirmação de arquivamento"
-        alertIcon={<IconInfoCircle size={20} color="#f29c1d" />}
-        alertColor="yellow"
-        alertMessage="Atenção! Arquivar a pasta a oculta na lista de pastas de seus assistidos e tem impacto direto nos relatórios de inteligência de negócio."
-        checkboxLabel="Declaro ciência das implicações e confirmo o arquivamento da pasta"
-        confirmButtonLabel="Confirmar Arquivamento"
-        confirmButtonColor="orange" // Cor do botão como na imagem
-        // Passando o Radio.Group e o texto de auditoria como children
+        title="Arquivar Pasta"
+        message="Você tem certeza que deseja arquivar esta pasta? Esta ação pode ter implicações importantes."
       >
-        <Stack gap={4}> { /* Reduzindo MAIS o gap interno do modal */}
+        <Stack>
           <Radio.Group
+            name="motivoArquivamento"
+            label="Selecione o motivo do arquivamento"
+            withAsterisk
             value={selectedReason}
             onChange={setSelectedReason}
-            label="Selecione o motivo do arquivamento:"
-            withAsterisk
           >
             <Stack mt="xs">
               {motivosArquivamento.map((motivo) => (
-                <Radio key={motivo} value={motivo} label={<Text fw={700} size="sm">{motivo}</Text>} />
+                <Radio key={motivo} value={motivo} label={motivo} />
               ))}
             </Stack>
           </Radio.Group>
-
-          {/* Campo de Observação Adicional */}
           <Textarea
-            label="Observação adicional (opcional):"
+            label="Observação (Opcional)"
+            placeholder="Adicione uma observação se necessário"
             value={archiveObservation}
             onChange={(event) => setArchiveObservation(event.currentTarget.value)}
-            autosize
-            minRows={2}
-            mt="md"
           />
-
-          <Text>
-            Todas as alterações são auditadas e sujeitas a revisão.
-          </Text>
         </Stack>
       </ModalConfirmacaoAssustadora>
 
-      {/* Instância do Modal de Confirmação para DESARQUIVAMENTO */}
+      {/* Modal de confirmação de DESARQUIVAMENTO */}
       <ModalConfirmacaoAssustadora
         opened={unarchiveModalOpened}
         onClose={closeUnarchiveModal}
         onConfirm={handleConfirmUnarchive}
-        title="Confirmar Desarquivamento de Pasta"
-        alertIcon={<IconInfoCircle size={20} color="#f29c1d" />}
-        alertColor="yellow"
-        alertMessage="Atenção: Desarquivar a pasta a torna visível na lista de pastas de seus assistidos e tem impacto direto nos relatórios de inteligência de negócio."
-        // Usando bodyText para a mensagem principal
-        bodyText={`A pasta foi arquivada pelo motivo: ${pasta.motivoArquivamento || 'Não informado'}. Confirma o desarquivamento?`}
-        checkboxLabel="Declaro ciência das implicações e confirmo o desarquivamento desta pasta."
-        confirmButtonLabel="Confirmar Desarquivamento"
-        // Não especificando confirmButtonColor para usar o padrão do tema (geralmente azul)
-      />
+        title="Desarquivar Pasta"
+        message="Você tem certeza que deseja desarquivar esta pasta? A pasta voltará para a lista de ativas."
+      >
+        {pasta.motivoArquivamento && (
+          <Text size="sm">
+            <b>Motivo do arquivamento:</b> {pasta.motivoArquivamento}
+            {pasta.observacaoArquivamento && ` (${pasta.observacaoArquivamento})`}
+          </Text>
+        )}
+      </ModalConfirmacaoAssustadora>
     </Paper>
   );
 } 
