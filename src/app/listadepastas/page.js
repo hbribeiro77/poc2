@@ -272,10 +272,7 @@ export default function PastasPage() {
                          pasta={pasta} 
                          onUnarchive={handleUnarchivePasta}
                          onArchiveClick={handleOpenArchiveModal}
-                         onChatClick={() => {
-                           console.log(`Clicou no chat da pasta ${pasta.id}`);
-                           // Aqui entraria a lógica para abrir o chat flutuante
-                         }}
+                         chatBehavior="newTab"
                       />
                   ))
                   )

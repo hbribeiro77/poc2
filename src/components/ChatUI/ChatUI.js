@@ -105,7 +105,7 @@ const ChatUI = ({
   };
   
   const chatContent = (
-    <Stack gap="md" p="sm">
+    <Flex direction="column" gap="md" p="sm">
       {chatHistory.length > 0 ? (
         chatHistory.map((chat) => {
           if (chat.sender === 'system') {
@@ -125,10 +125,13 @@ const ChatUI = ({
               p="sm"
               radius="md"
               withBorder
-              bg={chat.sender === 'defensor' ? theme.colors.green[0] : theme.colors.gray[0]}
+              bg={chat.sender === 'defensor' ? theme.colors.green[1] : theme.colors.gray[1]}
               style={{
                 alignSelf: chat.sender === 'defensor' ? 'flex-end' : 'flex-start',
                 maxWidth: '80%',
+                border: chat.sender === 'defensor' 
+                  ? `1px solid ${theme.colors.green[3]}` 
+                  : `1px solid ${theme.colors.gray[3]}`
               }}
             >
               <Group gap="xs" align="flex-start" wrap="nowrap">
@@ -152,7 +155,7 @@ const ChatUI = ({
       ) : (
         <Text size="sm" c="dimmed" ta="center">O histórico da conversa aparecerá aqui.</Text>
       )}
-    </Stack>
+    </Flex>
   );
 
   if (fullHeight) {

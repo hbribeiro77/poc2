@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Box, Flex, Card, Image, Group, ThemeIcon, Alert, Stack, Button, Select, ActionIcon, Badge, Tabs, Divider, Text } from '@mantine/core';
+import { Box, Flex, Card, Image, Group, ThemeIcon, Alert, Stack, Button, Select, ActionIcon, Badge, Tabs, Divider, Text, Radio } from '@mantine/core';
 import { IconFolders, IconInfoCircle, IconFolderPlus, IconSettings, IconSortDescending, IconFolderCheck, IconArchive } from '@tabler/icons-react';
 import PastaListItem from '../../components/PastaListItem/PastaListItem';
 import pastasDataFromJson from '../../data/pastas-data.json';
@@ -52,6 +52,7 @@ export default function PastasPage() {
   const [pastasToDisplay, setPastasToDisplay] = useState([]);
   const [isMounted, setIsMounted] = useState(false);
   const [activeTab, setActiveTab] = useState('ativas');
+  const [chatVersion, setChatVersion] = useState('V1'); // Novo estado para controlar a versão do chat
 
   useEffect(() => {
     setIsMounted(true);
@@ -110,6 +111,24 @@ export default function PastasPage() {
     lineHeight: '155%',
     letterSpacing: '0%',
     color: '#0d99ff'
+  };
+
+  // Função customizada para lidar com cliques no WhatsApp baseado na versão selecionada
+  const handleCustomWhatsappClick = (pasta) => {
+    try {
+      // Salva os dados da pasta no localStorage para a página de chat acessar
+      localStorage.setItem(`chatPastaData-${pasta.id}`, JSON.stringify(pasta));
+      
+      // Adiciona parâmetro na URL baseado na versão selecionada
+      const chatUrl = chatVersion === 'V0' 
+        ? `/chat/${pasta.id}?hideEndButton=true`
+        : `/chat/${pasta.id}`;
+      
+      // Abre nova aba com a página de chat
+      window.open(chatUrl, '_blank');
+    } catch (error) {
+      console.error('Erro ao abrir chat em nova aba:', error);
+    }
   };
 
   return (
@@ -211,7 +230,8 @@ export default function PastasPage() {
                         pasta={pasta}
                         onArchive={handleArchivePasta}
                         onUnarchive={handleUnarchivePasta}
-                        chatBehavior="newTab" 
+                        onCustomWhatsappClick={handleCustomWhatsappClick}
+                        chatBehavior="custom" 
                         />
                     ))
                     )
@@ -220,7 +240,30 @@ export default function PastasPage() {
                 )}
                 </Stack>
                 <Divider my="md" />
-                <Flex justify="center" align="center" style={{ padding: '1rem 0' }}>
+                
+                {/* Seção inferior com radio buttons e link para voltar */}
+                <Flex direction="column" align="center" style={{ padding: '1rem 0' }}>
+                    {/* Radio buttons para seleção de versão do chat */}
+                    <Radio.Group
+                        value={chatVersion}
+                        onChange={setChatVersion}
+                        name="chatVersion"
+                        mb="md"
+                    >
+                        <Group justify="center" gap="lg">
+                            <Radio 
+                                value="V0" 
+                                label={<Text size="xs" c="dimmed">V0 (sem botão encerrar)</Text>}
+                                size="xs"
+                            />
+                            <Radio 
+                                value="V1" 
+                                label={<Text size="xs" c="dimmed">V1 (padrão)</Text>}
+                                size="xs"
+                            />
+                        </Group>
+                    </Radio.Group>
+                    
                     <Button component={Link} href="/" variant="subtle">
                         Voltar à Central de Protótipos
                     </Button>

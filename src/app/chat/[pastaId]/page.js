@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Box, Paper, Title, Text, Center, Loader, Alert, Flex, Image, Card, Group, ThemeIcon, Divider, Button, Stack } from '@mantine/core';
 import { IconInfoCircle, IconMessageCircle } from '@tabler/icons-react';
 import WhatsappChatModal from '../../../components/WhatsappChatModal/WhatsappChatModal';
@@ -9,12 +9,16 @@ import Link from 'next/link';
 
 export default function ChatPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const { pastaId } = params;
   
   const [pasta, setPasta] = useState(null);
   const [chatHistory, setChatHistory] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Lê o parâmetro hideEndButton da URL
+  const hideEndButton = searchParams.get('hideEndButton') === 'true';
 
   // Efeito para garantir que a página não tenha scroll
   useEffect(() => {
@@ -130,6 +134,7 @@ export default function ChatPage() {
                         chatHistory={chatHistory}
                         onChatUpdate={setChatHistory}
                         templateId={null}
+                        hideEndButton={hideEndButton}
                     />
                 </Box>
             </Card>

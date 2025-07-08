@@ -11,6 +11,9 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
 *   **UI Library:** Mantine UI (v7)
 *   **Ícones:** Tabler Icons
 *   **Testes:** Jest (v29) e React Testing Library (com User Event)
+*   **Gerenciamento de Estado:** React Context API (para chat global)
+*   **Persistência:** localStorage (para históricos de chat)
+*   **Drag & Drop:** react-draggable (para modais interativos)
 
 ## Estrutura do Projeto (Arquivos Relevantes)
 
@@ -55,7 +58,16 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
  │   │   ├── documentos/     # Nova seção (placeholder)
  │   │   │   └── page.js     # Componente da página de Documentos
  │   │   └── ... (outras pastas como hooks, utils, etc. se houver)
+ │   ├── contexts/
+ │   │   └── ChatManagerContext.js              # Contexto global para gerenciamento de múltiplos chats
+ │   ├── hooks/
+ │   │   └── useChatManager.js                  # Hook personalizado para usar o sistema de chat
  │   ├── components/
+ │   │   ├── ChatManager/
+ │   │   │   └── ChatManager.js                 # Componente que renderiza todos os chats ativos globalmente
+ │   │   ├── DraggableModal/
+ │   │   │   ├── DraggableModal.js              # Modal arrastável e redimensionável para chats
+ │   │   │   └── DraggableModal.module.css      # Estilos CSS para o modal
  │   │   ├── ChatUI/
  │   │   │   └── ChatUI.js                      # Componente de UI para o chat
  │   │   ├── WhatsappChatModal/
@@ -111,6 +123,34 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
  └── resumo.md           # Este arquivo de resumo
 ```
 
+## Sistema de Chat Global
+
+O projeto implementa um **sistema de chat global** que permite múltiplas conversas simultâneas em qualquer página da aplicação, usando React Context API para gerenciamento de estado.
+
+### Arquitetura do Sistema de Chat
+
+*   **`ChatManagerContext.js`:** Contexto React que gerencia o estado global de todos os chats ativos.
+*   **`useChatManager.js`:** Hook personalizado que facilita o uso das funcionalidades de chat em qualquer componente.
+*   **`ChatManager.js`:** Componente global renderizado no `layout.js` que exibe todos os chats ativos como modais flutuantes.
+*   **`DraggableModal.js`:** Modal interativo com funcionalidades de arrastar, redimensionar, minimizar/maximizar.
+
+### Funcionalidades do Sistema
+
+*   **Múltiplos Chats Simultâneos:** Permite abrir várias conversas ao mesmo tempo, cada uma em seu próprio modal.
+*   **Persistência Automática:** Histórico de conversas salvo automaticamente no `localStorage` com a chave `'chat_histories'`.
+*   **Estado Persistente:** Conversas mantêm estado entre sessões - ao reabrir um chat, o histórico é restaurado.
+*   **Notificações Visuais:** Contador de mensagens não lidas e animações quando o chat está minimizado.
+*   **Interação Não-Bloqueante:** Modais não impedem a navegação na página principal.
+*   **Controles Avançados:** 
+    *   Arrastar modais pela tela
+    *   Redimensionar com alça no canto inferior direito
+    *   Minimizar para botão flutuante
+    *   Maximizar com configurações personalizáveis por página
+
+### Integração Global
+
+O sistema está integrado no `layout.js` raiz através do `ChatManagerProvider`, tornando-o disponível em toda a aplicação. Qualquer página pode iniciar um chat usando o hook `useChatManager`.
+
 ## Funcionalidades Implementadas (Protótipos)
 
 1.  **Hub Central (`/`)**
@@ -135,12 +175,22 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
         *   Select "Último atendimento".
         *   Ícone de ordenação.
         *   (Estes controles são visuais e não possuem funcionalidade implementada).
+    *   **Radio Buttons de Versão do Chat (v3 apenas):**
+        *   Localizados discretamente na parte inferior da página, acima do botão "Voltar à Central".
+        *   **V0**: Chat abre sem o botão "Encerrar Conversa".
+        *   **V1**: Chat abre com comportamento padrão (com botão "Encerrar Conversa").
+        *   Controla o parâmetro `hideEndButton=true` na URL da página de chat.
+        *   Implementação customizada usando `onCustomWhatsappClick` e `chatBehavior="custom"` no `PastaListItem`.
     *   **Itens da Lista (`PastaListItem.js`):**
         *   Cada pasta é renderizada por este componente.
         *   Possui borda esquerda colorida indicando status (verde para ativa, amarelo para ativa com "Réu preso", cinza para arquivada).
         *   Exibe badges "ASSISTIDO" e condicionalmente "RÉU PRESO".
         *   Ações: Ícone para adicionar (sem funcionalidade), ícone para arquivar/desarquivar (funcional) e **ícone de chat**.
-        *   **Ação de Chat:** O clique no ícone de chat salva os dados da pasta no `localStorage` e abre a página `/chat/[pastaId]` em uma nova aba para iniciar a conversa.
+        *   **Ação de Chat (v1-v3):** O clique no ícone de chat salva os dados da pasta no `localStorage` e abre a página `/chat/[pastaId]` em uma nova aba para iniciar a conversa.
+        *   **Comportamentos de Chat Diferenciados:**
+            *   **v1-v2**: `chatBehavior="newTab"` - comportamento padrão.
+            *   **v3**: `chatBehavior="custom"` - usa `onCustomWhatsappClick` para controlar se o chat abre com ou sem botão "Encerrar Conversa" baseado nos radio buttons.
+            *   **v4**: `onChatClick` - abre modal de chat global.
         *   Detalhes exibidos: Processo Principal, Comarca, Órgão Julgador, Área, Classe, Assunto (clicável, mas sem ação definida), Descrição.
         *   Se arquivada, exibe "Motivo do arquivamento" com a observação opcional (em itálico e entre parênteses).
         *   Exibe "Último Atendimento" e data.
@@ -153,8 +203,8 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
             *   As ações de arquivar/desarquivar atualizam o estado da lista de pastas na página principal.
 
 4.  **Lista de Pastas v4 (`/listadepastas-v4`)**
-    *   **Objetivo:** Evoluir a interação de chat, substituindo a navegação para uma nova página por uma experiência de modal flutuante e persistente, permitindo que o usuário continue navegando na lista de pastas enquanto conversa.
-    *   **Diferença Chave vs. v3:** O clique no ícone de chat em um `PastaListItem` não abre mais uma nova aba. Em vez disso, ele abre um **modal de chat flutuante** (`ApprovalChatModal` dentro de um `DraggableModal`).
+    *   **Objetivo:** Demonstrar a integração com o **Sistema de Chat Global**, substituindo a navegação para uma nova página por uma experiência de modal flutuante e persistente, permitindo que o usuário continue navegando na lista de pastas enquanto conversa.
+    *   **Diferença Chave vs. v3:** O clique no ícone de chat em um `PastaListItem` não abre mais uma nova aba. Em vez disso, utiliza o hook `useChatManager` para abrir um **modal de chat flutuante** gerenciado globalmente pelo sistema.
     *   **Componente `DraggableModal.js`:**
         *   **Arrastável (Drag):** O modal pode ser movido livremente pela tela.
         *   **Redimensionável (Resize):** Possui uma alça no canto inferior direito para redimensionamento. As dimensões são salvas em `vw` e `vh` para manter a proporção.
@@ -166,11 +216,11 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
         *   **Estado Padrão:** Um botão redondo com o ícone do WhatsApp, posicionado de forma flutuante.
         *   **Efeito Hover:** Ao passar o mouse, o botão se expande para mostrar o título do chat (nome do assistido).
         *   **Notificações:** Quando uma nova mensagem é simulada enquanto o chat está minimizado, o botão exibe uma animação "pulsante" e um contador (`Badge`) de mensagens não lidas.
-    *   **Gerenciamento de Chat na Página (`listadepastas-v4/page.js`):**
-        *   **Estado Centralizado:** A página agora gerencia o estado de qual chat está ativo, o histórico de mensagens de todas as conversas e o estado de visibilidade/minimização do modal.
-        *   **Persistência de Histórico:** As conversas de cada pasta são salvas. Se o usuário fechar o modal e abri-lo novamente para a mesma pasta, o histórico da conversa é restaurado.
-        *   **Simulação de Chat:** Um botão "Simular Nova Mensagem" na página permite adicionar uma mensagem do "assistido" ao chat ativo, demonstrando o sistema de notificação.
-        *   **Foco Automático:** Ao abrir ou restaurar o modal, o foco é colocado automaticamente no campo de digitação da mensagem.
+    *   **Integração com Sistema Global (`listadepastas-v4/page.js`):**
+        *   **Uso do Hook `useChatManager`:** A página utiliza o hook personalizado para acessar as funcionalidades de chat global (openChat, simulateNewMessage, etc.).
+        *   **Configurações Personalizadas:** Define estilos customizados para maximização (não cobrir o menu lateral) e alinhamento inicial à direita.
+        *   **Simulação de Chat:** Um botão "Simular Nova Mensagem" demonstra o sistema de notificação, adicionando mensagens aos chats ativos.
+        *   **Gerenciamento Automático:** O estado dos chats, persistência e renderização são gerenciados automaticamente pelo sistema global.
     *   **Modificações em `PastaListItem.js`:**
         *   O componente foi refatorado para aceitar uma prop `onChatClick`. Isso o torna mais flexível, permitindo que a página pai (`listadepastas-v4`) defina o que acontece quando o ícone de chat é clicado (neste caso, abrir o modal em vez de navegar).
 
@@ -236,15 +286,22 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
         *   **Botão "Adicionar Usuário à Equipe":** Visível no cabeçalho da seção da equipe e habilitado se o usuário logado for Gerente e pertencer à equipe. (Funcionalidade ainda é placeholder).
     *   **Dados da Equipe:** Carregados de `src/data/dadosEquipesDefensorias.json`.
 
-7.  **Chat com Assistido (`/chat/[pastaId]`)**
-    *   **Objetivo:** Fornecer uma interface de comunicação direta com o assistido, simulando um chat de WhatsApp.
-    *   **Fluxo de Início:**
-        *   Iniciado a partir do ícone de chat na `PastaListItem` em qualquer uma das páginas de lista de pastas.
+7.  **Chat com Assistido (`/chat/[pastaId]`) - Sistema Legado**
+    *   **Status:** Página de fallback mantida para compatibilidade com as versões v1-v3 da lista de pastas.
+    *   **Objetivo:** Fornecer uma interface de comunicação direta com o assistido, simulando um chat de WhatsApp em página dedicada.
+    *   **Fluxo de Início (Legado):**
+        *   Iniciado a partir do ícone de chat na `PastaListItem` nas versões v1-v3 da lista de pastas.
         *   Os dados da pasta clicada são salvos no `localStorage` do navegador.
         *   A página de chat é aberta em uma nova aba, lendo o ID da pasta da URL.
+    *   **Parâmetro `hideEndButton` (v3 apenas):**
+        *   Aceita parâmetro URL `?hideEndButton=true` para controlar a exibição do botão "Encerrar Conversa".
+        *   Quando `true`, o botão "Encerrar Conversa" não é exibido no `WhatsappChatModal`.
+        *   O botão "Enviar" é alinhado automaticamente à direita quando o botão encerrar está oculto.
+        *   Implementado para suportar os radio buttons V0/V1 da lista de pastas v3.
     *   **Carregamento de Dados:** A página busca os dados da pasta e o histórico de conversas do `localStorage`. Se os dados não forem encontrados, exibe uma mensagem de erro.
     *   **Interface:** Utiliza o componente `WhatsappChatModal` para renderizar a UI do chat, exibindo as informações do processo e do assistido no cabeçalho.
-    *   **Persistência:** Todo o histórico de chat é salvo automaticamente no `localStorage`, garantindo que a conversa seja mantida entre as sessões.
+    *   **Persistência:** Todo o histórico de chat é salvo automaticamente no `localStorage`.
+    *   **Nota:** Esta funcionalidade foi **substituída pelo Sistema de Chat Global** na versão v4+, que oferece melhor experiência de usuário com modais flutuantes e múltiplos chats simultâneos.
 
 8.  **Refatoração da Modal de Arquivamento e Integração**
     *   **Objetivo:** Centralizar a lógica de arquivamento em um componente reutilizável, limpando o código de outras páginas e garantindo consistência.
@@ -279,11 +336,13 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
 
 ## Abordagem de Layout
 
-*   O `layout.js` raiz configura o `MantineProvider`.
+*   O `layout.js` raiz configura o `MantineProvider` e o **`ChatManagerProvider`** (sistema de chat global).
+*   O componente **`ChatManager`** é renderizado globalmente no `layout.js`, gerenciando todos os chats ativos como modais flutuantes.
 *   Páginas como `/notificacoes`, `/listadepastas`, `/pasta`, `/minha-defensoria` e `/solicitacoes` usam `Flexbox` para um layout de duas colunas.
 *   O "menu lateral" nas páginas `/listadepastas` e `/pasta` é a imagem estática `menulateral.png` sem interatividade.
 *   Nas páginas `/minha-defensoria` e `/solicitacoes`, o "menu lateral" é a imagem `menulateralminhadefensoria.png`, que também funciona como um link para a página `/minha-defensoria`.
 *   O "menu superior" (`menucadastro.png`) também é estático e usado em `/listadepastas` (e `/solicitacoes`).
+*   **Modais de Chat:** Renderizados como `Portal` do Mantine, posicionados acima de todos os outros elementos com z-index alto, não interferindo no layout das páginas.
 
 ## Testes
 
@@ -311,4 +370,16 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
 
 *   **Solicitações (`/solicitacoes`):**
     *   Atualmente é uma página placeholder para um futuro formulário de cadastro de solicitações.
-    *   Utiliza o menu lateral `menulateralminhadefensoria.png` (que direciona para `/minha-defensoria`) e o menu superior `menucadastro.png`. 
+    *   Utiliza o menu lateral `menulateralminhadefensoria.png` (que direciona para `/minha-defensoria`) e o menu superior `menucadastro.png`.
+
+## Evolução Arquitetural Principal
+
+**Sistema de Chat:** O projeto evoluiu de um sistema de chat baseado em páginas individuais (`/chat/[pastaId]`) para um **sistema de chat global integrado** usando React Context API. Esta mudança fundamental permite:
+
+*   Múltiplas conversas simultâneas em qualquer página
+*   Modais flutuantes não-bloqueantes 
+*   Persistência automática e gerenciamento de estado centralizado
+*   Melhor experiência do usuário com notificações e controles avançados
+*   Arquitetura mais escalável e reutilizável
+
+A versão v4 da lista de pastas (`/listadepastas-v4`) serve como demonstração desta nova arquitetura, enquanto as versões anteriores mantêm compatibilidade com o sistema legado. 

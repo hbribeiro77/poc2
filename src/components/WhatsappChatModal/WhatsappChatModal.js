@@ -5,7 +5,7 @@ import ChatUI from '../ChatUI/ChatUI'; // Importar o componente de UI de Chat
 
 const ATENDENTE_NOME = 'Humberto Borges Ribeiro';
 
-export default function WhatsappChatModal({ pasta, chatHistory, onChatUpdate, templateId }) {
+export default function WhatsappChatModal({ pasta, chatHistory, onChatUpdate, templateId, hideEndButton = false }) {
   const [messageContent, setMessageContent] = useState('');
   const [isChatActive, setIsChatActive] = useState(true);
   const viewportRef = useRef(null);
@@ -93,13 +93,16 @@ export default function WhatsappChatModal({ pasta, chatHistory, onChatUpdate, te
 
   const actionButtons = (
     <Group justify="space-between" mt="md">
-      <Button color="red" leftSection={<IconDoorExit size={16} />} onClick={handleEndChat} disabled={!isChatActive}>
-        Encerrar Conversa
-      </Button>
+      {!hideEndButton && (
+        <Button color="red" leftSection={<IconDoorExit size={16} />} onClick={handleEndChat} disabled={!isChatActive}>
+          Encerrar Conversa
+        </Button>
+      )}
       <Button
         leftSection={<IconSend size={16} />}
         onClick={handleSendMessage}
         disabled={!messageContent.trim() || !isChatActive}
+        style={hideEndButton ? { marginLeft: 'auto' } : {}}
       >
         Enviar
       </Button>

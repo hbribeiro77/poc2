@@ -5,7 +5,7 @@ import { Paper, Group, Text, Badge, ActionIcon, Stack, Title, Box, useMantineThe
 import { IconFolder, IconPlus, IconArrowDown, IconArchive, IconArchiveOff, IconBrandWhatsapp } from '@tabler/icons-react';
 import ModalConfirmacaoAssustadora from '../ConfirmActionModal/ModalConfirmacaoAssustadora'; // Importar o modal
 
-export default function PastaListItem({ pasta, onUnarchive, onChatClick, onArchiveClick }) {
+export default function PastaListItem({ pasta, onUnarchive, onChatClick, onArchiveClick, onStartChat, onCustomWhatsappClick, chatBehavior = "modal" }) {
   const [expanded, setExpanded] = useState(false);
   const [unarchiveModalOpened, setUnarchiveModalOpened] = useState(false);
   const theme = useMantineTheme();
@@ -46,7 +46,25 @@ export default function PastaListItem({ pasta, onUnarchive, onChatClick, onArchi
 
   const handleWhatsappClick = () => {
     if (onChatClick) {
+      // Comportamento da v4: usar função de callback (modal)
       onChatClick(pasta);
+    } else if (onStartChat) {
+      // Comportamento da v2: abrir painel lateral
+      onStartChat();
+    } else if (chatBehavior === "custom" && onCustomWhatsappClick) {
+      // Comportamento customizado da v3: usar função personalizada
+      onCustomWhatsappClick(pasta);
+    } else if (chatBehavior === "newTab") {
+      // Comportamento da v1-v3: salvar dados e abrir nova aba
+      try {
+        // Salva os dados da pasta no localStorage para a página de chat acessar
+        localStorage.setItem(`chatPastaData-${pasta.id}`, JSON.stringify(pasta));
+        
+        // Abre nova aba com a página de chat
+        window.open(`/chat/${pasta.id}`, '_blank');
+      } catch (error) {
+        console.error('Erro ao abrir chat em nova aba:', error);
+      }
     }
   };
 

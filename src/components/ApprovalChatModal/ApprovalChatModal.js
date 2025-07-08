@@ -13,13 +13,12 @@ export default function ApprovalChatModal({
   descricao,
   messages,
   onSendMessage,
+  isChatActive,
+  onEndChat,
+  onContinueChat,
 }) {
   const [approvalMessageContent, setApprovalMessageContent] = useState('');
   const chatViewportRef = useRef(null);
-
-  const isChatActive = true; 
-  const onEndChat = () => console.log("Encerrar chat (lógica a ser implementada no contexto)");
-  const onContinueChat = () => console.log("Continuar chat (lógica a ser implementada no contexto)");
 
   const handleSend = () => {
     if (!approvalMessageContent.trim()) return;

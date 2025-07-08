@@ -32,7 +32,8 @@ export const ChatManagerProvider = ({ children }) => {
   // Abre um novo chat ou foca em um já existente
   const openChat = useCallback((pasta, options = {}) => {
     setChats(currentChats => {
-      const existingChatIndex = currentChats.findIndex(c => c.id === pasta.id);
+      const existingChatIndex = currentChats.findIndex(c => c.pastaData.assistido === pasta.assistido);
+      
       if (existingChatIndex > -1) {
         const chatToUpdate = { ...currentChats[existingChatIndex], isMinimized: false, unreadCount: 0 };
         const updatedChats = [...currentChats];
@@ -53,6 +54,7 @@ export const ChatManagerProvider = ({ children }) => {
         unreadCount: 0,
         isMinimized: false,
         isMaximized: false,
+        isChatActive: true,
         position: { x: 50, y: 50 },
         size: { width: '32.81vw', height: '93.97vh' },
         maximizedStyles: options.maximizedStyles || {},
@@ -95,10 +97,40 @@ export const ChatManagerProvider = ({ children }) => {
     });
   }, []);
 
+  // Encerra uma conversa (torna-a inativa)
+  const endChat = useCallback((chatId) => {
+    setChats(currentChats => {
+      const chatToEnd = currentChats.find(c => c.id === chatId);
+      if (!chatToEnd) return currentChats;
+
+      const { id, assunto, descricao } = chatToEnd.pastaData;
+      const endMessage = {
+        id: `defensor-end-${Date.now()}`,
+        sender: 'defensor',
+        name: 'Humberto Borges Ribeiro',
+        text: `Esta conversa foi encerrada pelo atendente.\n\n---\nID: ${id}\nAssunto: ${assunto}\nDescrição: ${descricao}`,
+        timestamp: new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+      };
+
+      return currentChats.map(c =>
+        c.id === chatId
+          ? { ...c, isChatActive: false, messages: [...c.messages, endMessage] }
+          : c
+      );
+    });
+  }, []);
+
+  // Continua uma conversa (torna-a ativa)
+  const continueChat = useCallback((chatId) => {
+    setChats(currentChats =>
+      currentChats.map(c => (c.id === chatId ? { ...c, isChatActive: true } : c))
+    );
+  }, []);
+
   // Envia uma mensagem
   const sendMessage = useCallback((chatId, text) => {
     const chat = chats.find(c => c.id === chatId);
-    if (!chat) return;
+    if (!chat || !chat.isChatActive) return; // Não envia se o chat estiver inativo
 
     const { id, assunto, descricao } = chat.pastaData;
     const formattedText = `${text}\n\n---\nID: ${id}\nAssunto: ${assunto}\nDescrição: ${descricao}`;
@@ -128,13 +160,17 @@ export const ChatManagerProvider = ({ children }) => {
         text: 'Ok, recebido. Obrigado!',
         timestamp: new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
       };
-      setChats(currentChats =>
-        currentChats.map(c =>
+      setChats(currentChats => {
+        const targetChat = currentChats.find(c => c.id === chatId);
+        // Resposta só é adicionada se o chat ainda existir e estiver ativo
+        if (!targetChat || !targetChat.isChatActive) return currentChats;
+
+        return currentChats.map(c =>
           c.id === chatId
             ? { ...c, messages: [...c.messages, assistidoResponse], unreadCount: c.isMinimized ? c.unreadCount + 1 : 0 }
             : c
         )
-      );
+      });
     }, 2000);
   }, [chats]);
   
@@ -167,7 +203,9 @@ export const ChatManagerProvider = ({ children }) => {
     toggleMaximizeChat,
     restoreChat,
     sendMessage,
-    simulateNewMessage
+    simulateNewMessage,
+    endChat,
+    continueChat
   };
 
   return (

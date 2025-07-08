@@ -12,7 +12,9 @@ export default function ChatManager() {
     minimizeChat, 
     restoreChat,
     sendMessage,
-    toggleMaximizeChat
+    toggleMaximizeChat,
+    endChat,
+    continueChat
   } = useChatManager();
 
   console.log('Renderizando ChatManager. Chats atuais:', chats);
@@ -48,6 +50,9 @@ export default function ChatManager() {
             descricao={chat.pastaData.descricao}
             messages={chat.messages}
             onSendMessage={(text) => sendMessage(chat.id, text)}
+            isChatActive={chat.isChatActive}
+            onEndChat={() => endChat(chat.id)}
+            onContinueChat={() => continueChat(chat.id)}
           />
         </DraggableModal>
       ))}

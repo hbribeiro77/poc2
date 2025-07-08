@@ -379,6 +379,31 @@ export default function HomePage() {
           </Card>
         </Grid.Col>
 
+        {/* NOVO Card: Contatos v2 */}
+        <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
+          <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
+            <Group justify="space-between" mt="md" mb="xs">
+              <Text fw={500}>Contatos v2</Text>
+            </Group>
+
+            <Text size="sm" c="dimmed" mb="md">
+              Cópia da página de contatos para novos desenvolvimentos.
+            </Text>
+
+            <Button
+              variant="light"
+              color="blue"
+              fullWidth
+              mt="auto"
+              radius="md"
+              component={Link}
+              href="/contatos-v2"
+            >
+              Acessar Contatos v2
+            </Button>
+          </Card>
+        </Grid.Col>
+
         {/* Card Pasta v2 */}
         <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
           <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">

@@ -8,6 +8,7 @@ import pastasDataFromJson from '../../data/pastas-data.json';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useChatManager } from '../../hooks/useChatManager';
+import ConversasAtivasModal from '../../components/ConversasAtivasModal/ConversasAtivasModal';
 
 function generateFakePastas(count) {
   const generatedPastas = [];
@@ -41,7 +42,8 @@ function generateFakePastas(count) {
       classe: `Classe Genérica ${i}`,
       assunto: assuntos[Math.floor(Math.random() * assuntos.length)],
       descricao: `Descrição automática para pasta gerada número ${i}.`,
-      assistido: `Assistido Gerado ${i}`,
+      assistido: 'Marta Wayne',
+      telefone: '(51) 99238-7778',
       processosAssociados: [`${processoNum}-47.${ano}.8.21.${String(comarcaIndex + 1).padStart(4, '0')}`]
     });
   }
@@ -55,6 +57,8 @@ export default function PastasPage() {
   const [pastasToDisplay, setPastasToDisplay] = useState([]);
   const [isMounted, setIsMounted] = useState(false);
   const [activeTab, setActiveTab] = useState('ativas');
+  const [conversasAtivasModalOpen, setConversasAtivasModalOpen] = useState(false);
+  const [pastaAtual, setPastaAtual] = useState(null);
 
   const SIDEBAR_WIDTH = 250;
 
@@ -72,13 +76,50 @@ export default function PastasPage() {
     const generateCount = parseInt(generateParam, 10);
 
     if (!isNaN(generateCount) && generateCount > 0) {
-      setPastasToDisplay(generateFakePastas(generateCount));
+      const pastasGeradas = generateFakePastas(generateCount);
+      setPastasToDisplay(pastasGeradas);
+      // Define a primeira pasta como atual
+      if (pastasGeradas.length > 0) {
+        setPastaAtual(pastasGeradas[0]);
+      }
     } else {
-      setPastasToDisplay(pastasDataFromJson);
+      const pastasModificadas = pastasDataFromJson.map(pasta => ({
+        ...pasta,
+        assistido: 'Marta Wayne',
+        telefone: '(51) 99238-7778'
+      }));
+      setPastasToDisplay(pastasModificadas);
+      // Define a primeira pasta como atual
+      if (pastasModificadas.length > 0) {
+        setPastaAtual(pastasModificadas[0]);
+      }
     }
   }, [searchParams]);
 
   const handleChatClick = (pasta) => {
+    // Define a pasta atual para usar na modal de conversas ativas
+    setPastaAtual(pasta);
+    
+    // Adiciona nova conversa no histórico para Contatos v2
+    const novaConversa = {
+      id: `chat-${Date.now()}`,
+      data: new Date().toLocaleString('pt-BR'),
+      mensagem: `WhatsApp: Conversa sobre processo ${pasta.processoPrincipal}`,
+      remetente: pasta.assistido || 'Marta Wayne',
+      defensoria: pasta.orgaoJulgador || 'Defensoria Pública',
+      contato: pasta.telefone || '(51) 99238-7778',
+      status: 'pendente_sem_resposta',
+      acaoRespondida: true,
+      numRespostas: 0,
+      pasta: pasta // Salva dados da pasta para referência
+    };
+
+    // Salva no localStorage para a página contatos-v2 acessar
+    const conversasExistentes = JSON.parse(localStorage.getItem('novasConversas') || '[]');
+    conversasExistentes.unshift(novaConversa); // Adiciona no início
+    localStorage.setItem('novasConversas', JSON.stringify(conversasExistentes));
+    
+    // Abre o chat normalmente
     openChat(pasta, { 
       maximizedStyles: customMaximizedStyles,
       initialAlignment: 'right'
@@ -152,10 +193,18 @@ export default function PastasPage() {
         {/* Coluna da Esquerda (Menu Lateral Fixo) */}
         <Box style={{ width: 250, flexShrink: 0 }}>
             <Image
-                src="/menulateral.png" 
-                alt="Menu Lateral"
+                src="/menulaterallistadepastasv4.png" 
+                alt="Menu Lateral - Clique para ver Conversas Ativas"
                 fit="contain"
-                style={{ height: '100%' }}
+                style={{ 
+                  height: '100%', 
+                  objectPosition: 'top',
+                  cursor: 'pointer',
+                  transition: 'opacity 0.2s'
+                }}
+                onClick={() => setConversasAtivasModalOpen(true)}
+                onMouseEnter={(e) => e.target.style.opacity = '0.8'}
+                onMouseLeave={(e) => e.target.style.opacity = '1'}
             />
         </Box>
 
@@ -187,12 +236,17 @@ export default function PastasPage() {
                   marginLeft: '1rem'
               }}
           >
-              <Image 
-              src="/menucadastro.png"
-              alt="Menu de Cadastro"
-              width="100%"
-              mb="lg"
-              />
+              <Link href="/contatos-v2" style={{ textDecoration: 'none' }}>
+                <Image 
+                  src="/menucadastro.png"
+                  alt="Menu de Cadastro - Clique para acessar Contatos v2"
+                  width="100%"
+                  mb="lg"
+                  style={{ cursor: 'pointer', transition: 'opacity 0.2s' }}
+                  onMouseEnter={(e) => e.target.style.opacity = '0.8'}
+                  onMouseLeave={(e) => e.target.style.opacity = '1'}
+                />
+              </Link>
 
               <Tabs value={activeTab} onChange={setActiveTab} mb="lg">
               <Tabs.List grow>
@@ -269,6 +323,13 @@ export default function PastasPage() {
           </Card>
         </Box>
       </Flex>
+
+      {/* Modal de Conversas Ativas */}
+      <ConversasAtivasModal 
+        opened={conversasAtivasModalOpen}
+        onClose={() => setConversasAtivasModalOpen(false)}
+        pastaAtual={pastaAtual}
+      />
     </Box>
   );
 } 
