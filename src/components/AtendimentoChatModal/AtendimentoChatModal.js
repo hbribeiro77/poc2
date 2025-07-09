@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Modal,
   Box,
@@ -50,7 +50,7 @@ const AtendimentoChatModal = ({
 }) => {
   const theme = useMantineTheme();
   
-  const initialState = {
+  const initialState = useMemo(() => ({
     data: new Date(),
     defensoria: '',
     pessoa: '',
@@ -63,7 +63,7 @@ const AtendimentoChatModal = ({
     documentos: [],
     propriedadesDefensoria: 'Unidade de Sistemas',
     propriedadesDefensor: 'TESTE-DEFENSOR',
-  };
+  }), []);
 
   // Estados movidos para dentro do componente
   const [whatsappChatHistory, setWhatsappChatHistory] = useState([]);
@@ -118,7 +118,7 @@ const AtendimentoChatModal = ({
             clearTimeout(assistidoWhatsappResponseTimeoutRef.current);
         }
     }
-  }, [opened, initialData, contact, pastaProcesso]);
+  }, [opened, initialData, contact, pastaProcesso, initialState]);
 
   useEffect(() => {
     // Efeito para rolar o chat para a última mensagem

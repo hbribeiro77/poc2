@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { Box, Paper, Title, Text, Center, Loader, Alert, Flex, Image, Card, Group, ThemeIcon, Divider, Button, Stack } from '@mantine/core';
-import { IconInfoCircle, IconMessageCircle } from '@tabler/icons-react';
+import { Box, Paper, Title, Text, Center, Loader, Alert, Flex, Image, Card, Group, ThemeIcon, Divider, Button, Stack, ActionIcon } from '@mantine/core';
+import { IconInfoCircle, IconMessageCircle, IconTrash } from '@tabler/icons-react';
 import WhatsappChatModal from '../../../components/WhatsappChatModal/WhatsappChatModal';
 import Link from 'next/link';
 
@@ -19,6 +19,16 @@ export default function ChatPage() {
 
   // Lê o parâmetro hideEndButton da URL
   const hideEndButton = searchParams.get('hideEndButton') === 'true';
+
+  // Função para limpar a conversa
+  const handleClearChat = () => {
+    if (pastaId) {
+      // Limpa o histórico do estado
+      setChatHistory([]);
+      // Remove do localStorage
+      localStorage.removeItem(`chatHistory-${pastaId}`);
+    }
+  };
 
   // Efeito para garantir que a página não tenha scroll
   useEffect(() => {
@@ -89,7 +99,29 @@ export default function ChatPage() {
   }
 
   return (
-    <Box style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <Box style={{ height: '100vh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+        {/* Botão discreto para limpar conversa */}
+        <ActionIcon
+            variant="subtle"
+            color="red"
+            size="sm"
+            radius="xl"
+            onClick={handleClearChat}
+            style={{
+                position: 'absolute',
+                top: '20px',
+                left: '20px',
+                zIndex: 1000,
+                opacity: 0.3,
+                transition: 'opacity 0.2s ease',
+            }}
+            onMouseEnter={(e) => e.target.style.opacity = '0.8'}
+            onMouseLeave={(e) => e.target.style.opacity = '0.3'}
+            title="Limpar conversa (para demonstrações)"
+        >
+            <IconTrash size={14} />
+        </ActionIcon>
+
         <Flex style={{ flexGrow: 1, height: '100%' }}>
             {/* Coluna da Esquerda (Menu Lateral Fixo) */}
             <Box style={{ width: 250, flexShrink: 0, height: '100%' }}>

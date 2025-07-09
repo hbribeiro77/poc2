@@ -201,7 +201,7 @@ export default function ComponentGalleryPage() {
                 acoesHabilitadas={acoesHabilitadas}
                 onShowUserInfo={(id) => console.log(`Clicou em Info para usuário ID: ${id}`)}
                 onAddFuncao={(id) => console.log(`Clicou em Add Função para usuário ID: ${id}`)}
-                onRemoveFuncao={(userId, funcao) => console.log(`Clicou em Remover Função "${funcao}" para usuário ID: ${userId}`)}
+                onRemoveFuncao={(userId, funcao) => console.log(`Clicou em Remover Função &quot;${funcao}&quot; para usuário ID: ${userId}`)}
                 onRemoveUsuario={(id) => console.log(`Clicou em Remover Usuário ID: ${id}`)}
             />
         </Paper>
@@ -229,7 +229,7 @@ export default function ComponentGalleryPage() {
         <Paper withBorder shadow="sm" p="lg">
             <Title order={4} mb="sm">Card de Peça para Aprovar</Title>
             <Text mb="md">
-                Card para exibir uma peça processual, com variações de layout para os status "Rascunho" e "Aprovada".
+                Card para exibir uma peça processual, com variações de layout para os status &quot;Rascunho&quot; e &quot;Aprovada&quot;.
             </Text>
             
             <Divider my="md" label="Configurações Interativas" />

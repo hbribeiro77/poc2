@@ -38,6 +38,15 @@ export default function PastaHeader({ pastaData, onOpenReactivateConfirmModal, o
   const [selectedContactForMessage, setSelectedContactForMessage] = useState(null);
   const theme = useMantineTheme();
 
+  // Sincroniza estado de edição se pastaData mudar externamente
+  useEffect(() => {
+    if (pastaData) {
+      setEditedArea(pastaData.area || '');
+      setEditedAssunto(pastaData.assunto || '');
+      setEditedDescricao(pastaData.descricao || '');
+    }
+  }, [pastaData]);
+
   // Verifica se pastaData existe para evitar erros
   if (!pastaData) {
     return null; // Ou renderizar um estado de carregamento/vazio
@@ -60,15 +69,6 @@ export default function PastaHeader({ pastaData, onOpenReactivateConfirmModal, o
     if (!timestamp) return '';
     return new Date(timestamp).toLocaleDateString('pt-BR'); // Formato local brasileiro (só data)
   };
-
-  // Sincroniza estado de edição se pastaData mudar externamente
-  useEffect(() => {
-    if (pastaData) {
-      setEditedArea(pastaData.area || '');
-      setEditedAssunto(pastaData.assunto || '');
-      setEditedDescricao(pastaData.descricao || '');
-    }
-  }, [pastaData]);
 
   // Handlers para a seção Dados da Pasta
   const handleDadosClick = () => {

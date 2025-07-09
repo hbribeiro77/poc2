@@ -48,7 +48,7 @@ const ChatUI = ({
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [firstUnreadId]); // Depende APENAS da âncora de não lida
+  }, [firstUnreadId, onScrolledToUnread, viewportRef]); // Inclui todas as dependências
 
   // Efeito para rolar para o final em novas mensagens (quando já está lido)
   useEffect(() => {
@@ -56,7 +56,7 @@ const ChatUI = ({
     if (!firstUnreadId && viewport) {
       viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
     }
-  }, [chatHistory.length]); // Depende APENAS do número de mensagens
+  }, [chatHistory.length, firstUnreadId, viewportRef]); // Inclui todas as dependências
 
   // Efeito para focar no input quando o chat se torna ativo
   useEffect(() => {

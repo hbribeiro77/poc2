@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Box, Flex, Card, Image, Group, ThemeIcon, Alert, Stack, Button, Select, ActionIcon, Badge, Tabs, Divider, Text } from '@mantine/core';
 import { IconFolders, IconInfoCircle, IconFolderPlus, IconSettings, IconSortDescending, IconFolderCheck, IconArchive, IconBrandWhatsapp, IconMessageChatbot, IconMail } from '@tabler/icons-react';
 import PastaListItem from '../../components/PastaListItem/PastaListItem';
@@ -50,7 +50,7 @@ function generateFakePastas(count) {
   return generatedPastas;
 }
 
-export default function PastasPage() {
+function PastasPageContent() {
   const searchParams = useSearchParams();
   const { openChat, chats, simulateNewMessage } = useChatManager();
 
@@ -332,4 +332,12 @@ export default function PastasPage() {
       />
     </Box>
   );
-} 
+}
+
+export default function PastasPage() {
+  return (
+    <Suspense fallback={<div>Carregando...</div>}>
+      <PastasPageContent />
+    </Suspense>
+  );
+}
