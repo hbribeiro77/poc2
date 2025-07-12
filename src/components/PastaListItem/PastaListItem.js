@@ -68,6 +68,25 @@ export default function PastaListItem({ pasta, onUnarchive, onChatClick, onArchi
     }
   };
 
+  const handleWhatsappMiddleClick = () => {
+    try {
+      // Salva os dados da pasta no localStorage para a página de chat acessar
+      localStorage.setItem(`chatPastaData-${pasta.id}`, JSON.stringify(pasta));
+      
+      // Abre nova aba com a página de chat (igual na v3)
+      window.open(`/chat/${pasta.id}`, '_blank');
+    } catch (error) {
+      console.error('Erro ao abrir chat em nova aba:', error);
+    }
+  };
+
+  const handleWhatsappMouseDown = (event) => {
+    if (event.button === 1) { // Botão do meio
+      event.preventDefault(); // Previne comportamento padrão
+      handleWhatsappMiddleClick();
+    }
+  };
+
   const motivosArquivamento = [
     'Trânsito em Julgado / Cumprimento de Sentença Finalizado',
     'Acordo Homologado Judicialmente',
@@ -102,6 +121,9 @@ export default function PastaListItem({ pasta, onUnarchive, onChatClick, onArchi
              variant="subtle" 
              color="green" 
              onClick={handleWhatsappClick}
+             onMouseDown={handleWhatsappMouseDown}
+             onAuxClick={handleWhatsappMiddleClick}
+             title="Clique esquerdo: modal | Clique do meio: nova aba"
            >
               <IconBrandWhatsapp size={16} />
            </ActionIcon>

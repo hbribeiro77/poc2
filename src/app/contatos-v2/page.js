@@ -400,7 +400,7 @@ export default function ContatosV2Page() {
                  id: `defensor-whatsapp-${item.id}-1`,
                  sender: 'defensor',
                  name: 'Teste Defensor - Portal Defensor',
-                 text: `Olá ${item.remetente}, estou entrando em contato sobre o processo ${item.pasta.processoPrincipal}.\n\nComo posso ajudá-lo(a) hoje?`,
+                 text: `Olá ${item.remetente}, estou entrando em contato sobre o processo ${item.pasta.processoPrincipal}.\n\nComo posso ajudá-lo(a) hoje?\n\n---\nPID: ${item.pasta.id}\nAssunto: ${item.pasta.assunto}\nDescrição: ${item.pasta.descricao}`,
                  timestamp: baseTime.toLocaleString('pt-BR', { 
                    hour: '2-digit', 
                    minute: '2-digit' 
@@ -420,7 +420,7 @@ export default function ContatosV2Page() {
                  id: `defensor-whatsapp-${item.id}-2`,
                  sender: 'defensor',
                  name: 'Teste Defensor - Portal Defensor',
-                 text: 'Perfeito! Vou verificar os últimos andamentos no sistema e te retorno ainda hoje.\n\nSeu processo está sendo acompanhado. Tenha um bom dia! ✅',
+                 text: `Perfeito! Vou verificar os últimos andamentos no sistema e te retorno ainda hoje.\n\nSeu processo está sendo acompanhado. Tenha um bom dia! ✅\n\n---\nPID: ${item.pasta.id}\nAssunto: ${item.pasta.assunto}\nDescrição: ${item.pasta.descricao}`,
                  timestamp: new Date(baseTime.getTime() + 5*60000).toLocaleString('pt-BR', { 
                    hour: '2-digit', 
                    minute: '2-digit' 
@@ -445,7 +445,9 @@ export default function ContatosV2Page() {
             id: `defensor-hist-${item.id}`,
             sender: 'defensor',
             name: 'Teste Defensor - Portal Defensor',
-            text: item.mensagem,
+            text: item.pasta ? 
+              `${item.mensagem}\n\n---\nPID: ${item.pasta.id}\nAssunto: ${item.pasta.assunto}\nDescrição: ${item.pasta.descricao}` : 
+              item.mensagem,
             timestamp: 'data antiga'
           },
         ];

@@ -129,7 +129,7 @@ export default function ChatPage() {
                     src="/menulateral.png" 
                     alt="Menu Lateral"
                     fit="contain"
-                    style={{ height: '100%' }}
+                    style={{ height: '100%', objectPosition: 'top' }}
                 />
             </Box>
 

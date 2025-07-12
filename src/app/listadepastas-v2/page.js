@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Box, Flex, Card, Title, Text, Image, Group, ThemeIcon, Alert, Stack, Button, Select, ActionIcon, Badge, Tabs, Divider } from '@mantine/core';
 import { IconFolders, IconInfoCircle, IconFolderPlus, IconPlus, IconTag, IconFolder, IconSettings, IconArrowUp, IconSortAscending, IconFolderCheck, IconArchive, IconSortDescending } from '@tabler/icons-react';
 import PastaListItem from '../../components/PastaListItem/PastaListItem';
@@ -47,7 +47,8 @@ function generateFakePastas(count) {
   return generatedPastas;
 }
 
-export default function PastasPage() {
+// Componente interno que usa useSearchParams
+function PastasContent() {
   const searchParams = useSearchParams();
 
   const [pastasToDisplay, setPastasToDisplay] = useState([]);
@@ -279,5 +280,14 @@ export default function PastasPage() {
             </Box>
         </Flex>
     </Box>
+  );
+}
+
+// Componente principal com Suspense boundary
+export default function PastasPage() {
+  return (
+    <Suspense fallback={<Text ta="center" c="dimmed">Carregando pastas...</Text>}>
+      <PastasContent />
+    </Suspense>
   );
 } 
