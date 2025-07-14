@@ -50,7 +50,13 @@ export default function WhatsappChatModal({ pasta, chatHistory, onChatUpdate, te
     }
 
     // Adiciona o rodapé padronizado em todas as mensagens enviadas
-    const messageFooter = `\n\n---\nID: 086945\nAssunto: ${pasta.assunto}\nDescrição: ${pasta.descricao}`;
+    let infoBlock = `#${pasta.id}`;
+    const processoNumero = pasta.processoPrincipal || pasta.processo;
+    if (processoNumero) {
+      infoBlock += `\nProcesso: ${processoNumero}`;
+    }
+    infoBlock += `\nAssunto: ${pasta.assunto}`;
+    const messageFooter = `\n\n---\n${infoBlock}`;
     finalMessageText += messageFooter;
 
     const newMessage = {

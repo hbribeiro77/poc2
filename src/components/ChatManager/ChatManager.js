@@ -14,7 +14,8 @@ export default function ChatManager() {
     sendMessage,
     toggleMaximizeChat,
     endChat,
-    continueChat
+    continueChat,
+    clearChatHistory
   } = useChatManager();
 
   console.log('Renderizando ChatManager. Chats atuais:', chats);
@@ -53,6 +54,7 @@ export default function ChatManager() {
             isChatActive={chat.isChatActive}
             onEndChat={() => endChat(chat.id)}
             onContinueChat={() => continueChat(chat.id)}
+            onClearChat={() => clearChatHistory(chat.id)}
           />
         </DraggableModal>
       ))}

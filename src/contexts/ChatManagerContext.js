@@ -132,8 +132,15 @@ export const ChatManagerProvider = ({ children }) => {
     const chat = chats.find(c => c.id === chatId);
     if (!chat || !chat.isChatActive) return; // Não envia se o chat estiver inativo
 
-    const { id, assunto, descricao } = chat.pastaData;
-    const formattedText = `${text}\n\n---\nID: ${id}\nAssunto: ${assunto}\nDescrição: ${descricao}`;
+    const { id, assunto, processo, processoPrincipal } = chat.pastaData;
+    let infoBlock = `#${id}`;
+    const processoNumero = processoPrincipal || processo;
+    if (processoNumero) {
+      infoBlock += `\nProcesso: ${processoNumero}`;
+    }
+    infoBlock += `\nAssunto: ${assunto}`;
+
+    const formattedText = `${text}\n\n---\n${infoBlock}`;
 
     const newMessage = {
       id: `defensor-${Date.now()}`,
@@ -195,6 +202,17 @@ export const ChatManagerProvider = ({ children }) => {
       );
   },[chats]);
 
+  // Limpa o histórico de um chat específico
+  const clearChatHistory = useCallback((chatId) => {
+    setChats(currentChats =>
+      currentChats.map(c =>
+        c.id === chatId
+          ? { ...c, messages: [] }
+          : c
+      )
+    );
+  }, []);
+
   const value = {
     chats,
     openChat,
@@ -205,7 +223,8 @@ export const ChatManagerProvider = ({ children }) => {
     sendMessage,
     simulateNewMessage,
     endChat,
-    continueChat
+    continueChat,
+    clearChatHistory
   };
 
   return (

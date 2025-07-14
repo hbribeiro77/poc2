@@ -146,6 +146,15 @@ O projeto implementa um **sistema de chat global** que permite múltiplas conver
     *   Redimensionar com alça no canto inferior direito
     *   Minimizar para botão flutuante
     *   Maximizar com configurações personalizáveis por página
+    *   **Limpar conversa:** Cada modal de chat possui um botão discreto de lixeira no cabeçalho, que limpa apenas o histórico daquela conversa/modal, sem afetar outros chats abertos.
+
+### Padrão do Rodapé das Mensagens
+
+*   Toda mensagem enviada pelo defensor no chat (modal global ou WhatsApp em nova aba) inclui automaticamente um rodapé com informações da pasta:
+    *   `#ID` (ex: #12345)
+    *   `Processo: ...` (se existir, usando processoPrincipal ou processo)
+    *   `Assunto: ...`
+*   Não exibe mais a descrição da pasta no rodapé.
 
 ### Integração Global
 
@@ -212,6 +221,7 @@ O sistema está integrado no `layout.js` raiz através do `ChatManagerProvider`,
         *   **Maximizar/Restaurar:** Alterna o tamanho do modal entre as dimensões definidas pelo usuário e um estado maximizado (com um offset para não cobrir o menu lateral).
         *   **Fechar:** Fecha o modal, mas mantém o estado da conversa salvo.
         *   **Interação com Fundo:** O modal não bloqueia a interação com a página principal. O usuário pode clicar em outros itens da lista enquanto o chat está aberto.
+        *   **Limpar conversa:** Botão discreto de lixeira no cabeçalho da modal permite limpar apenas o histórico daquela conversa/modal, sem afetar outros chats abertos.
     *   **Botão Minimizado Interativo:**
         *   **Estado Padrão:** Um botão redondo com o ícone do WhatsApp, posicionado de forma flutuante.
         *   **Efeito Hover:** Ao passar o mouse, o botão se expande para mostrar o título do chat (nome do assistido).
