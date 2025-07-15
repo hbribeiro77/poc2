@@ -529,14 +529,7 @@ export default function ContatosV2Page() {
   return (
     <>
       {/* Link de volta à central de protótipos */}
-      <Group justify="flex-start" mb="md">
-        <Link href="/" style={{ textDecoration: 'none' }}>
-          <Group gap="xs">
-            <IconDoorExit size={16} />
-            <Text c="blue" size="sm">← Voltar à Central de Protótipos</Text>
-          </Group>
-        </Link>
-      </Group>
+      {/* Removido conforme solicitado */}
       
       <Flex gap={0} pb="xl">
 
