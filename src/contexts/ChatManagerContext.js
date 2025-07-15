@@ -103,12 +103,19 @@ export const ChatManagerProvider = ({ children }) => {
       const chatToEnd = currentChats.find(c => c.id === chatId);
       if (!chatToEnd) return currentChats;
 
-      const { id, assunto, descricao } = chatToEnd.pastaData;
+      const { id, assunto, processo, processoPrincipal } = chatToEnd.pastaData;
+      let infoBlock = `#${id}`;
+      const processoNumero = processoPrincipal || processo;
+      if (processoNumero) {
+        infoBlock += `\nProcesso: ${processoNumero}`;
+      }
+      infoBlock += `\nAssunto: ${assunto}`;
+
       const endMessage = {
         id: `defensor-end-${Date.now()}`,
         sender: 'defensor',
         name: 'Humberto Borges Ribeiro',
-        text: `Esta conversa foi encerrada pelo atendente.\n\n---\nID: ${id}\nAssunto: ${assunto}\nDescrição: ${descricao}`,
+        text: `Esta conversa foi encerrada pelo atendente.\n\n---\n${infoBlock}`,
         timestamp: new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
       };
 

@@ -100,6 +100,7 @@ export default function PastaListItem({ pasta, onUnarchive, onChatClick, onArchi
       <Group justify="space-between" mb="md">
         <Group gap="xs" align="center">
           <IconFolder size={20} color="var(--mantine-color-gray-7)"/>
+          <Text size="sm" fw={700} c="gray.7">#{pasta.id}</Text>
           <Badge color="blue" variant="light" size="sm">ASSISTIDO</Badge>
           {hasReuPreso && (
             <Badge color="orange" variant="filled" size="sm">RÉU PRESO</Badge>

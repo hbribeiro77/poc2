@@ -31,10 +31,10 @@ export default function ApprovalChatModal({
     <Flex direction="column" style={{ height: '100%' }}>
       <Stack p="sm" gap={4} bg="var(--mantine-color-gray-0)" style={{ borderBottom: `1px solid var(--mantine-color-gray-2)`, position: 'relative' }}>
           <Text size="xs" truncate>
-            <Text span fw={500}>Processo:</Text> {processo} | <Text span fw={500}>PID:</Text> {id}
+            <Text span fw={500}>Processo:</Text> {processo} | <Text span fw={700}>#{id}</Text>
           </Text>
           <Text size="xs" truncate>
-            <Text span fw={500}>Assunto:</Text> {assunto} | <Text span fw={500}>Descrição:</Text> {descricao}
+            <Text span fw={500}>Assunto:</Text> {assunto}
           </Text>
           {onClearChat && (
             <Button

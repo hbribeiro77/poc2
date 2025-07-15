@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Box, Group, Button } from '@mantine/core';
-import { IconSend, IconDoorExit } from '@tabler/icons-react';
+import { Box, Group, Button, Tooltip, ThemeIcon } from '@mantine/core';
+import { IconSend, IconDoorExit, IconInfoCircle } from '@tabler/icons-react';
 import ChatUI from '../ChatUI/ChatUI'; // Importar o componente de UI de Chat
 
 const ATENDENTE_NOME = 'Humberto Borges Ribeiro';
@@ -86,32 +86,62 @@ export default function WhatsappChatModal({ pasta, chatHistory, onChatUpdate, te
   };
 
   const handleEndChat = () => {
+    let infoBlock = `#${pasta.id}`;
+    const processoNumero = pasta.processoPrincipal || pasta.processo;
+    if (processoNumero) {
+      infoBlock += `\nProcesso: ${processoNumero}`;
+    }
+    infoBlock += `\nAssunto: ${pasta.assunto}`;
+    const endText = `Esta conversa foi encerrada pelo atendente.\n\n---\n${infoBlock}`;
     const endMessage = {
       id: `system-end-${Date.now()}`,
       sender: 'defensor',
-      name: 'Sistema',
-      text: `Conversa encerrada pelo atendente.`,
+      name: ATENDENTE_NOME,
+      text: endText,
       timestamp: new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
     };
     onChatUpdate([...chatHistory, endMessage]);
     setIsChatActive(false);
   };
 
+  const handleContinueChat = () => {
+    setIsChatActive(true);
+  };
+
   const actionButtons = (
     <Group justify="space-between" mt="md">
       {!hideEndButton && (
-        <Button color="red" leftSection={<IconDoorExit size={16} />} onClick={handleEndChat} disabled={!isChatActive}>
-          Encerrar Conversa
+        <Group gap="xs">
+          <Button color="red" leftSection={<IconDoorExit size={16} />} onClick={handleEndChat} disabled={!isChatActive}>
+            Encerrar Conversa
+          </Button>
+          <Tooltip 
+            label="Caso encerre a conversa, você não receberá novas respostas do assistido e precisará continuar a conversa para reativá-la." 
+            withArrow 
+            multiline
+            w={220}
+            position="top-start"
+          >
+            <ThemeIcon variant="subtle" color="gray" radius="xl">
+              <IconInfoCircle size={20} />
+            </ThemeIcon>
+          </Tooltip>
+        </Group>
+      )}
+      {isChatActive ? (
+        <Button
+          leftSection={<IconSend size={16} />}
+          onClick={handleSendMessage}
+          disabled={!messageContent.trim() || !isChatActive}
+          style={hideEndButton ? { marginLeft: 'auto' } : {}}
+        >
+          Enviar
+        </Button>
+      ) : (
+        <Button color="green" onClick={handleContinueChat}>
+          Continuar Conversa
         </Button>
       )}
-      <Button
-        leftSection={<IconSend size={16} />}
-        onClick={handleSendMessage}
-        disabled={!messageContent.trim() || !isChatActive}
-        style={hideEndButton ? { marginLeft: 'auto' } : {}}
-      >
-        Enviar
-      </Button>
     </Group>
   );
 

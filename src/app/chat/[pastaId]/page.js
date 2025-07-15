@@ -149,12 +149,12 @@ export default function ChatPage() {
                 }}
             >
                 <Stack gap="xs" mb="md">
-                    <Title order={5}>Contato com Marta Wayne (51) 99238-7768</Title>
+                    <Title order={5}>Contato com {pasta.assistido} {pasta.telefone}</Title>
                     <Text size="xs">
-                        <Text span fw={700}>Processo:</Text> {pasta.processoPrincipal} | <Text span fw={700}>PID:</Text> {pasta.id}
+                        <Text span fw={700}>Processo:</Text> {pasta.processoPrincipal || pasta.processo} | <Text span fw={700}>#{pasta.id}</Text>
                     </Text>
                     <Text size="xs">
-                        <Text span fw={700}>Assunto:</Text> {pasta.assunto} | <Text span fw={700}>Descrição:</Text> {pasta.descricao}
+                        <Text span fw={700}>Assunto:</Text> {pasta.assunto}
                     </Text>
                 </Stack>
                 <Divider mb="sm" />

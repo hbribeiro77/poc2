@@ -23,7 +23,8 @@ function generateFakePastas(count) {
   ];
   const statuses = ['Ativa', 'Arquivada'];
 
-  for (let i = 1; i <= count; i++) {
+  let currentId = 58148128;
+  for (let i = 0; i < count; i++) {
     const hasTags = Math.random() > 0.7;
     const processoNum = 8000000 + Math.floor(Math.random() * 100000);
     const ano = 2020 + Math.floor(Math.random() * 5);
@@ -31,21 +32,22 @@ function generateFakePastas(count) {
     const status = statuses[Math.floor(Math.random() * statuses.length)];
 
     generatedPastas.push({
-      id: `gen-${i}`,
+      id: String(currentId),
       processoPrincipal: `${processoNum}-47.${ano}.8.21.${String(comarcaIndex + 1).padStart(4, '0')}`,
       tags: hasTags ? ['Réu preso'] : [],
       status: status,
       ultimoAtendimento: `01/0${Math.floor(Math.random() * 9) + 1}/2024`,
       comarca: comarcas[comarcaIndex],
-      orgaoJulgador: `Vara Genérica ${i} da ${comarcas[comarcaIndex]}`,
+      orgaoJulgador: `Vara Genérica ${i + 1} da ${comarcas[comarcaIndex]}`,
       area: areas[Math.floor(Math.random() * areas.length)],
-      classe: `Classe Genérica ${i}`,
+      classe: `Classe Genérica ${i + 1}`,
       assunto: assuntos[Math.floor(Math.random() * assuntos.length)],
-      descricao: `Descrição automática para pasta gerada número ${i}.`,
+      descricao: `Descrição automática para pasta gerada número ${i + 1}.`,
       assistido: 'Marta Wayne',
       telefone: '(51) 99238-7778',
       processosAssociados: [`${processoNum}-47.${ano}.8.21.${String(comarcaIndex + 1).padStart(4, '0')}`]
     });
+    currentId += Math.floor(Math.random() * 91) + 10; // Soma entre 10 e 100
   }
   return generatedPastas;
 }

@@ -136,7 +136,7 @@ O projeto implementa um **sistema de chat global** que permite múltiplas conver
 
 ### Funcionalidades do Sistema
 
-*   **Múltiplos Chats Simultâneos:** Permite abrir várias conversas ao mesmo tempo, cada uma em seu próprio modal.
+*   **Múltiplos Chats Simultâneos:** Permite abrir várias conversas ao mesmo tempo, cada uma em seu próprio modal ou em nova aba (ambos padronizados).
 *   **Persistência Automática:** Histórico de conversas salvo automaticamente no `localStorage` com a chave `'chat_histories'`.
 *   **Estado Persistente:** Conversas mantêm estado entre sessões - ao reabrir um chat, o histórico é restaurado.
 *   **Notificações Visuais:** Contador de mensagens não lidas e animações quando o chat está minimizado.
@@ -147,6 +147,7 @@ O projeto implementa um **sistema de chat global** que permite múltiplas conver
     *   Minimizar para botão flutuante
     *   Maximizar com configurações personalizáveis por página
     *   **Limpar conversa:** Cada modal de chat possui um botão discreto de lixeira no cabeçalho, que limpa apenas o histórico daquela conversa/modal, sem afetar outros chats abertos.
+    *   **Encerramento e Continuação:** Ao encerrar a conversa (tanto na modal quanto na nova aba), é exibida uma mensagem automática padronizada com rodapé (#ID, Processo, Assunto) e o nome do atendente. O botão de encerrar fica desabilitado e aparece o botão "Continuar Conversa" para reativar o chat. O botão de encerrar exibe o ícone (i) com tooltip explicativo.
 
 ### Padrão do Rodapé das Mensagens
 
