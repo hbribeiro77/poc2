@@ -429,6 +429,31 @@ export default function HomePage() {
           </Card>
         </Grid.Col>
 
+        {/* Card Pasta v3 */}
+        <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
+          <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
+            <Group justify="space-between" mt="md" mb="xs">
+              <Title order={5}>Pasta v3</Title>
+            </Group>
+
+            <Text size="sm" c="dimmed" mb="md">
+              Cópia da página original de pasta para novos desenvolvimentos.
+            </Text>
+
+            <Button
+              variant="light"
+              color="blue"
+              fullWidth
+              mt="auto"
+              radius="md"
+              component={Link}
+              href="/pasta-v3"
+            >
+              Acessar Pasta v3
+            </Button>
+          </Card>
+        </Grid.Col>
+
       </Grid>
 
       <Space h="xl" />
