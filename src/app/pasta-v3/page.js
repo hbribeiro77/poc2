@@ -23,7 +23,8 @@ import Link from 'next/link';
 import PastaHeader from '../../components/PastaHeader/PastaHeader';
 import ModalConfirmacaoAssustadora from '../../components/ConfirmActionModal/ModalConfirmacaoAssustadora';
 import ArchivePastaModal from '../../components/ArchivePastaModal/ArchivePastaModal';
-import AtendimentosPastaTable from '../../components/AtendimentosPastaTable/AtendimentosPastaTable';
+import AtendimentosTable from '../../components/AtendimentosTable/AtendimentosTable';
+import DocumentosTable from '../../components/DocumentosTable/DocumentosTable';
 import AtendimentoChatModal from '../../components/AtendimentoChatModal/AtendimentoChatModal';
 import PecaseOficiosList from '../../components/PecaseOficiosList/PecaseOficiosList';
 import VisaoGeralTimeline from '../../components/VisaoGeralTimeline/VisaoGeralTimeline';
@@ -78,13 +79,26 @@ export default function PastaV3Page() {
   
   // Estado para a tabela de atendimentos
   const [atendimentos, setAtendimentos] = useState([
-    { id: 1, data: '14/10/2021', situacao: 'Finalizado', relato: 'Est et aut dolor. Quibusdam un...', providencia: 'Petição inicial', assistido: 'PRISCILLA AUFDERHAR...', defensoria: '1ª DEFENSORIA PÚBLICA DE BAGÉ', formaAtendimento: 'Presencial' },
-    { id: 2, data: '14/10/2021', situacao: 'Finalizado', relato: 'Quod quia sit. Ratione consequ...', providencia: 'Petição inicial', assistido: 'MR. KELVIN KASSULKE ...', defensoria: '1ª DEFENSORIA PÚBLICA DE BAGÉ', formaAtendimento: 'Telefone' },
-    { id: 3, data: '12/10/2021', situacao: 'Finalizado', relato: 'Atendimento presencial para coleta de documentos.', providencia: 'Orientação', assistido: 'LISA SIMPSON', defensoria: '2ª DEFENSORIA PÚBLICA DE BAGÉ', formaAtendimento: 'Presencial' },
-    { id: 4, data: '11/10/2021', situacao: 'Finalizado', relato: 'Assistido compareceu para assinatura de procuração.', providencia: 'Assinatura', assistido: 'NED FLANDERS', defensoria: '2ª DEFENSORIA PÚBLICA DE BAGÉ', formaAtendimento: 'Presencial' },
+    { id: 1, data: '22/07/2025', situacao: 'Rascunho', relato: 'não estou recebendo o medicamento', providencia: 'Retorno', assistido: 'HUMBERTO BORGES RIBE...', defensoria: '2ª DEFENSORIA PÚBLICA ESPECIALIZADA CÍVEL DO FORO CENTRAL', formaAtendimento: 'Presencial' },
+    { id: 2, data: '14/10/2021', situacao: 'Aprovado', relato: 'Quod quia sit. Ratione consequ...', providencia: 'Petição inicial', assistido: 'MR. KELVIN KASSULKE ...', defensoria: '1ª DEFENSORIA PÚBLICA DE BAGÉ', formaAtendimento: 'Telefone' },
+    { id: 3, data: '12/10/2021', situacao: 'Rascunho', relato: 'Atendimento presencial para coleta de documentos.', providencia: 'Orientação', assistido: 'LISA SIMPSON', defensoria: '2ª DEFENSORIA PÚBLICA DE BAGÉ', formaAtendimento: 'Presencial' },
+    { id: 4, data: '11/10/2021', situacao: 'Aprovado', relato: 'Assistido compareceu para assinatura de procuração.', providencia: 'Retorno', assistido: 'NED FLANDERS', defensoria: '2ª DEFENSORIA PÚBLICA DE BAGÉ', formaAtendimento: 'Presencial' },
   ]);
   const [atendimentosActivePage, setAtendimentosActivePage] = useState(1);
   const [atendimentosItemsPerPage, setAtendimentosItemsPerPage] = useState('5');
+
+  // Estado para a tabela de documentos
+  const [documentos, setDocumentos] = useState([
+    { id: 1, data: '03/07/2025', descricao: 'CAPTURA DE TELA - TENTATIVA DE CONTATO PELO WHATS', usuario: 'Guilherme Machado Moraes' },
+    { id: 2, data: '13/06/2025', descricao: 'E-mail encaminhado', usuario: 'Nathalia de Quevedo Barbosa' },
+    { id: 3, data: '30/05/2025', descricao: 'Comprovante CORREIO', usuario: 'Nathalia de Quevedo Barbosa' },
+    { id: 4, data: '22/05/2025', descricao: 'Acordo', usuario: 'Nathalia de Quevedo Barbosa' },
+    { id: 5, data: '22/05/2025', descricao: 'Acórdão', usuario: 'Nathalia de Quevedo Barbosa' },
+    { id: 6, data: '22/05/2025', descricao: 'Comprovante de pagamento (destinatária Geovana Bet)', usuario: 'Nathalia de Quevedo Barbosa' },
+    { id: 7, data: '22/05/2025', descricao: 'Relatório - Voto', usuario: 'Nathalia de Quevedo Barbosa' },
+  ]);
+  const [documentosActivePage, setDocumentosActivePage] = useState(1);
+  const [documentosItemsPerPage, setDocumentosItemsPerPage] = useState('5');
 
   const handleOpenArchiveModal = () => setArchiveModalOpened(true);
   const handleCloseArchiveModal = () => setArchiveModalOpened(false);
@@ -213,19 +227,68 @@ export default function PastaV3Page() {
           )}
 
           {activePastaSection === 'atendimentos' && (
-            <AtendimentosPastaTable
+            <AtendimentosTable
               atendimentos={atendimentos}
-              atendimentosActivePage={atendimentosActivePage}
-              setAtendimentosActivePage={setAtendimentosActivePage}
-              atendimentosItemsPerPage={atendimentosItemsPerPage}
-              setAtendimentosItemsPerPage={setAtendimentosItemsPerPage}
-              onNewWhatsapp={handleOpenContactSelectModal}
+              currentPage={atendimentosActivePage}
+              onPageChange={setAtendimentosActivePage}
+              itemsPerPage={atendimentosItemsPerPage}
+              onItemsPerPageChange={(value) => {
+                setAtendimentosItemsPerPage(value);
+                setAtendimentosActivePage(1); // Reset para primeira página
+              }}
+              onNewAtendimento={handleOpenContactSelectModal}
               onEdit={handleEditAtendimento}
+              onDelete={(item) => console.log('Excluir atendimento:', item)}
+              onView={(item) => console.log('Visualizar atendimento:', item)}
             />
           )}
 
           {activePastaSection === 'pecas' && (
             <PecaseOficiosList />
+          )}
+
+          {activePastaSection === 'documentos' && (
+            <DocumentosTable
+              documentos={documentos}
+              currentPage={documentosActivePage}
+              onPageChange={setDocumentosActivePage}
+              itemsPerPage={documentosItemsPerPage}
+              onItemsPerPageChange={(value) => {
+                setDocumentosItemsPerPage(value);
+                setDocumentosActivePage(1); // Reset para primeira página
+              }}
+              onView={(documento) => console.log('Visualizar documento:', documento)}
+              onDownload={(documento) => console.log('Download documento:', documento)}
+              onEdit={(documento) => console.log('Editar documento:', documento)}
+              onDelete={(documento) => {
+                console.log('Excluir documento:', documento);
+                // Atualiza a lista removendo o documento
+                setDocumentos(prev => prev.filter(doc => doc.id !== documento.id));
+              }}
+                             onUpload={(files) => {
+                 console.log('Arquivos enviados:', files);
+                 // Aqui você pode adicionar lógica para processar os arquivos
+                 // Por exemplo, adicionar à lista de documentos
+                 const novosDocumentos = files.map((file, index) => ({
+                   id: Date.now() + index,
+                   data: new Date().toLocaleDateString('pt-BR'),
+                   descricao: file.name,
+                   usuario: 'Humberto Borges Ribeiro'
+                 }));
+                 setDocumentos(prev => [...novosDocumentos, ...prev]);
+               }}
+                               onScan={(documentosClassificados) => {
+                  console.log('Documentos digitalizados e classificados:', documentosClassificados);
+                  // Adiciona todos os documentos classificados à lista
+                  const novosDocumentos = documentosClassificados.map(doc => ({
+                    id: doc.id,
+                    data: doc.dataDigitalizacao,
+                    descricao: doc.descricaoDocumento || doc.tipoDocumento || doc.nome,
+                    usuario: doc.nomeAssistido || 'Humberto Borges Ribeiro'
+                  }));
+                  setDocumentos(prev => [...novosDocumentos, ...prev]);
+                }}
+            />
           )}
         </Box>
       </Flex>
