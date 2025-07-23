@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import {
   Modal,
   Stack,
@@ -38,6 +38,7 @@ const ClassificarDocumentoDigitalizadoModal = ({ opened, onClose, onSave }) => {
   const [documentoSelecionado, setDocumentoSelecionado] = useState(null);
   const [enviandoArquivos, setEnviandoArquivos] = useState(false);
   const [progressoEnvio, setProgressoEnvio] = useState({});
+  const [visualizandoDocumento, setVisualizandoDocumento] = useState(null);
 
   const modalStyles = {
     header: { backgroundColor: theme.colors.dark[6] },
@@ -60,11 +61,11 @@ const ClassificarDocumentoDigitalizadoModal = ({ opened, onClose, onSave }) => {
         tamanho: '2.4 MB',
         dataDigitalizacao: new Date().toLocaleDateString('pt-BR'),
         preview: `Preview do Documento ${documentosDigitalizados.length + 1}`,
-        // Campos de classificação (inicialmente vazios)
+        // Campos de classificação vazios - usuário classifica DEPOIS de visualizar
         tipoDocumento: '',
         nomeAssistido: '',
         numeroDocumento: '',
-        descricaoDocumento: '', // Será preenchido automaticamente quando selecionar o tipo
+        descricaoDocumento: '',
         classificado: false,
       };
       
@@ -147,7 +148,32 @@ const ClassificarDocumentoDigitalizadoModal = ({ opened, onClose, onSave }) => {
     setDigitalizando(false);
     setEnviandoArquivos(false);
     setProgressoEnvio({});
+    setVisualizandoDocumento(null);
     onClose();
+  };
+
+  const handleVisualizarDocumento = (documento) => {
+    const posicao = documentosDigitalizados.indexOf(documento);
+    // Permite visualizar primeiro documento (contrato), segundo documento (laudo) e terceiro documento (orçamento)
+    const podeVisualizar = documento.tipoDocumento === 'Contrato' || documento.tipoDocumento === 'Laudo' || documento.tipoDocumento === 'Orçamento' || posicao === 0 || posicao === 1 || posicao === 2;
+    
+    if (podeVisualizar) {
+      setVisualizandoDocumento(documento);
+      
+      // Scroll suave para a linha do documento após um pequeno delay
+      setTimeout(() => {
+        const documentoRow = document.querySelector(`[data-documento-id="${documento.id}"]`);
+        if (documentoRow) {
+          documentoRow.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start',
+            inline: 'nearest'
+          });
+        }
+      }, 100); // Pequeno delay para garantir que o DOM foi atualizado
+    } else {
+      alert('Visualização disponível apenas para documentos dos tipos "Contrato", "Laudo" e "Orçamento"');
+    }
   };
 
   const FormularioClassificacao = ({ documento, onSalvar, onCancelar }) => {
@@ -190,6 +216,9 @@ const ClassificarDocumentoDigitalizadoModal = ({ opened, onClose, onSave }) => {
                 'Petição',
                 'Procuração',
                 'Relatório',
+                'Laudo',
+                'Orçamento',
+                'Contrato',
                 'Outros'
               ]}
             />
@@ -244,16 +273,25 @@ const ClassificarDocumentoDigitalizadoModal = ({ opened, onClose, onSave }) => {
       title="Digitalizar e Classificar Documentos"
       size="90%"
       centered
-      styles={modalStyles}
+      styles={{
+        ...modalStyles,
+        body: {
+          padding: '0',
+          display: 'flex',
+          flexDirection: 'column',
+          height: '80vh',
+        }
+      }}
     >
-      <Stack gap="lg">
+      {/* ÁREA DE CONTEÚDO COM ROLAGEM */}
+      <ScrollArea style={{ flex: 1 }}>
+        <Stack gap="lg" p="md">
 
         {/* Lista de Documentos Digitalizados */}
         {documentosDigitalizados.length > 0 && (
           <>
             <Divider label="Documentos Digitalizados" />
-            <ScrollArea>
-              <Table highlightOnHover>
+            <Table highlightOnHover>
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>Arquivo</Table.Th>
@@ -270,155 +308,301 @@ const ClassificarDocumentoDigitalizadoModal = ({ opened, onClose, onSave }) => {
                     const progresso = progressoEnvio[documento.id];
                     const isEnviando = progresso?.status === 'enviando';
                     const isEnviado = progresso?.status === 'enviado';
+                    const isVisualizando = visualizandoDocumento?.id === documento.id;
                     
                     return (
-                      <Table.Tr 
-                        key={documento.id}
-                        style={{
-                          position: 'relative',
-                          backgroundColor: isEnviando ? 'rgba(34, 139, 34, 0.05)' : 
-                                          isEnviado ? 'rgba(34, 139, 34, 0.1)' : 'transparent',
-                          backgroundImage: isEnviando 
-                            ? `linear-gradient(to right, rgba(34, 139, 34, 0.15) ${progresso.progresso}%, transparent ${progresso.progresso}%)`
-                            : 'none',
-                          transition: 'all 0.3s ease',
-                        }}
-                      >
-                        
-                        <Table.Td style={{ position: 'relative', zIndex: 1 }}>
-                          <Group gap="xs">
-                            {isEnviando ? (
-                              <IconLoader2 size={16} style={{ color: '#228B22', animation: 'spin 1s linear infinite' }} />
-                            ) : isEnviado ? (
-                              <IconCircleCheck size={16} style={{ color: '#228B22' }} />
-                            ) : (
-                              <IconFile size={16} />
-                            )}
-                            <Text size="sm">{documento.nome}</Text>
-                          </Group>
-                        </Table.Td>
-                      <Table.Td>
-                        <Select
-                          placeholder="Selecione um tipo"
-                          size="xs"
-                          value={documento.tipoDocumento}
-                          onChange={(value) => {
-                            setDocumentosDigitalizados(prev => 
-                              prev.map(doc => 
-                                doc.id === documento.id 
-                                  ? { 
-                                    ...doc, 
-                                    tipoDocumento: value,
-                                    // Atualiza automaticamente a descrição com o tipo selecionado
-                                    descricaoDocumento: value ? `${value}` : doc.descricaoDocumento
-                                  }
-                                  : doc
-                              )
-                            );
+                      <Fragment key={documento.id}>
+                        <Table.Tr 
+                          data-documento-id={documento.id}
+                          style={{
+                            position: 'relative',
+                            backgroundColor: isEnviando ? 'rgba(34, 139, 34, 0.05)' : 
+                                            isEnviado ? 'rgba(34, 139, 34, 0.1)' : 'transparent',
+                            backgroundImage: isEnviando 
+                              ? `linear-gradient(to right, rgba(34, 139, 34, 0.15) ${progresso.progresso}%, transparent ${progresso.progresso}%)`
+                              : 'none',
+                            transition: 'all 0.3s ease',
                           }}
-                          data={[
-                            'Certidão de Nascimento',
-                            'Certidão de Casamento', 
-                            'RG',
-                            'CPF',
-                            'Comprovante de Renda',
-                            'Comprovante de Residência',
-                            'Petição',
-                            'Procuração',
-                            'Relatório',
-                            'Outros'
-                          ]}
-                        />
-                      </Table.Td>
-                      <Table.Td>
-                        <Select
-                          placeholder="Selecione o nome do assistido"
-                          size="xs"
-                          value={documento.nomeAssistido}
-                          onChange={(value) => {
-                            setDocumentosDigitalizados(prev => 
-                              prev.map(doc => 
-                                doc.id === documento.id 
-                                  ? { ...doc, nomeAssistido: value }
-                                  : doc
-                              )
-                            );
-                          }}
-                          data={[
-                            'HUMBERTO BORGES RIBEIRO',
-                            'LISA SIMPSON',
-                            'NED FLANDERS',
-                            'HOMER SIMPSON',
-                            'MARGE SIMPSON'
-                          ]}
-                          searchable
-                        />
-                      </Table.Td>
-                      <Table.Td>
-                        <TextInput
-                          placeholder="Número do documento"
-                          size="xs"
-                          value={documento.numeroDocumento}
-                          onChange={(e) => {
-                            setDocumentosDigitalizados(prev => 
-                              prev.map(doc => 
-                                doc.id === documento.id 
-                                  ? { ...doc, numeroDocumento: e.target.value }
-                                  : doc
-                              )
-                            );
-                          }}
-                        />
-                      </Table.Td>
-                      <Table.Td>
-                        <TextInput
-                          placeholder={documento.tipoDocumento ? `${documento.tipoDocumento}` : "Descrição do documento"}
-                          size="xs"
-                          value={documento.descricaoDocumento}
-                          onChange={(e) => {
-                            setDocumentosDigitalizados(prev => 
-                              prev.map(doc => 
-                                doc.id === documento.id 
-                                  ? { ...doc, descricaoDocumento: e.target.value }
-                                  : doc
-                              )
-                            );
-                          }}
-                        />
-                      </Table.Td>
-                      <Table.Td>
-                        <Text size="sm">{documento.dataDigitalizacao}</Text>
-                      </Table.Td>
-                      <Table.Td>
-                        <Group gap="xs" wrap="nowrap">
-                          <Tooltip label="Visualizar documento">
-                            <ActionIcon variant="subtle" color="blue" size="sm">
-                              <IconEye size={14} />
-                            </ActionIcon>
-                          </Tooltip>
-                          <Tooltip label="Remover documento">
-                            <ActionIcon 
+                        >
+                          
+                          <Table.Td style={{ position: 'relative', zIndex: 1 }}>
+                            <Group gap="xs">
+                              {isEnviando ? (
+                                <IconLoader2 size={16} style={{ color: '#228B22', animation: 'spin 1s linear infinite' }} />
+                              ) : isEnviado ? (
+                                <IconCircleCheck size={16} style={{ color: '#228B22' }} />
+                              ) : (
+                                <IconFile size={16} />
+                              )}
+                              <Text 
+                                size="sm"
+                                                              style={{
+                                textDecoration: (() => {
+                                  const posicao = documentosDigitalizados.indexOf(documento);
+                                  return (documento.tipoDocumento === 'Contrato' || documento.tipoDocumento === 'Laudo' || documento.tipoDocumento === 'Orçamento' || posicao === 0 || posicao === 1 || posicao === 2) ? 'underline' : 'none';
+                                })(),
+                                cursor: (() => {
+                                  const posicao = documentosDigitalizados.indexOf(documento);
+                                  return (documento.tipoDocumento === 'Contrato' || documento.tipoDocumento === 'Laudo' || documento.tipoDocumento === 'Orçamento' || posicao === 0 || posicao === 1 || posicao === 2) ? 'pointer' : 'default';
+                                })(),
+                                color: (() => {
+                                  const posicao = documentosDigitalizados.indexOf(documento);
+                                  return (documento.tipoDocumento === 'Contrato' || documento.tipoDocumento === 'Laudo' || documento.tipoDocumento === 'Orçamento' || posicao === 0 || posicao === 1 || posicao === 2) ? '#228be6' : 'inherit';
+                                })(),
+                                transition: 'color 0.15s ease'
+                              }}
+                                                              onClick={() => {
+                                const posicao = documentosDigitalizados.indexOf(documento);
+                                const podeVisualizar = documento.tipoDocumento === 'Contrato' || documento.tipoDocumento === 'Laudo' || documento.tipoDocumento === 'Orçamento' || posicao === 0 || posicao === 1 || posicao === 2;
+                                if (podeVisualizar) {
+                                  handleVisualizarDocumento(documento);
+                                }
+                              }}
+                              onMouseEnter={(e) => {
+                                const posicao = documentosDigitalizados.indexOf(documento);
+                                const podeVisualizar = documento.tipoDocumento === 'Contrato' || documento.tipoDocumento === 'Laudo' || documento.tipoDocumento === 'Orçamento' || posicao === 0 || posicao === 1 || posicao === 2;
+                                if (podeVisualizar) {
+                                  e.target.style.color = '#1864ab';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                const posicao = documentosDigitalizados.indexOf(documento);
+                                const podeVisualizar = documento.tipoDocumento === 'Contrato' || documento.tipoDocumento === 'Laudo' || documento.tipoDocumento === 'Orçamento' || posicao === 0 || posicao === 1 || posicao === 2;
+                                if (podeVisualizar) {
+                                  e.target.style.color = '#228be6';
+                                }
+                              }}
+                              >
+                                {documento.nome}
+                              </Text>
+                            </Group>
+                          </Table.Td>
+                          <Table.Td>
+                            <Select
+                              placeholder="Selecione um tipo"
+                              size="xs"
+                              value={documento.tipoDocumento}
+                              onChange={(value) => {
+                                setDocumentosDigitalizados(prev => 
+                                  prev.map(doc => 
+                                    doc.id === documento.id 
+                                      ? { 
+                                        ...doc, 
+                                        tipoDocumento: value,
+                                        // Atualiza automaticamente a descrição com o tipo selecionado
+                                        descricaoDocumento: value ? `${value}` : doc.descricaoDocumento
+                                      }
+                                      : doc
+                                  )
+                                );
+                              }}
+                              data={[
+                                'Certidão de Nascimento',
+                                'Certidão de Casamento', 
+                                'RG',
+                                'CPF',
+                                'Comprovante de Renda',
+                                'Comprovante de Residência',
+                                'Petição',
+                                'Procuração',
+                                'Relatório',
+                                'Laudo',
+                                'Orçamento',
+                                'Contrato',
+                                'Outros'
+                              ]}
+                            />
+                          </Table.Td>
+                          <Table.Td>
+                            <Select
+                              placeholder="Selecione o nome do assistido"
+                              size="xs"
+                              value={documento.nomeAssistido}
+                              onChange={(value) => {
+                                setDocumentosDigitalizados(prev => 
+                                  prev.map(doc => 
+                                    doc.id === documento.id 
+                                      ? { ...doc, nomeAssistido: value }
+                                      : doc
+                                  )
+                                );
+                              }}
+                              data={[
+                                'HUMBERTO BORGES RIBEIRO',
+                                'LISA SIMPSON',
+                                'NED FLANDERS',
+                                'HOMER SIMPSON',
+                                'MARGE SIMPSON'
+                              ]}
+                              searchable
+                            />
+                          </Table.Td>
+                          <Table.Td>
+                            <TextInput
+                              placeholder="Número do documento"
+                              size="xs"
+                              value={documento.numeroDocumento}
+                              onChange={(e) => {
+                                setDocumentosDigitalizados(prev => 
+                                  prev.map(doc => 
+                                    doc.id === documento.id 
+                                      ? { ...doc, numeroDocumento: e.target.value }
+                                      : doc
+                                  )
+                                );
+                              }}
+                            />
+                          </Table.Td>
+                          <Table.Td>
+                            <TextInput
+                              placeholder={documento.tipoDocumento ? `${documento.tipoDocumento}` : "Descrição do documento"}
+                              size="xs"
+                              value={documento.descricaoDocumento}
+                              onChange={(e) => {
+                                setDocumentosDigitalizados(prev => 
+                                  prev.map(doc => 
+                                    doc.id === documento.id 
+                                      ? { ...doc, descricaoDocumento: e.target.value }
+                                      : doc
+                                  )
+                                );
+                              }}
+                            />
+                          </Table.Td>
+                          <Table.Td>
+                            <Text size="sm">{documento.dataDigitalizacao}</Text>
+                          </Table.Td>
+                          <Table.Td>
+                            <Group gap="xs" wrap="nowrap">
+                                                        <Tooltip label={(() => {
+                            const posicao = documentosDigitalizados.indexOf(documento);
+                            const podeVisualizar = documento.tipoDocumento === 'Contrato' || documento.tipoDocumento === 'Laudo' || documento.tipoDocumento === 'Orçamento' || posicao === 0 || posicao === 1 || posicao === 2;
+                            if (podeVisualizar) {
+                              if (documento.tipoDocumento === 'Laudo' || posicao === 1) {
+                                return "Visualizar PDF do laudo";
+                              } else if (documento.tipoDocumento === 'Orçamento' || posicao === 2) {
+                                return "Visualizar PDF do orçamento";
+                              } else {
+                                return "Visualizar PDF do contrato";
+                              }
+                            } else {
+                              return "Visualizar documento (apenas para Contratos, Laudos e Orçamentos)";
+                            }
+                          })()}>
+                                                            <ActionIcon 
                               variant="subtle" 
-                              color="red" 
+                              color={(() => {
+                                const posicao = documentosDigitalizados.indexOf(documento);
+                                return (documento.tipoDocumento === 'Contrato' || documento.tipoDocumento === 'Laudo' || documento.tipoDocumento === 'Orçamento' || posicao === 0 || posicao === 1 || posicao === 2) ? "blue" : "gray";
+                              })()} 
                               size="sm"
-                              onClick={() => handleRemoverDocumento(documento.id)}
-                            >
-                              <IconX size={14} />
-                            </ActionIcon>
-                          </Tooltip>
-                        </Group>
-                      </Table.Td>
-                    </Table.Tr>
+                              onClick={() => handleVisualizarDocumento(documento)}
+                              style={{
+                                opacity: (() => {
+                                  const posicao = documentosDigitalizados.indexOf(documento);
+                                  return (documento.tipoDocumento === 'Contrato' || documento.tipoDocumento === 'Laudo' || documento.tipoDocumento === 'Orçamento' || posicao === 0 || posicao === 1 || posicao === 2) ? 1 : 0.5;
+                                })(),
+                                cursor: (() => {
+                                  const posicao = documentosDigitalizados.indexOf(documento);
+                                  return (documento.tipoDocumento === 'Contrato' || documento.tipoDocumento === 'Laudo' || documento.tipoDocumento === 'Orçamento' || posicao === 0 || posicao === 1 || posicao === 2) ? 'pointer' : 'not-allowed';
+                                })()
+                              }}
+                                >
+                                  <IconEye size={14} />
+                                </ActionIcon>
+                              </Tooltip>
+                              <Tooltip label="Remover documento">
+                                <ActionIcon 
+                                  variant="subtle" 
+                                  color="red" 
+                                  size="sm"
+                                  onClick={() => handleRemoverDocumento(documento.id)}
+                                >
+                                  <IconX size={14} />
+                                </ActionIcon>
+                              </Tooltip>
+                            </Group>
+                          </Table.Td>
+                        </Table.Tr>
+                        
+                        {/* Linha do visualizador inline - aparece logo abaixo do documento clicado */}
+                        {isVisualizando && (
+                          <Table.Tr>
+                            <Table.Td colSpan={7} style={{ padding: 0, backgroundColor: '#f8f9fa' }}>
+                              <Box p="md">
+                                <Group justify="space-between" mb="sm">
+                                  <Text fw={500} size="sm" c="blue">
+                                    {documento.nome}
+                                  </Text>
+                                  <ActionIcon 
+                                    variant="subtle" 
+                                    color="gray" 
+                                    size="sm"
+                                    onClick={() => {
+                                      setVisualizandoDocumento(null);
+                                      
+                                      // Scroll suave para o topo da lista após fechar o PDF
+                                      setTimeout(() => {
+                                        const scrollArea = document.querySelector('[data-radix-scroll-area-viewport]');
+                                        if (scrollArea) {
+                                          scrollArea.scrollTo({ 
+                                            top: 0, 
+                                            behavior: 'smooth' 
+                                          });
+                                        }
+                                      }, 100);
+                                    }}
+                                  >
+                                    <IconX size={14} />
+                                  </ActionIcon>
+                                </Group>
+                                
+                                <Box
+                                  style={{
+                                    border: '1px solid #ced4da',
+                                    borderRadius: '8px',
+                                    backgroundColor: '#fff',
+                                    overflow: 'hidden',
+                                  }}
+                                >
+                                  <iframe
+                                    src={(() => {
+                                      const posicao = documentosDigitalizados.indexOf(documento);
+                                      // Determina qual PDF carregar baseado na posição ou tipo
+                                      if (documento.tipoDocumento === 'Laudo' || posicao === 1) {
+                                        return '/laudo.pdf#toolbar=1&navpanes=1&scrollbar=1&page=1&view=FitH';
+                                      } else if (documento.tipoDocumento === 'Orçamento' || posicao === 2) {
+                                        return '/orcamento.pdf#toolbar=1&navpanes=1&scrollbar=1&page=1&view=FitH';
+                                      } else {
+                                        return '/contrato.pdf#toolbar=1&navpanes=1&scrollbar=1&page=1&view=FitH';
+                                      }
+                                    })()}
+                                    style={{
+                                      width: '100%',
+                                      height: '400px',
+                                      border: 'none',
+                                    }}
+                                    title="Visualizador de PDF"
+                                    loading="lazy"
+                                  />
+                                </Box>
+                              </Box>
+                            </Table.Td>
+                          </Table.Tr>
+                        )}
+                      </Fragment>
                     );
                   })}
-                </Table.Tbody>
+                                </Table.Tbody>
               </Table>
-            </ScrollArea>
-          </>
+                      </>
         )}
+        </Stack>
+      </ScrollArea>
 
-        {/* Botões de ação finais */}
-        <Group justify="space-between" mt="xl">
+      {/* BOTÕES FIXOS NO RODAPÉ */}
+      <Box p="md" style={{ borderTop: '1px solid #dee2e6' }}>
+        <Group justify="space-between">
           <Group>
             <Text size="sm" c="dimmed">
               {documentosDigitalizados.length > 0 ? (
@@ -461,7 +645,7 @@ const ClassificarDocumentoDigitalizadoModal = ({ opened, onClose, onSave }) => {
             </Button>
           </Group>
         </Group>
-      </Stack>
+      </Box>
 
       <style jsx>{`
         @keyframes pulse {

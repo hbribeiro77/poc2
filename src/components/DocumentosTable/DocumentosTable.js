@@ -45,6 +45,8 @@ const DocumentosTable = ({
   showUploadArea = true,
 }) => {
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [uploadHover, setUploadHover] = useState(false);
+  const [scannerHover, setScannerHover] = useState(false);
   const [classificarModalOpened, setClassificarModalOpened] = useState(false);
 
   const totalPages = Math.ceil(documentos.length / parseInt(itemsPerPage, 10));
@@ -204,15 +206,12 @@ const DocumentosTable = ({
                 style={{
                   height: '100%',
                   borderRight: '1px solid #ced4da',
-                  transition: 'all 0.2s ease',
                   cursor: 'pointer',
+                  backgroundColor: uploadHover ? '#e9ecef' : 'transparent',
+                  transition: 'background-color 0.15s ease',
                 }}
-                onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = '#e7f5ff';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = 'transparent';
-                }}
+                onMouseEnter={() => setUploadHover(true)}
+                onMouseLeave={() => setUploadHover(false)}
               >
                 <Dropzone
                   onDrop={handleFileDrop}
@@ -270,18 +269,13 @@ const DocumentosTable = ({
                   flexDirection: 'column',
                   gap: '8px',
                   cursor: onScan ? 'pointer' : 'not-allowed',
-                  transition: 'all 0.2s ease',
                   opacity: onScan ? 1 : 0.5,
+                  backgroundColor: (onScan && scannerHover) ? '#e9ecef' : 'transparent',
+                  transition: 'background-color 0.15s ease',
                 }}
                 onClick={handleScan}
-                onMouseEnter={(e) => {
-                  if (onScan) {
-                    e.target.style.backgroundColor = '#e7f5ff';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = 'transparent';
-                }}
+                onMouseEnter={() => onScan && setScannerHover(true)}
+                onMouseLeave={() => setScannerHover(false)}
               >
                 <IconScan
                   style={{ 

@@ -1,7 +1,7 @@
 "use client"; // Necessário para usar hooks/componentes do Mantine que dependem do client
 
 import React, { useState } from 'react';
-import { Title, Text, Container, Card, Button, Group, Space, Grid, NumberInput } from '@mantine/core';
+import { Title, Text, Container, Card, Button, Group, Space, Grid, NumberInput, Stack } from '@mantine/core';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -432,13 +432,14 @@ export default function HomePage() {
         {/* Card Pasta v3 */}
         <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
           <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
-            <Group justify="space-between" mt="md" mb="xs">
-              <Title order={5}>Pasta v3</Title>
-            </Group>
-
-            <Text size="sm" c="dimmed" mb="md">
-              Cópia da página original de pasta para novos desenvolvimentos.
-            </Text>
+            <Stack gap="xs" mb="md">
+              <Text fw={700} size="sm">
+                Digitalizar documentos direto na pasta.
+              </Text>
+              <Text size="xs" c="dimmed">
+                Pasta v3
+              </Text>
+            </Stack>
 
             <Button
               variant="light"
