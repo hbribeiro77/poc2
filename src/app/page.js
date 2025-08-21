@@ -243,6 +243,31 @@ export default function HomePage() {
           </Card>
         </Grid.Col>
 
+        {/* Card Minuta IA Inicial */}
+        <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
+          <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
+            <Group justify="space-between" mt="md" mb="xs">
+              <Title order={5}>Minuta IA Inicial</Title>
+            </Group>
+
+            <Text size="sm" c="dimmed" mb="md">
+              Protótipo de geração de minutas com inteligência artificial.
+            </Text>
+
+            <Button
+              variant="light"
+              color="blue"
+              fullWidth
+              mt="auto"
+              radius="md"
+              component={Link}
+              href="/minuta-ia-inicial"
+            >
+              Acessar Protótipo
+            </Button>
+          </Card>
+        </Grid.Col>
+
         {/* Card para Minha Defensoria */}
         <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
           <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">

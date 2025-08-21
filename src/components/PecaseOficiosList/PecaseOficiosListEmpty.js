@@ -3,11 +3,9 @@
 import React, { useState } from 'react';
 import { Box, Title, Text, Group, ThemeIcon, Button, Menu, Alert } from '@mantine/core';
 import { IconFileText, IconPlus, IconEdit, IconUpload, IconStar, IconFiles, IconInfoCircle, IconSparkles } from '@tabler/icons-react';
-import PecaParaAprovarCard from '../PecaParaAprovarCard/PecaParaAprovarCard';
 import PortalIaModal from '../PortalIaModal/PortalIaModal';
-import pecasData from '../../data/pecas-para-aprovar-data.json';
 
-export default function PecaseOficiosList() {
+export default function PecaseOficiosListEmpty() {
   const [portalIaModalOpened, setPortalIaModalOpened] = useState(false);
 
   return (
@@ -56,17 +54,9 @@ export default function PecaseOficiosList() {
         </Menu>
       </Group>
 
-      {pecasData.length === 0 ? (
-        <Alert variant="light" color="blue" icon={<IconInfoCircle size={16} />} mt="md">
-          Ainda não há peças para esta pasta.
-        </Alert>
-      ) : (
-        <Box>
-          {pecasData.map((peca) => (
-            <PecaParaAprovarCard key={peca.id} peca={peca} />
-          ))}
-        </Box>
-      )}
+      <Alert variant="light" color="blue" icon={<IconInfoCircle size={16} />} mt="md">
+        Ainda não há peças para esta pasta.
+      </Alert>
 
       <PortalIaModal
         opened={portalIaModalOpened}
