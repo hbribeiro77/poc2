@@ -3,6 +3,18 @@ import { render, screen } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
 import HomePage from './page'; // Importa o componente da página do Hub
 
+// Mock do Next.js router
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    prefetch: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
+    refresh: jest.fn(),
+  }),
+}));
+
 describe('HomePage (Hub)', () => {
   it('deve renderizar o título principal corretamente', () => {
     // Renderiza o componente envolvendo-o com MantineProvider

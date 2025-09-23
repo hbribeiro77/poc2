@@ -4,6 +4,38 @@ import '@testing-library/jest-dom';
 import { MantineProvider } from '@mantine/core';
 import PastaHeader from './PastaHeader';
 
+// Mock do localStorage
+const localStorageMock = {
+  getItem: jest.fn(() => null),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
+};
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock
+});
+
+// Mock do ChatManagerContext
+const mockChatManagerContext = {
+  chats: [],
+  openChat: jest.fn(),
+  closeChat: jest.fn(),
+  minimizeChat: jest.fn(),
+  toggleMaximizeChat: jest.fn(),
+  restoreChat: jest.fn(),
+  sendMessage: jest.fn(),
+  simulateNewMessage: jest.fn(),
+  endChat: jest.fn(),
+  continueChat: jest.fn(),
+  clearChatHistory: jest.fn(),
+};
+
+// Mock do useChatManager hook
+jest.mock('../../hooks/useChatManager', () => ({
+  __esModule: true,
+  useChatManager: () => mockChatManagerContext,
+}));
+
 // Mock das funções passadas como props
 const mockOnArchiveReasonSelected = jest.fn();
 const mockOnOpenReactivateConfirmModal = jest.fn();
@@ -11,7 +43,9 @@ const mockOnOpenReactivateConfirmModal = jest.fn();
 // Helper para renderizar com MantineProvider
 const renderWithProvider = (ui, { providerProps, ...renderOptions } = {}) => {
   return render(
-    <MantineProvider {...providerProps}>{ui}</MantineProvider>,
+    <MantineProvider {...providerProps}>
+      {ui}
+    </MantineProvider>,
     renderOptions
   );
 };

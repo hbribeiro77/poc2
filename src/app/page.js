@@ -379,6 +379,31 @@ export default function HomePage() {
           </Card>
         </Grid.Col>
 
+        {/* NOVO Card: Inteligência Artificial */}
+        <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
+          <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
+            <Group justify="space-between" mt="md" mb="xs">
+              <Text fw={500}>Inteligência Artificial</Text>
+            </Group>
+
+            <Text size="sm" c="dimmed" mb="md">
+              Ferramentas e recursos de IA para auxiliar no trabalho jurídico.
+            </Text>
+
+            <Button
+              variant="light"
+              color="purple"
+              fullWidth
+              mt="auto"
+              radius="md"
+              component={Link}
+              href="/inteligencia-artificial"
+            >
+              Acessar IA
+            </Button>
+          </Card>
+        </Grid.Col>
+
         {/* NOVO Card: Contatos */}
         <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
           <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">

@@ -24,6 +24,7 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
  │   ├── menulateral.png   # Imagem do menu lateral estático (usado em /listadepastas, /pasta)
  │   ├── menulateralminhadefensoria.png # Imagem do menu lateral para /minha-defensoria e /solicitacoes
  │   ├── menucadastro.png  # Imagem do menu superior estático (usado em /listadepastas)
+ │   ├── atintimacoes.jpg  # Imagem de intimação para /intimacoes
  │   └── ... (outros arquivos como SVGs)
  ├── src/
  │   ├── app/
@@ -57,6 +58,12 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
  │   │   │   └── page.js     # Componente da página de Solicitações (placeholder para cadastro)
  │   │   ├── documentos/     # Nova seção (placeholder)
  │   │   │   └── page.js     # Componente da página de Documentos
+ │   │   ├── inteligencia-artificial/  # Nova seção para IA
+ │   │   │   └── page.js     # Componente da página de Inteligência Artificial
+ │   │   ├── intimacoes/     # Nova seção para intimações
+ │   │   │   └── page.js     # Página simples com imagem de intimação
+ │   │   ├── historico-atividades/  # Nova seção para histórico
+ │   │   │   └── page.js     # Página de consulta de histórico
  │   │   └── ... (outras pastas como hooks, utils, etc. se houver)
  │   ├── contexts/
  │   │   └── ChatManagerContext.js              # Contexto global para gerenciamento de múltiplos chats
@@ -96,12 +103,15 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
  │   │   │   └── EquipeTrabalhoTable.js
  │   │   ├── PastaListItem/                         # Novo componente para item da lista de pastas
  │   │   │   └── PastaListItem.js
+ │   │   ├── NovaRegraModal/                        # Modal para criação/edição de regras de IA
+ │   │   │   └── NovaRegraModal.js                  # Componente reutilizável com seção de ferramentas
  │   │   └── ... (outros componentes reutilizáveis)
  │   ├── data/                                      # Dados mockados
  │   │   ├── pastas-data.json                       # JSON com dados de pastas
  │   │   └── dadosEquipesDefensorias.json           # JSON com dados das equipes para Minha Defensoria
  │   │   ├── pecas-para-aprovar-data.json         # JSON com dados de peças para aprovação
- │   │   └── visao-geral-data.json                # JSON com dados para a timeline de visão geral
+ │   │   ├── visao-geral-data.json                # JSON com dados para a timeline de visão geral
+ │   │   └── regras-ia-data.json                  # JSON com dados de regras de IA e ferramentas
  │   └── ... (outras pastas como hooks, utils, etc. se houver)
  ├── .git/               # Repositório Git
  ├── .next/              # Cache e build do Next.js
@@ -164,9 +174,10 @@ O sistema está integrado no `layout.js` raiz através do `ChatManagerProvider`,
 ## Funcionalidades Implementadas (Protótipos)
 
 1.  **Hub Central (`/`)**
-    *   Página inicial que lista os protótipos disponíveis (Notificações, Lista de Pastas, etc.).
+    *   Página inicial que lista os protótipos disponíveis (Notificações, Lista de Pastas, Inteligência Artificial, etc.).
     *   Coberta por teste básico (`page.test.js`).
     *   Permite gerar lista de pastas com quantidade específica.
+    *   **Novo Card "Inteligência Artificial":** Adicionado com cor roxa e link para `/inteligencia-artificial`.
 
 2.  **Notificações (`/notificacoes`)**
     *   Lista de notificações com paginação simulada. Layout de duas colunas. (Sem alterações recentes significativas)
@@ -376,6 +387,57 @@ O sistema está integrado no `layout.js` raiz através do `ChatManagerProvider`,
 12. **Documentos (`/documentos`)**
     *   Página placeholder destinada à funcionalidade de gerenciamento de documentos.
     *   Utiliza o componente `CadastroHeader` (com dados mockados) e o layout padrão de duas colunas com `menulateral.png`.
+
+13. **Inteligência Artificial (`/inteligencia-artificial`)**
+    *   **Objetivo:** Página para gerenciamento de regras de IA e atividades automatizadas.
+    *   **Layout:** Segue o padrão de duas colunas com `menulateral.png` (que funciona como link para `/intimacoes`).
+    *   **Navegação por Abas:** Três botões principais:
+        *   **"Minhas Regras":** Gerencia regras de IA personalizadas do usuário.
+        *   **"Explore Regras":** (Placeholder) Para explorar regras compartilhadas.
+        *   **"Ranking":** (Placeholder) Para visualizar rankings de regras.
+        *   **"Automatizações":** Exibe atividades automatizadas executadas pelo sistema.
+    *   **Seção "Minhas Regras":**
+        *   **Filtros:** Duas abas para "Triagem de intimação" e "Geração de petição".
+        *   **Tabela:** Exibe regras com colunas: Data/Hora, Descrição, Regra, Usa Ferramenta, Ações.
+        *   **Coluna "Usa Ferramenta":** Mostra "Não" ou badges com nomes das ferramentas utilizadas (Tarefa, Cota, Audiência).
+        *   **Paginação:** Dinâmica baseada na quantidade de itens filtrados.
+        *   **Botão "Criar Regra":** Abre modal para criação/edição de regras.
+    *   **Modal "Nova Regra" (`NovaRegraModal.js`):**
+        *   **Componente Reutilizável:** Extraído para componente independente e adicionado à galeria de componentes.
+        *   **Campos Principais:** Tipo de Inferência (pré-selecionado como "Triagem de intimação"), Descrição, Regra, Status Ativa.
+        *   **Seção "Ferramentas":** Configuração de ferramentas automatizadas:
+            *   **Checkbox Principal:** "Usar ferramentas" para ativar/desativar toda a seção.
+            *   **Ferramentas Disponíveis:**
+                *   **"Criar Tarefa":** Checkbox simples (sem configurações adicionais).
+                *   **"Criar Cota":** Checkbox com configurações (Prazo em dias, Observações).
+                *   **"Criar Audiência":** Checkbox simples (sem configurações adicionais).
+        *   **Funcionalidades Avançadas:**
+            *   **Header e Footer Fixos:** Modal com cabeçalho e rodapé fixos, scroll apenas no conteúdo.
+            *   **Scroll Automático:** Tela rola automaticamente para enquadrar conteúdo quando ferramentas são ativadas.
+            *   **Edição:** Suporte para editar regras existentes com dados pré-preenchidos.
+        *   **Integração:** Conectado ao sistema de dados JSON (`regras-ia-data.json`).
+    *   **Seção "Automatizações":**
+        *   **Filtros:** Período (Hoje, Esta Semana, Este Mês, Personalizado) e Tipo de Atividade (Todas, Criar Tarefa, Criar Cota, Criar Audiência).
+        *   **Tabela:** Exibe atividades com colunas: Data/Hora, Atividade, Detalhes, Ações.
+        *   **Dados de Exemplo:** 
+            *   **Criar Tarefa:** "Elaborar peça de memoriais e entregue para HUMBERTO BORGES RIBEIRO".
+            *   **Criar Cota:** "Criada cota para o processo 50012345678901234001".
+            *   **Criar Audiência:** "Criada audiência para processo 1234567-89.2024.5.02.0001 para 15/11/2025".
+        *   **Paginação:** Idêntica à seção "Minhas Regras" para consistência visual.
+    *   **Dados:** Carregados de `src/data/regras-ia-data.json` com estrutura completa incluindo ferramentas e configurações.
+
+14. **Intimações (`/intimacoes`)**
+    *   **Objetivo:** Página simples para exibir uma grande imagem de intimação.
+    *   **Conteúdo:** Apenas uma imagem (`atintimacoes.jpg`) centralizada na tela.
+    *   **Navegação:** A imagem funciona como link para `/historico-atividades`.
+
+15. **Histórico de Atividades (`/historico-atividades`)**
+    *   **Objetivo:** Página para consulta de histórico de atividades do sistema.
+    *   **Layout:** Segue o padrão de duas colunas com `menulateral.png`.
+    *   **Funcionalidades:**
+        *   **Filtros Simples:** Período (campos de data) e Atividade (Select com opções: Triagem de Intimações, Geração de Petições, Criação de Regras IA, Todas as Atividades).
+        *   **Botão "Pesquisar":** Para executar a busca (funcionalidade placeholder).
+    *   **Design:** Interface limpa e consistente com outras páginas do sistema.
 
 ## Observações Adicionais sobre Funcionalidades
 

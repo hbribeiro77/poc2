@@ -18,6 +18,7 @@ import PecaParaAprovarCard from '../../components/PecaParaAprovarCard/PecaParaAp
 import dadosPecas from '../../data/pecas-para-aprovar-data.json';
 import { useChatManager } from '../../hooks/useChatManager';
 import ArchivePastaModal from '../../components/ArchivePastaModal/ArchivePastaModal';
+import NovaRegraModal from '../../components/NovaRegraModal/NovaRegraModal';
 
 export default function ComponentGalleryPage() {
   const { openChat } = useChatManager();
@@ -30,6 +31,7 @@ export default function ComponentGalleryPage() {
   const [novoAtendimentoModalOpened, setNovoAtendimentoModalOpened] = useState(false);
   const [showNovoAtendimentoInline, setShowNovoAtendimentoInline] = useState(false);
   const [archiveModalOpened, setArchiveModalOpened] = useState(false);
+  const [novaRegraModalOpened, setNovaRegraModalOpened] = useState(false);
 
   const [mockContact, setMockContact] = useState({
     nome: 'Marge Simpson',
@@ -179,6 +181,16 @@ export default function ComponentGalleryPage() {
                 Componente reutilizável para arquivar uma pasta. Coleta o motivo, uma observação opcional e exige confirmação.
             </Text>
             <Button onClick={() => setArchiveModalOpened(true)}>Abrir Modal de Arquivamento</Button>
+        </Paper>
+
+        <Paper withBorder shadow="sm" p="lg">
+            <Title order={4} mb="sm">Modal Nova Regra de IA</Title>
+            <Text mb="md">
+                Modal para criação de novas regras de inteligência artificial. Inclui seleção de tipo de inferência, 
+                campos para descrição e regra, toggle de ativação e botões de ação. Ideal para configuração de 
+                regras de triagem e geração de petições.
+            </Text>
+            <Button onClick={() => setNovaRegraModalOpened(true)}>Abrir Modal Nova Regra</Button>
         </Paper>
 
         <Paper withBorder shadow="sm" p="lg">
@@ -447,6 +459,15 @@ export default function ComponentGalleryPage() {
             doc.descricaoDocumento || doc.tipoDocumento || 'Sem descrição'
           ).join(', ');
           alert(`${totalDocs} documento(s) enviado(s): ${descricoes}`);
+        }}
+      />
+
+      <NovaRegraModal
+        opened={novaRegraModalOpened}
+        onClose={() => setNovaRegraModalOpened(false)}
+        onSubmit={() => {
+          console.log('Nova regra de IA criada na galeria!');
+          alert('Nova regra de IA criada com sucesso!');
         }}
       />
 
