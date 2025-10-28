@@ -19,6 +19,8 @@ import dadosPecas from '../../data/pecas-para-aprovar-data.json';
 import { useChatManager } from '../../hooks/useChatManager';
 import ArchivePastaModal from '../../components/ArchivePastaModal/ArchivePastaModal';
 import NovaRegraModal from '../../components/NovaRegraModal/NovaRegraModal';
+import ProcessoCard from '../../components/ProcessoCard/ProcessoCard';
+import processosData from '../../data/processos-data.json';
 
 export default function ComponentGalleryPage() {
   const { openChat } = useChatManager();
@@ -43,6 +45,7 @@ export default function ComponentGalleryPage() {
   const [teamCurrentPage, setTeamCurrentPage] = useState(1);
   const [teamItemsPerPage, setTeamItemsPerPage] = useState('5');
   const [acoesHabilitadas, setAcoesHabilitadas] = useState(true);
+
 
   const [atendimentosData] = useState([
     { id: 'atd-1', data: '25/06/2024', situacao: 'Aprovado', relato: 'Assistido relata problemas com vizinhos barulhentos...', providencia: 'Notificação extrajudicial', assistido: 'Homer Simpson', defensoria: '1ª DPE JÚRI', formaAtendimento: 'Presencial' },
@@ -404,6 +407,24 @@ export default function ComponentGalleryPage() {
             
             <PecaParaAprovarCard peca={cardStatus === 'Rascunho' ? pecaRascunho : pecaAprovada} />
 
+        </Paper>
+      </Stack>
+
+      <Divider my="xl" label={<Title order={3}>ProcessoCard</Title>} labelPosition="center" />
+
+      <Stack>
+        <Paper withBorder shadow="sm" p="lg">
+            <Title order={4} mb="sm">Card de Processo</Title>
+            <Text mb="md">
+                Card para exibir informações de processos jurídicos, com ações laterais e status visual.
+                Usado na página de Área de Trabalho para mostrar intimações e outros processos.
+            </Text>
+            
+            <Stack gap="md">
+                {processosData.map((processo) => (
+                    <ProcessoCard key={processo.id} processo={processo} />
+                ))}
+            </Stack>
         </Paper>
       </Stack>
 

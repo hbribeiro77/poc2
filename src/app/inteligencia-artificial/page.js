@@ -225,7 +225,7 @@ export default function InteligenciaArtificialPage() {
     <>
       <Flex gap={0} pb="xl">
         <Box style={{ maxWidth: 250, height: '100%' }}>
-          <a href="/intimacoes" style={{ textDecoration: 'none' }}>
+          <a href="/area-de-trabalho" style={{ textDecoration: 'none' }}>
             <Image
               src="/menulateral.png"
               alt="Menu Lateral"

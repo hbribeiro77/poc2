@@ -8,12 +8,13 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
 
 *   **Framework:** Next.js (v15+) com App Router
 *   **Linguagem:** JavaScript (React v19)
-*   **UI Library:** Mantine UI (v7)
+*   **UI Library:** Mantine UI (v7) com Notifications
 *   **Ícones:** Tabler Icons
 *   **Testes:** Jest (v29) e React Testing Library (com User Event)
 *   **Gerenciamento de Estado:** React Context API (para chat global)
 *   **Persistência:** localStorage (para históricos de chat)
 *   **Drag & Drop:** react-draggable (para modais interativos)
+*   **Notificações:** Mantine Notifications (para feedback de ações)
 
 ## Estrutura do Projeto (Arquivos Relevantes)
 
@@ -60,6 +61,8 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
  │   │   │   └── page.js     # Componente da página de Documentos
  │   │   ├── inteligencia-artificial/  # Nova seção para IA
  │   │   │   └── page.js     # Componente da página de Inteligência Artificial
+ │   │   ├── area-de-trabalho/  # Nova seção para área de trabalho
+ │   │   │   └── page.js     # Página principal de gerenciamento de intimações
  │   │   ├── intimacoes/     # Nova seção para intimações
  │   │   │   └── page.js     # Página simples com imagem de intimação
  │   │   ├── historico-atividades/  # Nova seção para histórico
@@ -105,13 +108,16 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
  │   │   │   └── PastaListItem.js
  │   │   ├── NovaRegraModal/                        # Modal para criação/edição de regras de IA
  │   │   │   └── NovaRegraModal.js                  # Componente reutilizável com seção de ferramentas
+ │   │   ├── ProcessoCard/                          # Card para exibir informações de processos jurídicos
+ │   │   │   └── ProcessoCard.js                    # Componente com ações laterais, triagem e seleção
  │   │   └── ... (outros componentes reutilizáveis)
  │   ├── data/                                      # Dados mockados
  │   │   ├── pastas-data.json                       # JSON com dados de pastas
  │   │   └── dadosEquipesDefensorias.json           # JSON com dados das equipes para Minha Defensoria
  │   │   ├── pecas-para-aprovar-data.json         # JSON com dados de peças para aprovação
  │   │   ├── visao-geral-data.json                # JSON com dados para a timeline de visão geral
- │   │   └── regras-ia-data.json                  # JSON com dados de regras de IA e ferramentas
+ │   │   ├── regras-ia-data.json                  # JSON com dados de regras de IA e ferramentas
+ │   │   └── processos-data.json                  # JSON com dados de processos jurídicos para Área de Trabalho
  │   └── ... (outras pastas como hooks, utils, etc. se houver)
  ├── .git/               # Repositório Git
  ├── .next/              # Cache e build do Next.js
@@ -390,7 +396,7 @@ O sistema está integrado no `layout.js` raiz através do `ChatManagerProvider`,
 
 13. **Inteligência Artificial (`/inteligencia-artificial`)**
     *   **Objetivo:** Página para gerenciamento de regras de IA e atividades automatizadas.
-    *   **Layout:** Segue o padrão de duas colunas com `menulateral.png` (que funciona como link para `/intimacoes`).
+    *   **Layout:** Segue o padrão de duas colunas com `menulateral.png` (que funciona como link para `/area-de-trabalho`).
     *   **Navegação por Abas:** Três botões principais:
         *   **"Minhas Regras":** Gerencia regras de IA personalizadas do usuário.
         *   **"Explore Regras":** (Placeholder) Para explorar regras compartilhadas.
@@ -426,12 +432,54 @@ O sistema está integrado no `layout.js` raiz através do `ChatManagerProvider`,
         *   **Paginação:** Idêntica à seção "Minhas Regras" para consistência visual.
     *   **Dados:** Carregados de `src/data/regras-ia-data.json` com estrutura completa incluindo ferramentas e configurações.
 
-14. **Intimações (`/intimacoes`)**
+14. **Área de Trabalho (`/area-de-trabalho`)**
+    *   **Objetivo:** Página principal para gerenciamento de intimações e processos, baseada na página de configurações.
+    *   **Layout:** Segue o padrão de duas colunas com `menulateral.png` (que funciona como link para `/intimacoes`).
+    *   **Navegação por Abas:** Sete abas coloridas para diferentes categorias:
+        *   **"Tarefas"** - `#337ab7` (azul)
+        *   **"Peças para aprovação"** - `#f0ad4e` (laranja)
+        *   **"Atendimentos para aprovação"** - `#5cb85c` (verde)
+        *   **"Agendamentos"** - `#003366` (azul escuro)
+        *   **"Audiências"** - `#ba8759` (marrom)
+        *   **"Peticionamentos eletrônicos"** - `#da90aa` (rosa)
+        *   **"Intimações"** - `#ff6a5b` (vermelho)
+    *   **Barra de Filtros:**
+        *   **Filtro por Defensoria:** Select com opções de 1ª a 4ª Defensoria Pública.
+        *   **Filtro Geral:** Campo de texto para busca geral.
+        *   **Botões de Ação:** Filtro, Ações em Lote (quando há seleções), Atualizar.
+    *   **Sistema de Ações em Lote:**
+        *   **Ícone de Ações:** Aparece apenas quando há processos selecionados (checkbox marcado).
+        *   **Menu Dropdown:** Opções de "Ocultar", "Renunciar em Lote", "Encaminhar em Lote", "Triagem por IA em lote".
+        *   **Triagem por IA:** Simula processamento com loading de 3 segundos e notificação toast.
+    *   **Cards de Processo (`ProcessoCard.js`):**
+        *   **Componente Reutilizável:** Extraído para componente independente e adicionado à galeria de componentes.
+        *   **Layout de Informações:** Organizado em três linhas horizontais:
+            *   **Linha 1:** Órgão julgador e Classe
+            *   **Linha 2:** Disponibilização e Intimado
+            *   **Linha 3:** Status (badge) e Prazo
+        *   **Cabeçalho:** Checkbox de seleção, ícone de ampulheta, badge de categoria colorida.
+        *   **Categoria como Badge:** Primeira informação exibida como badge colorido (Justiça Gratuita, Criminal, Família, etc.).
+        *   **Botão de Triagem Manual:** Três pontos discretos no canto superior direito com menu dropdown.
+        *   **Ações Laterais:** Sete botões de ação alinhados horizontalmente.
+        *   **Resultados de Triagem:**
+            *   **Triagem por IA:** Badge com ícone de cérebro (meio do card, canto direito).
+            *   **Triagem Manual:** Badge colorida (60% da altura do card, canto direito).
+    *   **Sistema de Triagem:**
+        *   **Triagem por IA:** Cores `#f0ad4e` (Elaborar peça) e `#da90aa` (Renunciar ao prazo).
+        *   **Triagem Manual:** Quatro opções com cores específicas:
+            *   **"Elaborar peça"** - `#f0ad4e` (laranja)
+            *   **"Contatar assistido"** - `#5cb85c` (verde)
+            *   **"Renunciar ao prazo"** - `#da90aa` (rosa)
+            *   **"Ocultar"** - `#888888` (cinza)
+    *   **Notificações:** Sistema de toast integrado com Mantine Notifications para feedback de ações.
+    *   **Dados:** Carregados de `src/data/processos-data.json` com estrutura de processos jurídicos.
+
+15. **Intimações (`/intimacoes`)**
     *   **Objetivo:** Página simples para exibir uma grande imagem de intimação.
     *   **Conteúdo:** Apenas uma imagem (`atintimacoes.jpg`) centralizada na tela.
     *   **Navegação:** A imagem funciona como link para `/historico-atividades`.
 
-15. **Histórico de Atividades (`/historico-atividades`)**
+16. **Histórico de Atividades (`/historico-atividades`)**
     *   **Objetivo:** Página para consulta de histórico de atividades do sistema.
     *   **Layout:** Segue o padrão de duas colunas com `menulateral.png`.
     *   **Funcionalidades:**

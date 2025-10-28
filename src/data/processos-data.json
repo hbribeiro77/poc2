@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "categoria": "Justiça Gratuita - Requerida",
+    "processo": "5000196-36.2022.8.21.0103",
+    "orgaoJulgador": "Juízo da Vara Judicial da Comarca de Herval",
+    "disponibilizacao": "23/10/2025 às 16:30",
+    "classe": "Ação Civil Pública",
+    "intimado": "JOANA TESTE NOME SOCIAL (POLO ATIVO)",
+    "status": "Pendente",
+    "prazo": "10 dias",
+    "corBorda": "red"
+  },
+  {
+    "id": 2,
+    "categoria": "Criminal",
+    "processo": "5001234-56.2023.8.21.0105",
+    "orgaoJulgador": "2ª Vara Criminal da Comarca de Porto Alegre",
+    "disponibilizacao": "15/01/2024 às 15:45",
+    "classe": "Inquérito Policial",
+    "intimado": "Maria Oliveira Costa",
+    "status": "Pendente",
+    "prazo": "15 dias",
+    "corBorda": "red"
+  },
+  {
+    "id": 3,
+    "categoria": "Família",
+    "processo": "5005678-90.2024.8.21.0107",
+    "orgaoJulgador": "Vara de Família da Comarca de Porto Alegre",
+    "disponibilizacao": "15/01/2024 às 16:20",
+    "classe": "Ação de Divórcio",
+    "intimado": "Pedro Santos Lima",
+    "status": "Pendente",
+    "prazo": "5 dias",
+    "corBorda": "red"
+  },
+  {
+    "id": 4,
+    "categoria": "Justiça Gratuita - Requerida",
+    "processo": "5009999-12.2024.8.21.0108",
+    "orgaoJulgador": "Juízo da Vara Judicial da Comarca de Caxias do Sul",
+    "disponibilizacao": "20/01/2024 às 09:15",
+    "classe": "Ação de Alimentos",
+    "intimado": "ANA CAROLINA SILVA (POLO ATIVO)",
+    "status": "Pendente",
+    "prazo": "8 dias",
+    "corBorda": "red"
+  },
+  {
+    "id": 5,
+    "categoria": "Criminal",
+    "processo": "5008888-34.2024.8.21.0109",
+    "orgaoJulgador": "3ª Vara Criminal da Comarca de Porto Alegre",
+    "disponibilizacao": "22/01/2024 às 14:00",
+    "classe": "Ação Penal",
+    "intimado": "CARLOS EDUARDO MENDES",
+    "status": "Pendente",
+    "prazo": "12 dias",
+    "corBorda": "red"
+  }
+]
