@@ -7,10 +7,10 @@ import {
 import { 
   IconHourglass, IconSearch, IconSparkles, IconPlus, IconClock, 
   IconRefresh as IconRefreshCycle, IconArrowsMaximize, IconX, 
-  IconPlayerPlay, IconBrain, IconDotsVertical
+  IconPlayerPlay, IconBrain, IconDotsVertical, IconFileText
 } from '@tabler/icons-react';
 
-export default function ProcessoCard({ processo, isSelected = false, onToggleSelect, triagemResultado = null, triagemManualResultado = null, onTriagemManual = null }) {
+export default function ProcessoCard({ processo, isSelected = false, onToggleSelect, triagemResultado = null, triagemManualResultado = null, onTriagemManual = null, tarefas = [] }) {
   // Função para mapear cores das categorias
   const getCategoriaColor = (categoria) => {
     const colorMap = {
@@ -132,6 +132,53 @@ export default function ProcessoCard({ processo, isSelected = false, onToggleSel
                 Prazo: <Text component="span" c="red" fw={500}>{processo.prazo}</Text>
               </Text>
             </Group>
+
+            {/* Seção de Tarefas */}
+            {tarefas && tarefas.length > 0 && (
+              <Box mt="md" style={{ borderTop: '1px solid #e9ecef', paddingTop: '12px' }}>
+                <Text size="sm" fw={500} mb="xs">Tarefas:</Text>
+                <Stack gap="xs">
+                  {tarefas.map((tarefa, index) => {
+                    // Separa o texto da tag "Peça"
+                    const parts = tarefa.descricao.split(/(Peça)/);
+                    return (
+                      <Group key={index} gap="xs" wrap="nowrap">
+                        <IconClock size={16} color="#666" />
+                        <Group gap={4} wrap="nowrap">
+                          {parts.map((part, partIndex) => {
+                            if (part === 'Peça') {
+                              return (
+                                <Badge 
+                                  key={partIndex}
+                                  variant="light" 
+                                  size="sm" 
+                                  style={{ 
+                                    backgroundColor: '#f0ad4e', 
+                                    color: '#000',
+                                    padding: '0 6px'
+                                  }}
+                                >
+                                  Peça
+                                </Badge>
+                              );
+                            }
+                            return (
+                              <Text 
+                                key={partIndex} 
+                                size="sm" 
+                                style={{ textDecoration: 'underline', cursor: 'pointer' }}
+                              >
+                                {part}
+                              </Text>
+                            );
+                          })}
+                        </Group>
+                      </Group>
+                    );
+                  })}
+                </Stack>
+              </Box>
+            )}
           </Box>
         </Box>
 

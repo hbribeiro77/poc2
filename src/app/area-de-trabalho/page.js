@@ -11,14 +11,22 @@ import {
   IconGavel, IconCloudUpload, IconHourglass, IconSearch, 
   IconRefresh, IconFilter, IconSparkles, IconPlus, IconClock, 
   IconRefresh as IconRefreshCycle, IconArrowsMaximize, IconX, 
-  IconPlayerPlay, IconChecklist
+  IconPlayerPlay, IconChecklist, IconHome, IconSettings, 
+  IconUsers, IconBrain, IconMessageChatbot, IconFolder, 
+  IconChartBar, IconBell, IconBriefcase, IconCalendarEvent, 
+  IconUserSearch, IconFiles
 } from '@tabler/icons-react';
 import { useState } from 'react';
+import { useHotkeys } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import { useRouter } from 'next/navigation';
 import ProcessoCard from '../../components/ProcessoCard/ProcessoCard';
 import processosData from '../../data/processos-data.json';
+import Spotlight from '../../components/Spotlight/Spotlight';
+import IAChatModal from '../../components/IAChatModal/IAChatModal';
 
 export default function AreaDeTrabalhoPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('intimacoes');
   const [filterDefensoria, setFilterDefensoria] = useState('');
   const [filterGeral, setFilterGeral] = useState('');
@@ -27,6 +35,11 @@ export default function AreaDeTrabalhoPage() {
   const [isLoadingTriagem, setIsLoadingTriagem] = useState(false);
   const [triagemResultados, setTriagemResultados] = useState({});
   const [triagemManualResultados, setTriagemManualResultados] = useState({});
+  const [spotlightOpened, setSpotlightOpened] = useState(false);
+  const [iaChatOpened, setIAChatOpened] = useState(false);
+  const [selectedTool, setSelectedTool] = useState('criar-tarefa');
+  const [processoTarefas, setProcessoTarefas] = useState({});
+  const [autoCriarTarefas, setAutoCriarTarefas] = useState(false);
 
   const acoesDisponiveis = [
     { id: 'ocultar', label: 'Ocultar' },
@@ -71,17 +84,31 @@ export default function AreaDeTrabalhoPage() {
         
         // Simula resultados de triagem para os processos selecionados
         const novosResultados = {};
+        const tarefasParaAdicionar = {};
+        
         selectedProcessos.forEach(processoId => {
           // Simula resultado aleatório: 60% "Elaborar peça", 40% "Renunciar ao prazo"
           const resultado = Math.random() < 0.6 ? 'Elaborar peça' : 'Renunciar ao prazo';
           novosResultados[processoId] = resultado;
+
+          // Se o modo automático estiver ativo e o resultado for "Elaborar peça", cria a tarefa
+          if (autoCriarTarefas && resultado === 'Elaborar peça') {
+            tarefasParaAdicionar[processoId] = [{
+              descricao: `Fazer memoriais (em andamento por Humberto Borges Ribeiro) Peça`
+            }];
+          }
         });
         
         setTriagemResultados(prev => ({ ...prev, ...novosResultados }));
+        setProcessoTarefas(prev => ({ ...prev, ...tarefasParaAdicionar }));
+        
+        const mensagemFinal = autoCriarTarefas && Object.keys(tarefasParaAdicionar).length > 0
+          ? `${selectedProcessos.length} processo(s) processado(s). Tarefas criadas automaticamente para processos com "Elaborar peça".`
+          : `Aplicando ações: ${acoesSelecionadas.join(', ')} em ${selectedProcessos.length} processo(s)`;
         
         notifications.show({
           title: 'Triagem por IA Concluída!',
-          message: `Aplicando ações: ${acoesSelecionadas.join(', ')} em ${selectedProcessos.length} processo(s)`,
+          message: mensagemFinal,
           color: 'green',
           autoClose: 5000,
           styles: {
@@ -147,8 +174,226 @@ export default function AreaDeTrabalhoPage() {
     { value: 'intimacoes', label: 'Intimações', icon: IconHourglass, count: 70, color: '#ff6a5b' }
   ];
 
+  // Configuração do Spotlight - Ações disponíveis
+  const spotlightActions = [
+    // Ações de IA (Prioritárias)
+    {
+      id: 'criar-tarefa-ia',
+      label: 'Criar Tarefa com IA',
+      description: 'Gerar nova tarefa usando inteligência artificial',
+      icon: IconCheck,
+      color: '#228be6',
+      keywords: ['tarefa', 'ia', 'criar', 'gerar', 'nova'],
+      onClick: () => {
+        setSelectedTool('criar-tarefa');
+        setSpotlightOpened(false);
+        setTimeout(() => setIAChatOpened(true), 100);
+      },
+    },
+    {
+      id: 'criar-cota-ia',
+      label: 'Criar Cota com IA',
+      description: 'Gerar cota automatizada usando IA',
+      icon: IconClock,
+      color: '#f0ad4e',
+      keywords: ['cota', 'ia', 'criar', 'gerar', 'prazo'],
+      onClick: () => {
+        setSelectedTool('criar-cota');
+        setSpotlightOpened(false);
+        setTimeout(() => setIAChatOpened(true), 100);
+      },
+    },
+    {
+      id: 'registrar-audiencia-ia',
+      label: 'Registrar Audiência com IA',
+      description: 'Registrar nova audiência usando IA',
+      icon: IconGavel,
+      color: '#5cb85c',
+      keywords: ['audiência', 'ia', 'registrar', 'criar', 'agendar'],
+      onClick: () => {
+        setSelectedTool('registrar-audiencia');
+        setSpotlightOpened(false);
+        setTimeout(() => setIAChatOpened(true), 100);
+      },
+    },
+    // Navegação Rápida
+    {
+      id: 'area-trabalho',
+      label: 'Área de Trabalho',
+      description: 'Ir para a página principal de trabalho',
+      icon: IconBriefcase,
+      color: '#6f42c1',
+      keywords: ['área', 'trabalho', 'principal', 'dashboard'],
+      onClick: () => {
+        setActiveTab('intimacoes');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      },
+    },
+    {
+      id: 'busca-assistidos',
+      label: 'Buscar Assistidos',
+      description: 'Pesquisar assistidos no sistema',
+      icon: IconUserSearch,
+      color: '#17a2b8',
+      keywords: ['buscar', 'assistido', 'pessoa', 'cliente', 'pesquisar'],
+      onClick: () => {
+        notifications.show({
+          title: 'Busca de Assistidos',
+          message: 'Funcionalidade em desenvolvimento',
+          color: 'cyan',
+        });
+        // Aqui você pode implementar a lógica real
+      },
+    },
+    {
+      id: 'busca-pastas',
+      label: 'Buscar Pastas',
+      description: 'Pesquisar pastas no sistema',
+      icon: IconFiles,
+      color: '#e83e8c',
+      keywords: ['buscar', 'pasta', 'processo', 'caso', 'pesquisar'],
+      onClick: () => {
+        router.push('/listadepastas-v4');
+      },
+    },
+    // Ações da Área de Trabalho
+    {
+      id: 'abrir-tarefas',
+      label: 'Abrir Tarefas',
+      description: 'Navegar para a aba de Tarefas',
+      icon: IconCheck,
+      color: '#337ab7',
+      onClick: () => setActiveTab('tarefas'),
+    },
+    {
+      id: 'abrir-pecas',
+      label: 'Abrir Peças para Aprovação',
+      description: 'Navegar para a aba de Peças',
+      icon: IconFileText,
+      color: '#f0ad4e',
+      onClick: () => setActiveTab('pecas'),
+    },
+    {
+      id: 'abrir-intimacoes',
+      label: 'Abrir Intimações',
+      description: 'Navegar para a aba de Intimações',
+      icon: IconHourglass,
+      color: '#ff6a5b',
+      onClick: () => setActiveTab('intimacoes'),
+    },
+    // Navegação Geral
+    {
+      id: 'home',
+      label: 'Central de Protótipos',
+      description: 'Voltar para a página inicial',
+      icon: IconHome,
+      color: '#228be6',
+      onClick: () => router.push('/'),
+    },
+    {
+      id: 'minha-defensoria',
+      label: 'Minha Defensoria',
+      description: 'Gerenciar equipe e recursos',
+      icon: IconUsers,
+      color: '#20c997',
+      onClick: () => router.push('/minha-defensoria'),
+    },
+    {
+      id: 'ia',
+      label: 'Inteligência Artificial',
+      description: 'Regras e automações de IA',
+      icon: IconBrain,
+      color: '#e83e8c',
+      onClick: () => router.push('/inteligencia-artificial'),
+    },
+    {
+      id: 'contatos',
+      label: 'Contatos',
+      description: 'Gerenciar contatos e mensagens',
+      icon: IconMessageChatbot,
+      color: '#17a2b8',
+      onClick: () => router.push('/contatos'),
+    },
+    {
+      id: 'limpar-filtros',
+      label: 'Limpar Filtros',
+      description: 'Remover todos os filtros ativos',
+      icon: IconRefresh,
+      color: '#868e96',
+      onClick: () => {
+        setFilterDefensoria('');
+        setFilterGeral('');
+        notifications.show({
+          title: 'Filtros Limpos',
+          message: 'Todos os filtros foram removidos',
+          color: 'gray',
+        });
+      },
+    },
+  ];
+
+  // Atalho de teclado: Ctrl + Alt + T
+  useHotkeys([
+    ['ctrl+alt+T', () => setSpotlightOpened(true)],
+    ['ctrl+shift+H', () => setAutoCriarTarefas(!autoCriarTarefas)],
+  ]);
+
   return (
     <>
+      {/* Spotlight Command Palette */}
+      <Spotlight
+        opened={spotlightOpened}
+        onClose={() => setSpotlightOpened(false)}
+        actions={spotlightActions}
+      />
+
+      {/* Modal de Chat com IA */}
+      <IAChatModal
+        opened={iaChatOpened}
+        onClose={() => setIAChatOpened(false)}
+        defaultTool={selectedTool}
+        onCriarTarefa={(usuario, tipo) => {
+          // Primeiro, busca processos com triagem manual "Elaborar peça"
+          let processosComElaborarPeca = processosData.filter(p => {
+            const triagemManual = triagemManualResultados[p.id];
+            return triagemManual === 'Elaborar peça';
+          });
+
+          // Se não encontrar nenhum, busca por triagem por IA "Elaborar peça"
+          if (processosComElaborarPeca.length === 0) {
+            processosComElaborarPeca = processosData.filter(p => {
+              const triagemIA = triagemResultados[p.id];
+              return triagemIA === 'Elaborar peça';
+            });
+          }
+
+          // Se ainda não encontrar, adiciona a primeira intimações como exemplo
+          if (processosComElaborarPeca.length === 0) {
+            processosComElaborarPeca = processosData.slice(0, 2); // Pega as 2 primeiras como exemplo
+          }
+
+          // Adiciona tarefa aos processos
+          processosComElaborarPeca.forEach(processo => {
+            const novaTarefa = {
+              descricao: `Fazer memoriais (em andamento por ${usuario}) ${tipo}`
+            };
+            
+            setProcessoTarefas(prev => ({
+              ...prev,
+              [processo.id]: [...(prev[processo.id] || []), novaTarefa]
+            }));
+          });
+
+          if (processosComElaborarPeca.length > 0) {
+            notifications.show({
+              title: 'Tarefas Criadas!',
+              message: `${processosComElaborarPeca.length} tarefa(s) criada(s) para ${usuario}`,
+              color: 'green',
+            });
+          }
+        }}
+      />
+
       <Flex gap={0} pb="xl" style={{ overflowX: 'hidden' }}>
         {/* MENU LATERAL */}
         <Box style={{ 
@@ -220,6 +465,17 @@ export default function AreaDeTrabalhoPage() {
                  <Box p="md" style={{ backgroundColor: '#f1f3f4', borderBottom: '1px solid #e9ecef' }}>
                    <Group justify="space-between" align="center">
                      <Group gap="md" style={{ flex: 1 }}>
+                       {/* Botão de Spotlight */}
+                       <ActionIcon
+                         variant="light"
+                         color="blue"
+                         size="lg"
+                         onClick={() => setSpotlightOpened(true)}
+                         title="Abrir Spotlight (Ctrl+Alt+T)"
+                       >
+                         <IconSparkles size={16} />
+                       </ActionIcon>
+
                        <Select
                          placeholder="Filtrar por defensoria..."
                          data={[
@@ -319,6 +575,7 @@ export default function AreaDeTrabalhoPage() {
                              isSelected={selectedProcessos.includes(processo.id)}
                              triagemResultado={triagemResultados[processo.id] || null}
                              triagemManualResultado={triagemManualResultados[processo.id] || null}
+                             tarefas={processoTarefas[processo.id] || []}
                              onToggleSelect={(id) => {
                                setSelectedProcessos(prev => 
                                  prev.includes(id) 
@@ -359,6 +616,28 @@ export default function AreaDeTrabalhoPage() {
                  </Text>
                </Link>
              </Group>
+
+             {/* Indicador de Modo Auto-Criar Tarefas */}
+             {autoCriarTarefas && (
+               <Paper
+                 p="xs"
+                 style={{
+                   position: 'fixed',
+                   top: '10px',
+                   right: '10px',
+                   zIndex: 99999,
+                   backgroundColor: '#fef3c7',
+                   border: '1px solid #f59e0b',
+                 }}
+               >
+                 <Group gap="xs">
+                   <IconSparkles size={16} color="#d97706" />
+                   <Text size="xs" fw={600} c="dark">
+                     Auto-criar tarefas: ON
+                   </Text>
+                 </Group>
+               </Paper>
+             )}
 
              {/* Overlay de Loading para Triagem por IA */}
              {isLoadingTriagem && (

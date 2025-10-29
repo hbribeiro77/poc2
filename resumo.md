@@ -15,6 +15,7 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
 *   **Persistência:** localStorage (para históricos de chat)
 *   **Drag & Drop:** react-draggable (para modais interativos)
 *   **Notificações:** Mantine Notifications (para feedback de ações)
+*   **Busca Fuzzy:** Fuse.js (para busca inteligente no Spotlight)
 
 ## Estrutura do Projeto (Arquivos Relevantes)
 
@@ -108,9 +109,13 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
  │   │   │   └── PastaListItem.js
  │   │   ├── NovaRegraModal/                        # Modal para criação/edição de regras de IA
  │   │   │   └── NovaRegraModal.js                  # Componente reutilizável com seção de ferramentas
- │   │   ├── ProcessoCard/                          # Card para exibir informações de processos jurídicos
- │   │   │   └── ProcessoCard.js                    # Componente com ações laterais, triagem e seleção
- │   │   └── ... (outros componentes reutilizáveis)
+    │   │   ├── ProcessoCard/                          # Card para exibir informações de processos jurídicos
+    │   │   │   └── ProcessoCard.js                    # Componente com ações laterais, triagem e seleção
+    │   │   ├── Spotlight/                             # Componente Command Palette (Spotlight)
+    │   │   │   └── Spotlight.js                       # Modal de busca rápida com atalho de teclado
+    │   │   ├── IAChatModal/                           # Modal de chat com IA
+    │   │   │   └── IAChatModal.js                     # Chat flutuante para criação de tarefas com IA
+    │   │   └── ... (outros componentes reutilizáveis)
  │   ├── data/                                      # Dados mockados
  │   │   ├── pastas-data.json                       # JSON com dados de pastas
  │   │   └── dadosEquipesDefensorias.json           # JSON com dados das equipes para Minha Defensoria
@@ -432,7 +437,7 @@ O sistema está integrado no `layout.js` raiz através do `ChatManagerProvider`,
         *   **Paginação:** Idêntica à seção "Minhas Regras" para consistência visual.
     *   **Dados:** Carregados de `src/data/regras-ia-data.json` com estrutura completa incluindo ferramentas e configurações.
 
-14. **Área de Trabalho (`/area-de-trabalho`)**
+14. **Área de Trabalho (`/area-de-trabalho`)** + **Spotlight Command Palette e Chat com IA**
     *   **Objetivo:** Página principal para gerenciamento de intimações e processos, baseada na página de configurações.
     *   **Layout:** Segue o padrão de duas colunas com `menulateral.png` (que funciona como link para `/intimacoes`).
     *   **Navegação por Abas:** Sete abas coloridas para diferentes categorias:
@@ -473,19 +478,69 @@ O sistema está integrado no `layout.js` raiz através do `ChatManagerProvider`,
             *   **"Ocultar"** - `#888888` (cinza)
     *   **Notificações:** Sistema de toast integrado com Mantine Notifications para feedback de ações.
     *   **Dados:** Carregados de `src/data/processos-data.json` com estrutura de processos jurídicos.
+    *   **Spotlight Command Palette (`Ctrl + Alt + T`):**
+        *   Modal de busca rápida com ações disponíveis no sistema.
+        *   Navegação por teclado (setas, Enter, Esc).
+        *   Busca fuzzy com Fuse.js para encontrar ações rapidamente.
+        *   Ações disponíveis: Criar Tarefa/Cota/Audiência com IA, Navegação para outras páginas, Ações da Área de Trabalho.
+        *   Botão visual na barra de filtros para abrir o Spotlight.
+    *   **Chat com IA (Modal Flutuante):**
+        *   Modal compacto no canto inferior direito (420px de largura).
+        *   z-index alto (20000) para aparecer acima de todos os elementos.
+        *   Sem overlay escuro, permite interação com a página.
+        *   Funcionalidades:
+            *   Chat interativo com mensagens de usuário e IA.
+            *   Ferramentas selecionáveis: Criar Tarefa, Criar Cota, Registrar Audiência.
+            *   Criação automática de tarefas quando solicitado via chat.
+            *   Botão de minimizar → Transforma em botão flutuante circular.
+            *   Estado de "pensando" da IA com animação.
+    *   **Sistema de Tarefas nos Cards:**
+        *   Seção "Tarefas:" nos cards de processos (após Status e Prazo).
+        *   Exibe tarefas criadas com ícone de relógio.
+        *   Texto da tarefa com sublinhado (link).
+        *   Tag "Peça" no formato badge laranja.
+        *   Formato: `🕐 Fazer memoriais (em andamento por [Nome]) Peça`
+    *   **Modo Automático de Criação de Tarefas (`Ctrl + Shift + H`):**
+        *   Atalho secreto para ativar/desativar modo automático.
+        *   Quando ativo, mostra indicador amarelo no topo: "Auto-criar tarefas: ON".
+        *   Ao executar "Triagem por IA em lote", cria tarefas automaticamente para processos com resultado "Elaborar peça".
+        *   Notificação diferenciada informando quantas tarefas foram criadas automaticamente.
 
-15. **Intimações (`/intimacoes`)**
+15. **Contatos (`/contatos`, `/contatos-v2`)**
+    *   **Objetivo:** Página para gerenciamento de contatos (assistidos, partes contrárias, etc.).
+    *   **Layout:** Segue o padrão de duas colunas com `menulateral.png` e `menucadastro.png`.
+    *   **Funcionalidades:**
+        *   **Tabela de Contatos Principais:** Exibe contatos com colunas: Tipo, Contato, Observações, Atualizado em, Principal, Ações.
+        *   **Ações por Contato:**
+            *   Enviar mensagem (abre modal de envio)
+            *   Editar contato (placeholder)
+            *   Excluir contato (placeholder)
+        *   **Paginação:** Dinâmica com controle de itens por página.
+        *   **Modal de Envio de Mensagem:** Permite selecionar template e defensoria para envio.
+        *   **Modal de Aprovação de Providência:** Sistema de chat integrado com timeline de aprovação.
+        *   **Outros Contatos Disponíveis:** Seção adicional para contatos secundários.
+        *   **Histórico:** Visualização de histórico de interações com os contatos.
+    *   **`/contatos-v2`:** Cópia da página para novos desenvolvimentos.
+
+17. **Intimações (`/intimacoes`)**
     *   **Objetivo:** Página simples para exibir uma grande imagem de intimação.
     *   **Conteúdo:** Apenas uma imagem (`atintimacoes.jpg`) centralizada na tela.
     *   **Navegação:** A imagem funciona como link para `/historico-atividades`.
 
-16. **Histórico de Atividades (`/historico-atividades`)**
+18. **Histórico de Atividades (`/historico-atividades`)**
     *   **Objetivo:** Página para consulta de histórico de atividades do sistema.
     *   **Layout:** Segue o padrão de duas colunas com `menulateral.png`.
     *   **Funcionalidades:**
         *   **Filtros Simples:** Período (campos de data) e Atividade (Select com opções: Triagem de Intimações, Geração de Petições, Criação de Regras IA, Todas as Atividades).
         *   **Botão "Pesquisar":** Para executar a busca (funcionalidade placeholder).
     *   **Design:** Interface limpa e consistente com outras páginas do sistema.
+
+## Integração com RAG (Retrieval-Augmented Generation)
+
+*   **Sistema RAG de Defensoria:**
+    *   O projeto está integrado com um sistema RAG através do MCP (Model Context Protocol).
+    *   Funcionalidade disponível via `mcp_servidor-rag-defensoria_fazer_pergunta_rag`.
+    *   Permite fazer perguntas e obter respostas baseadas em documentação específica da Defensoria.
 
 ## Observações Adicionais sobre Funcionalidades
 
