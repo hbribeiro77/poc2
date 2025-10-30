@@ -8,10 +8,19 @@ import { useRouter } from 'next/navigation';
 export default function HomePage() {
   const router = useRouter();
   const [folderCount, setFolderCount] = useState(10);
+  const [intimacoesCount, setIntimacoesCount] = useState(10);
 
   const handleNavigateToGeneratedList = () => {
     if (folderCount > 0) {
       router.push(`/listadepastas?generate=${folderCount}`);
+    }
+  };
+
+  const handleNavigateToGeneratedIntimacoes = () => {
+    if (intimacoesCount > 0) {
+      // Salva a quantidade no localStorage e redireciona
+      localStorage.setItem('intimacoesCount', intimacoesCount.toString());
+      router.push('/area-de-trabalho');
     }
   };
 
@@ -354,6 +363,42 @@ export default function HomePage() {
           </Card>
         </Grid.Col>
 
+        {/* Card para Gerar Intimações */}
+        <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
+          <Card shadow="sm" padding="lg" radius="md" withBorder h="100%" display="flex" style={{ flexDirection: 'column' }}>
+            <Group justify="space-between" mt="md" mb="xs">
+              <Text fw={500}>Gerar Intimações</Text>
+            </Group>
+
+            <Text size="sm" c="dimmed">
+              Gere uma quantidade específica de intimações para visualizar na área de trabalho.
+            </Text>
+
+            <NumberInput
+              label="Quantidade a Gerar"
+              placeholder="Digite a quantidade"
+              value={intimacoesCount}
+              onChange={(value) => setIntimacoesCount(Number(value) || 0)}
+              min={1}
+              step={1}
+              mt="md"
+              mb="md"
+            />
+
+            <Button
+              variant="light"
+              color="green"
+              fullWidth
+              mt="auto"
+              radius="md"
+              onClick={handleNavigateToGeneratedIntimacoes}
+              disabled={intimacoesCount <= 0}
+            >
+              Ver Intimações Geradas
+            </Button>
+          </Card>
+        </Grid.Col>
+
         {/* NOVO Card: Configurações */}
         <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
           <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
@@ -400,6 +445,56 @@ export default function HomePage() {
               href="/inteligencia-artificial"
             >
               Acessar IA
+            </Button>
+          </Card>
+        </Grid.Col>
+
+        {/* NOVO Card: Portal IA */}
+        <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
+          <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
+            <Group justify="space-between" mt="md" mb="xs">
+              <Text fw={500}>Portal IA</Text>
+            </Group>
+
+            <Text size="sm" c="dimmed" mb="md">
+              Portal de Inteligência Artificial para gerenciamento de regras de IA.
+            </Text>
+
+            <Button
+              variant="light"
+              color="purple"
+              fullWidth
+              mt="auto"
+              radius="md"
+              component={Link}
+              href="/portal-ia"
+            >
+              Acessar Portal IA
+            </Button>
+          </Card>
+        </Grid.Col>
+
+        {/* NOVO Card: Área de Trabalho */}
+        <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
+          <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
+            <Group justify="space-between" mt="md" mb="xs">
+              <Text fw={500}>Área de Trabalho</Text>
+            </Group>
+
+            <Text size="sm" c="dimmed" mb="md">
+              Gerenciamento de intimações e processos com IA e Spotlight Command Palette.
+            </Text>
+
+            <Button
+              variant="light"
+              color="green"
+              fullWidth
+              mt="auto"
+              radius="md"
+              component={Link}
+              href="/area-de-trabalho"
+            >
+              Acessar Área de Trabalho
             </Button>
           </Card>
         </Grid.Col>

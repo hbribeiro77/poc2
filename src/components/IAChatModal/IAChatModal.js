@@ -145,7 +145,7 @@ export default function IAChatModal({ opened, onClose, defaultTool = 'criar-tare
       setTimeout(() => {
         const assistantMessage = {
           role: 'assistant',
-          content: `Perfeito! Vou criar a tarefa "Fazer memoriais" para ${usuarioCapitalizado} nas intimações que têm a triagem "Elaborar peça".\n\nAnalisando as intimações disponíveis...`,
+          content: `Perfeito! Vou criar a tarefa "Fazer memoriais" para ${usuarioCapitalizado} nas intimações que têm a triagem "Elaborar Peça - fazer memoriais".\n\nAnalisando as intimações disponíveis...`,
         };
         
         setMessages(prev => [...prev, assistantMessage]);

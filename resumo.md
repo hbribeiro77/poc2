@@ -399,12 +399,22 @@ O sistema está integrado no `layout.js` raiz através do `ChatManagerProvider`,
     *   Página placeholder destinada à funcionalidade de gerenciamento de documentos.
     *   Utiliza o componente `CadastroHeader` (com dados mockados) e o layout padrão de duas colunas com `menulateral.png`.
 
-13. **Inteligência Artificial (`/inteligencia-artificial`)**
-    *   **Objetivo:** Página para gerenciamento de regras de IA e atividades automatizadas.
-    *   **Layout:** Segue o padrão de duas colunas com `menulateral.png` (que funciona como link para `/area-de-trabalho`).
-    *   **Navegação por Abas:** Três botões principais:
-        *   **"Minhas Regras":** Gerencia regras de IA personalizadas do usuário.
-        *   **"Explore Regras":** (Placeholder) Para explorar regras compartilhadas.
+13. **Inteligência Artificial (`/inteligencia-artificial`) + Portal IA (`/portal-ia`) + Histórico de Atividades (`/historico-atividades`)**
+    *   **Inteligência Artificial (`/inteligencia-artificial`):**
+        *   **Objetivo:** Página para gerenciamento de regras de IA e atividades automatizadas.
+        *   **Layout:** Segue o padrão de duas colunas com `menuia.png` (que funciona como link para `/area-de-trabalho`).
+        *   **Navegação por Abas:** Quatro botões principais (Minhas Regras, Explore Regras, Ranking, Automatizações).
+    *   **Portal IA (`/portal-ia`):**
+        *   Cópia da página de Inteligência Artificial para novos desenvolvimentos.
+        *   Título: "Portal de Inteligência Artificial".
+        *   Acessível a partir do hub central.
+    *   **Histórico de Atividades (`/historico-atividades`):**
+        *   **Objetivo:** Visualização de histórico de atividades e atividades automatizadas.
+        *   **Layout:** Segue o padrão de duas colunas com `menuia.png` (que funciona como link para `/area-de-trabalho`).
+        *   **Navegação por Abas:** Dois botões principais:
+            *   **"Histórico de Atividades":** Exibe imagem `historico-atividades.png`.
+            *   **"Atividades Automatizadas":** Tabela com filtros de período e tipo de atividade, mostrando atividades automatizadas.
+        *   **Filtros:** Período (Hoje, Esta Semana, Este Mês, Personalizado) e Tipo de Atividade (Todas, Criar Tarefa, Criar Cota, Criar Audiência).
         *   **"Ranking":** (Placeholder) Para visualizar rankings de regras.
         *   **"Automatizações":** Exibe atividades automatizadas executadas pelo sistema.
     *   **Seção "Minhas Regras":**
@@ -478,6 +488,13 @@ O sistema está integrado no `layout.js` raiz através do `ChatManagerProvider`,
             *   **"Ocultar"** - `#888888` (cinza)
     *   **Notificações:** Sistema de toast integrado com Mantine Notifications para feedback de ações.
     *   **Dados:** Carregados de `src/data/processos-data.json` com estrutura de processos jurídicos.
+    *   **Gerador de Intimações (Hub):**
+        *   Card no hub para gerar quantidade específica de intimações (10, 20, 50, etc.).
+        *   Dados gerados dinamicamente com informações aleatórias (categoria, processo, órgão, intimado, etc.).
+        *   Geração apenas no cliente (useState + useEffect) para evitar erros de hidratação.
+        *   Menu lateral redireciona para `/historico-atividades`.
+        *   Checkbox "Selecionar Todos" na barra de filtros.
+        *   Indicador de modo automático quase invisível no canto inferior esquerdo (opacidade 0.3).
     *   **Spotlight Command Palette (`Ctrl + Alt + T`):**
         *   Modal de busca rápida com ações disponíveis no sistema.
         *   Navegação por teclado (setas, Enter, Esc).
@@ -502,8 +519,8 @@ O sistema está integrado no `layout.js` raiz através do `ChatManagerProvider`,
         *   Formato: `🕐 Fazer memoriais (em andamento por [Nome]) Peça`
     *   **Modo Automático de Criação de Tarefas (`Ctrl + Shift + H`):**
         *   Atalho secreto para ativar/desativar modo automático.
-        *   Quando ativo, mostra indicador amarelo no topo: "Auto-criar tarefas: ON".
-        *   Ao executar "Triagem por IA em lote", cria tarefas automaticamente para processos com resultado "Elaborar peça".
+        *   Quando ativo, mostra indicador quase invisível no canto inferior esquerdo (opacidade 0.3): "Auto-criar tarefas: ON".
+        *   Ao executar "Triagem por IA em lote", cria tarefas automaticamente para processos com resultado "Elaborar Peça - fazer memoriais".
         *   Notificação diferenciada informando quantas tarefas foram criadas automaticamente.
 
 15. **Contatos (`/contatos`, `/contatos-v2`)**
@@ -527,13 +544,7 @@ O sistema está integrado no `layout.js` raiz através do `ChatManagerProvider`,
     *   **Conteúdo:** Apenas uma imagem (`atintimacoes.jpg`) centralizada na tela.
     *   **Navegação:** A imagem funciona como link para `/historico-atividades`.
 
-18. **Histórico de Atividades (`/historico-atividades`)**
-    *   **Objetivo:** Página para consulta de histórico de atividades do sistema.
-    *   **Layout:** Segue o padrão de duas colunas com `menulateral.png`.
-    *   **Funcionalidades:**
-        *   **Filtros Simples:** Período (campos de data) e Atividade (Select com opções: Triagem de Intimações, Geração de Petições, Criação de Regras IA, Todas as Atividades).
-        *   **Botão "Pesquisar":** Para executar a busca (funcionalidade placeholder).
-    *   **Design:** Interface limpa e consistente com outras páginas do sistema.
+18. **Histórico de Atividades (`/historico-atividades`)** - *VER item 13 acima (consolidado)*
 
 ## Integração com RAG (Retrieval-Augmented Generation)
 

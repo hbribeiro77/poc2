@@ -15,7 +15,7 @@ import { useState, useEffect } from 'react';
 import NovaRegraModal from '../../components/NovaRegraModal/NovaRegraModal';
 import regrasData from '../../data/regras-ia-data.json';
 
-export default function InteligenciaArtificialPage() {
+export default function PortalIAPage() {
 
   // Estados do componente
   const [activeTab, setActiveTab] = useState('minhas-regras');
@@ -241,7 +241,7 @@ export default function InteligenciaArtificialPage() {
           <Group align="center" mb="lg">
             <IconSparkles size={24} color="#1b7847" />
             <Title order={1} style={{ fontSize: '28px', fontWeight: 'bold', color: '#333' }}>
-              Criação de regras de Inteligência Artificial
+              Portal de Inteligência Artificial
             </Title>
           </Group>
 
@@ -668,3 +668,4 @@ export default function InteligenciaArtificialPage() {
     </>
   );
 }
+

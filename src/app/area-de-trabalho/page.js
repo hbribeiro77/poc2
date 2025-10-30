@@ -3,7 +3,7 @@
 import { 
   Box, Flex, Card, Title, Text, Image, Group, ThemeIcon, Button, 
   Tabs, TextInput, ActionIcon, ScrollArea, Stack, Badge, Divider,
-  Paper, Textarea, Select, Modal, Grid, Menu, Checkbox, Loader, Overlay
+  Paper, Textarea, Select, Modal, Grid, Menu, Checkbox, Loader, Overlay, Tooltip
 } from '@mantine/core';
 import Link from 'next/link';
 import { 
@@ -16,17 +16,18 @@ import {
   IconChartBar, IconBell, IconBriefcase, IconCalendarEvent, 
   IconUserSearch, IconFiles
 } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useHotkeys } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { useRouter } from 'next/navigation';
 import ProcessoCard from '../../components/ProcessoCard/ProcessoCard';
-import processosData from '../../data/processos-data.json';
+import processosDataOriginal from '../../data/processos-data.json';
 import Spotlight from '../../components/Spotlight/Spotlight';
 import IAChatModal from '../../components/IAChatModal/IAChatModal';
 
 export default function AreaDeTrabalhoPage() {
   const router = useRouter();
+  const [processosData, setProcessosData] = useState(processosDataOriginal);
   const [activeTab, setActiveTab] = useState('intimacoes');
   const [filterDefensoria, setFilterDefensoria] = useState('');
   const [filterGeral, setFilterGeral] = useState('');
@@ -40,6 +41,56 @@ export default function AreaDeTrabalhoPage() {
   const [selectedTool, setSelectedTool] = useState('criar-tarefa');
   const [processoTarefas, setProcessoTarefas] = useState({});
   const [autoCriarTarefas, setAutoCriarTarefas] = useState(false);
+
+  // Função para gerar intimações dinamicamente
+  const generateIntimacoes = (count) => {
+    const categorias = ['Justiça Gratuita - Requerida', 'Criminal', 'Família', 'Cível', 'Tributário'];
+    const classes = ['Ação Civil Pública', 'Inquérito Policial', 'Ação de Divórcio', 'Ação de Alimentos', 'Ação Penal', 'Execução Fiscal', 'Embargos de Terceiro'];
+    const orgaos = [
+      'Juízo da Vara Judicial da Comarca de Herval',
+      '2ª Vara Criminal da Comarca de Porto Alegre',
+      'Vara de Família da Comarca de Porto Alegre',
+      'Juízo da Vara Judicial da Comarca de Caxias do Sul',
+      '3ª Vara Criminal da Comarca de Porto Alegre'
+    ];
+    const nomes = ['JOANA TESTE NOME SOCIAL', 'Maria Oliveira Costa', 'Pedro Santos Lima', 'ANA CAROLINA SILVA', 'CARLOS EDUARDO MENDES', 'Roberto Silva Pereira', 'Lucia Maria Santos'];
+    const prazos = ['5 dias', '8 dias', '10 dias', '12 dias', '15 dias', '20 dias'];
+
+    const intimacoes = [];
+    
+    for (let i = 0; i < count; i++) {
+      const today = new Date();
+      today.setDate(today.getDate() + Math.floor(Math.random() * 30));
+      const disponibilizacao = today.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }) + ' às ' + String(Math.floor(Math.random() * 12) + 9).padStart(2, '0') + ':' + String(Math.floor(Math.random() * 60)).padStart(2, '0');
+
+      intimacoes.push({
+        id: i + 1,
+        categoria: categorias[Math.floor(Math.random() * categorias.length)],
+        processo: `${5000000 + Math.floor(Math.random() * 9000000)}-${String(Math.floor(Math.random() * 100)).padStart(2, '0')}.${2022 + Math.floor(Math.random() * 4)}.8.21.${String(Math.floor(Math.random() * 9000) + 1000).padStart(4, '0')}`,
+        orgaoJulgador: orgaos[Math.floor(Math.random() * orgaos.length)],
+        disponibilizacao: disponibilizacao,
+        classe: classes[Math.floor(Math.random() * classes.length)],
+        intimado: nomes[Math.floor(Math.random() * nomes.length)] + (Math.random() > 0.7 ? ' (POLO ATIVO)' : ''),
+        status: 'Pendente',
+        prazo: prazos[Math.floor(Math.random() * prazos.length)],
+        corBorda: 'red'
+      });
+    }
+    
+    return intimacoes;
+  };
+
+  // Carrega os dados no cliente após o mount
+  useEffect(() => {
+    const intimacoesCount = localStorage.getItem('intimacoesCount');
+    if (intimacoesCount) {
+      setProcessosData(generateIntimacoes(parseInt(intimacoesCount)));
+    }
+  }, []);
 
   const acoesDisponiveis = [
     { id: 'ocultar', label: 'Ocultar' },
@@ -87,12 +138,13 @@ export default function AreaDeTrabalhoPage() {
         const tarefasParaAdicionar = {};
         
         selectedProcessos.forEach(processoId => {
-          // Simula resultado aleatório: 60% "Elaborar peça", 40% "Renunciar ao prazo"
-          const resultado = Math.random() < 0.6 ? 'Elaborar peça' : 'Renunciar ao prazo';
+          // Simula resultado aleatório: 30% "Elaborar peça", 30% "Elaborar Peça - fazer memoriais", 40% "Renunciar ao prazo"
+          const random = Math.random();
+          const resultado = random < 0.3 ? 'Elaborar peça' : random < 0.6 ? 'Elaborar Peça - fazer memoriais' : 'Renunciar ao prazo';
           novosResultados[processoId] = resultado;
 
-          // Se o modo automático estiver ativo e o resultado for "Elaborar peça", cria a tarefa
-          if (autoCriarTarefas && resultado === 'Elaborar peça') {
+          // Se o modo automático estiver ativo e o resultado for "Elaborar Peça - fazer memoriais", cria a tarefa
+          if (autoCriarTarefas && resultado === 'Elaborar Peça - fazer memoriais') {
             tarefasParaAdicionar[processoId] = [{
               descricao: `Fazer memoriais (em andamento por Humberto Borges Ribeiro) Peça`
             }];
@@ -103,7 +155,7 @@ export default function AreaDeTrabalhoPage() {
         setProcessoTarefas(prev => ({ ...prev, ...tarefasParaAdicionar }));
         
         const mensagemFinal = autoCriarTarefas && Object.keys(tarefasParaAdicionar).length > 0
-          ? `${selectedProcessos.length} processo(s) processado(s). Tarefas criadas automaticamente para processos com "Elaborar peça".`
+          ? `${selectedProcessos.length} processo(s) processado(s). Tarefas criadas automaticamente para processos com "Elaborar Peça - fazer memoriais".`
           : `Aplicando ações: ${acoesSelecionadas.join(', ')} em ${selectedProcessos.length} processo(s)`;
         
         notifications.show({
@@ -353,24 +405,12 @@ export default function AreaDeTrabalhoPage() {
         onClose={() => setIAChatOpened(false)}
         defaultTool={selectedTool}
         onCriarTarefa={(usuario, tipo) => {
-          // Primeiro, busca processos com triagem manual "Elaborar peça"
+          // Busca processos com triagem "Elaborar Peça - fazer memoriais" (tanto manual quanto por IA)
           let processosComElaborarPeca = processosData.filter(p => {
             const triagemManual = triagemManualResultados[p.id];
-            return triagemManual === 'Elaborar peça';
+            const triagemIA = triagemResultados[p.id];
+            return triagemManual === 'Elaborar Peça - fazer memoriais' || triagemIA === 'Elaborar Peça - fazer memoriais';
           });
-
-          // Se não encontrar nenhum, busca por triagem por IA "Elaborar peça"
-          if (processosComElaborarPeca.length === 0) {
-            processosComElaborarPeca = processosData.filter(p => {
-              const triagemIA = triagemResultados[p.id];
-              return triagemIA === 'Elaborar peça';
-            });
-          }
-
-          // Se ainda não encontrar, adiciona a primeira intimações como exemplo
-          if (processosComElaborarPeca.length === 0) {
-            processosComElaborarPeca = processosData.slice(0, 2); // Pega as 2 primeiras como exemplo
-          }
 
           // Adiciona tarefa aos processos
           processosComElaborarPeca.forEach(processo => {
@@ -406,16 +446,18 @@ export default function AreaDeTrabalhoPage() {
           display: 'flex',
           alignItems: 'flex-start'
         }}>
-          <Image
-            src="/menulateral.png"
-            alt="Menu Lateral"
-            height="100%"
-            fit="contain"
-            style={{ 
-              width: '100%',
-              objectPosition: 'top'
-            }}
-          />
+          <a href="/historico-atividades" style={{ textDecoration: 'none', cursor: 'pointer' }}>
+            <Image
+              src="/menuia.png"
+              alt="Menu Lateral"
+              height="100%"
+              fit="contain"
+              style={{ 
+                width: '100%',
+                objectPosition: 'top'
+              }}
+            />
+          </a>
         </Box>
 
         <Box style={{ 
@@ -465,16 +507,21 @@ export default function AreaDeTrabalhoPage() {
                  <Box p="md" style={{ backgroundColor: '#f1f3f4', borderBottom: '1px solid #e9ecef' }}>
                    <Group justify="space-between" align="center">
                      <Group gap="md" style={{ flex: 1 }}>
-                       {/* Botão de Spotlight */}
-                       <ActionIcon
-                         variant="light"
-                         color="blue"
-                         size="lg"
-                         onClick={() => setSpotlightOpened(true)}
-                         title="Abrir Spotlight (Ctrl+Alt+T)"
-                       >
-                         <IconSparkles size={16} />
-                       </ActionIcon>
+                       {/* Checkbox Selecionar Todos */}
+                       <Tooltip label="Selecionar todos os processos">
+                         <Checkbox
+                           checked={selectedProcessos.length === processosData.length && processosData.length > 0}
+                           indeterminate={selectedProcessos.length > 0 && selectedProcessos.length < processosData.length}
+                           onChange={(event) => {
+                             if (event.currentTarget.checked) {
+                               setSelectedProcessos(processosData.map(p => p.id));
+                             } else {
+                               setSelectedProcessos([]);
+                             }
+                           }}
+                           size="md"
+                         />
+                       </Tooltip>
 
                        <Select
                          placeholder="Filtrar por defensoria..."
@@ -623,11 +670,12 @@ export default function AreaDeTrabalhoPage() {
                  p="xs"
                  style={{
                    position: 'fixed',
-                   top: '10px',
-                   right: '10px',
+                   bottom: '10px',
+                   left: '10px',
                    zIndex: 99999,
-                   backgroundColor: '#fef3c7',
-                   border: '1px solid #f59e0b',
+                   backgroundColor: 'rgba(254, 243, 199, 0.3)',
+                   border: '1px solid rgba(245, 158, 11, 0.3)',
+                   opacity: 0.3,
                  }}
                >
                  <Group gap="xs">

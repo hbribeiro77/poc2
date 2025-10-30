@@ -29,7 +29,8 @@ export default function ProcessoCard({ processo, isSelected = false, onToggleSel
   const getTriagemColor = (resultado) => {
     const colorMap = {
       'Renunciar ao prazo': '#da90aa',
-      'Elaborar peça': '#f0ad4e'
+      'Elaborar peça': '#f0ad4e',
+      'Elaborar Peça - fazer memoriais': '#f0ad4e'
     };
     return colorMap[resultado] || 'gray';
   };
@@ -38,6 +39,7 @@ export default function ProcessoCard({ processo, isSelected = false, onToggleSel
   const getTriagemManualColor = (resultado) => {
     const colorMap = {
       'Elaborar peça': '#f0ad4e',
+      'Elaborar Peça - fazer memoriais': '#f0ad4e',
       'Contatar assistido': '#5cb85c',
       'Renunciar ao prazo': '#da90aa',
       'Ocultar': '#888888'
@@ -48,6 +50,7 @@ export default function ProcessoCard({ processo, isSelected = false, onToggleSel
   // Opções de triagem manual
   const opcoesTriagemManual = [
     { id: 'elaborar', label: 'Elaborar peça', color: '#f0ad4e' },
+    { id: 'elaborar-memoriais', label: 'Elaborar Peça - fazer memoriais', color: '#f0ad4e' },
     { id: 'contatar', label: 'Contatar assistido', color: '#5cb85c' },
     { id: 'renunciar', label: 'Renunciar ao prazo', color: '#da90aa' },
     { id: 'ocultar', label: 'Ocultar', color: '#888888' }
