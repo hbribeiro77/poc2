@@ -69,6 +69,8 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
  │   │   │   └── page.js     # Componente da página de Solicitações (placeholder para cadastro)
  │   │   ├── documentos/     # Nova seção (placeholder)
  │   │   │   └── page.js     # Componente da página de Documentos
+ │   │   ├── dados-pessoais/ # Formulário Dados Pessoais (nome social com validação)
+ │   │   │   └── page.js
  │   │   ├── inteligencia-artificial/  # Nova seção para IA
  │   │   │   └── page.js     # Componente da página de Inteligência Artificial
  │   │   ├── area-de-trabalho/  # Nova seção para área de trabalho
@@ -126,6 +128,10 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
     │   │   │   └── Spotlight.js                       # Modal de busca rápida com atalho de teclado
     │   │   ├── IAChatModal/                           # Modal de chat com IA
     │   │   │   └── IAChatModal.js                     # Chat flutuante para criação de tarefas com IA
+    │   │   ├── ModalValidacaoNomeSocial/              # Modal assustadora para validação de nome social
+    │   │   │   └── ModalValidacaoNomeSocial.js
+    │   │   ├── ModalEditarNomeSocial/                 # Modal para liberar edição do nome social validado
+    │   │   │   └── ModalEditarNomeSocial.js
     │   │   └── ... (outros componentes reutilizáveis)
  │   ├── data/                                      # Dados mockados
  │   │   ├── pastas-data.json                       # JSON com dados de pastas
@@ -151,6 +157,8 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
  ├── README.md           # Arquivo README principal
  ├── COMO_CRIAR_PAGINA.md # Documentação sobre criação de páginas
  ├── INSTRUCOES_SETUP.md # Guia de configuração do projeto (inclui setup de testes)
+ ├── docs/
+ │   └── regras-de-negocio-nome-social.md # Regras de negócio do campo Nome Social (Dados Pessoais)
  ├── LESSONS_LEARNED.md  # Lições aprendidas durante o desenvolvimento
  └── resumo.md           # Este arquivo de resumo
 ```
@@ -409,6 +417,17 @@ O sistema está integrado no `layout.js` raiz através do `ChatManagerProvider`,
 12. **Documentos (`/documentos`)**
     *   Página placeholder destinada à funcionalidade de gerenciamento de documentos.
     *   Utiliza o componente `CadastroHeader` (com dados mockados) e o layout padrão de duas colunas com `menulateral.png`.
+
+12.1. **Dados Pessoais (`/dados-pessoais`)**
+    *   **Objetivo:** Formulário de dados pessoais, filiação e dados socioeconômicos, com regras específicas para o campo **Nome Social** (uso exclusivo para identidade de gênero).
+    *   **Layout:** Duas colunas com `menulateral.png` e header `header-dados-pessoais.jpg`. Formulário com seções Dados Pessoais, Filiação e Dados Socioeconômicos; botões Descartar alterações e Salvar.
+    *   **Nome Social – regras de negócio:**
+        *   **Não validado com valor:** Campo apagadinho e somente leitura; ícone triângulo de alerta (amarelo) com popover "Este nome social ainda não foi validado" e botão Validar. Ao entrar na página com nome social preenchido e não validado, abre automaticamente a **Modal Validação Nome Social** (alerta, três opções: Confirmar / Mover para Observações / Excluir, checkbox de responsabilidade).
+        *   **Validado:** Campo apagadinho, check verde e botão Editar. Ao passar o mouse no check, popover com "Validado por [Nome] ([Matrícula]) em [data/hora]". Para alterar, o usuário clica em Editar e confirma na **Modal Editar Nome Social** (alerta, checkbox, Cancelar/Confirmar Edição); após confirmar o campo fica editável e o valor salvo é considerado já validado.
+        *   **Salvo em branco:** Campo apagadinho e vazio, só botão Editar (sem check).
+        *   Durante a edição (após Editar) não é exibido o triângulo de alerta; ao salvar após editar, grava-se "validado por" e o nome fica validado.
+    *   **Componentes reutilizáveis:** `ModalValidacaoNomeSocial`, `ModalEditarNomeSocial`. Ambos na galeria de componentes (`/componentes`).
+    *   **Documentação:** Regras de negócio detalhadas em `docs/regras-de-negocio-nome-social.md`.
 
 13. **Inteligência Artificial (`/inteligencia-artificial`) + Portal IA (`/portal-ia`) + Histórico de Atividades (`/historico-atividades`)**
     *   **Inteligência Artificial (`/inteligencia-artificial`):**
