@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Box, Title, Text, Button, Divider, Flex, Stack, Paper, TextInput, Grid, Checkbox, Radio, Group } from '@mantine/core';
+import { Box, Title, Text, Button, Divider, Flex, Stack, Paper, TextInput, Grid, Checkbox, Radio, Group, ActionIcon, ScrollArea, Chip } from '@mantine/core';
+import { IconX, IconBrain, IconCheck, IconClock, IconGavel, IconSend, IconRobot } from '@tabler/icons-react';
 import Link from 'next/link';
 import ModalConfirmacaoAssustadora from '../../components/ConfirmActionModal/ModalConfirmacaoAssustadora';
 import SendMessageModal from '../../components/SendMessageModal/SendMessageModal';
@@ -21,6 +22,9 @@ import ArchivePastaModal from '../../components/ArchivePastaModal/ArchivePastaMo
 import NovaRegraModal from '../../components/NovaRegraModal/NovaRegraModal';
 import ProcessoCard from '../../components/ProcessoCard/ProcessoCard';
 import processosData from '../../data/processos-data.json';
+import IAChatModal from '../../components/IAChatModal/IAChatModal';
+import ModalValidacaoNomeSocial from '../../components/ModalValidacaoNomeSocial/ModalValidacaoNomeSocial';
+import ModalEditarNomeSocial from '../../components/ModalEditarNomeSocial/ModalEditarNomeSocial';
 
 export default function ComponentGalleryPage() {
   const { openChat } = useChatManager();
@@ -33,7 +37,16 @@ export default function ComponentGalleryPage() {
   const [novoAtendimentoModalOpened, setNovoAtendimentoModalOpened] = useState(false);
   const [showNovoAtendimentoInline, setShowNovoAtendimentoInline] = useState(false);
   const [archiveModalOpened, setArchiveModalOpened] = useState(false);
+  const [modalValidacaoNomeSocialOpened, setModalValidacaoNomeSocialOpened] = useState(false);
+  const [modalEditarNomeSocialOpened, setModalEditarNomeSocialOpened] = useState(false);
   const [novaRegraModalOpened, setNovaRegraModalOpened] = useState(false);
+  const [iaChatModalOpened, setIaChatModalOpened] = useState(false);
+  const [iaChatDark, setIaChatDark] = useState(false);
+  const [iaChatLight, setIaChatLight] = useState(false);
+  const [iaChatResumidoDark, setIaChatResumidoDark] = useState(false);
+  const [iaChatResumidoGray, setIaChatResumidoGray] = useState(false);
+  const [iaChatResumidoLight, setIaChatResumidoLight] = useState(false);
+  const [iaChatResumidoWhite, setIaChatResumidoWhite] = useState(false);
 
   const [mockContact, setMockContact] = useState({
     nome: 'Marge Simpson',
@@ -187,6 +200,22 @@ export default function ComponentGalleryPage() {
         </Paper>
 
         <Paper withBorder shadow="sm" p="lg">
+            <Title order={4} mb="sm">Modal Validação Nome Social (Assustadora)</Title>
+            <Text mb="md">
+                Validação de nome social não validado no cadastro. Exige escolher ação (Confirmar / Mover para Observações / Excluir) e checkbox de responsabilidade.
+            </Text>
+            <Button onClick={() => setModalValidacaoNomeSocialOpened(true)}>Abrir Modal Validação Nome Social</Button>
+        </Paper>
+
+        <Paper withBorder shadow="sm" p="lg">
+            <Title order={4} mb="sm">Modal Editar Nome Social</Title>
+            <Text mb="md">
+              Modal para liberar edição do nome social já validado. Alerta amarelo, checkbox de responsabilidade e botões Cancelar Edição / Confirmar Edição.
+            </Text>
+            <Button onClick={() => setModalEditarNomeSocialOpened(true)}>Abrir Modal Editar Nome Social</Button>
+        </Paper>
+
+        <Paper withBorder shadow="sm" p="lg">
             <Title order={4} mb="sm">Modal Nova Regra de IA</Title>
             <Text mb="md">
                 Modal para criação de novas regras de inteligência artificial. Inclui seleção de tipo de inferência, 
@@ -194,6 +223,34 @@ export default function ComponentGalleryPage() {
                 regras de triagem e geração de petições.
             </Text>
             <Button onClick={() => setNovaRegraModalOpened(true)}>Abrir Modal Nova Regra</Button>
+        </Paper>
+
+        <Paper withBorder shadow="sm" p="lg">
+            <Title order={4} mb="sm">Modal de Chat com IA</Title>
+            <Text mb="md">
+                Modal flutuante compacto para chat com assistente de IA. Usado na Área de Trabalho para criação 
+                de tarefas, cotas e registro de audiências. Características: não-bloqueante, minimizável, 
+                ferramentas selecionáveis, animação de "pensando".
+            </Text>
+            <Group mt="md">
+                <Button onClick={() => setIaChatModalOpened(true)} variant="default">Chat Padrão</Button>
+            </Group>
+        </Paper>
+
+        <Paper withBorder shadow="sm" p="lg">
+            <Title order={4} mb="sm">Modal de Chat com IA - Logos Portal IA</Title>
+            <Text mb="md">
+                Demonstração do chat de IA com diferentes logos do Portal IA no cabeçalho. Clique em cada botão 
+                para visualizar como cada logo fica no cabeçalho do chat.
+            </Text>
+            <Group mt="md" wrap="wrap">
+                <Button onClick={() => setIaChatDark(true)} variant="outline">Logo Dark (Completo)</Button>
+                <Button onClick={() => setIaChatLight(true)} variant="outline">Logo Light (Completo)</Button>
+                <Button onClick={() => setIaChatResumidoDark(true)} variant="outline">Logo Dark (Resumido)</Button>
+                <Button onClick={() => setIaChatResumidoGray(true)} variant="outline">Logo Gray (Resumido)</Button>
+                <Button onClick={() => setIaChatResumidoLight(true)} variant="outline">Logo Light (Resumido)</Button>
+                <Button onClick={() => setIaChatResumidoWhite(true)} variant="outline">Logo White (Resumido)</Button>
+            </Group>
         </Paper>
 
         <Paper withBorder shadow="sm" p="lg">
@@ -410,6 +467,93 @@ export default function ComponentGalleryPage() {
         </Paper>
       </Stack>
 
+      <Divider my="xl" label={<Title order={3}>Logos Portal IA Assistente</Title>} labelPosition="center" />
+
+      <Stack>
+        <Paper withBorder shadow="sm" p="lg">
+            <Title order={4} mb="sm">Preview dos Logos no Chat de IA</Title>
+            <Text mb="md" c="dimmed">
+                Visualização de como cada versão do logo ficaria no chat de assistente de IA. Cada chat simula uma conversa onde a IA usa um dos logos disponíveis.
+            </Text>
+            
+            <Stack gap="xl" mt="xl">
+                {/* Logos completos */}
+                <Box>
+                    <Title order={5} mb="md">Portal IA Assistente (Dark)</Title>
+                    <Paper withBorder p="md" style={{ maxWidth: '500px' }}>
+                        <Box style={{ display: 'flex', marginBottom: '12px' }}>
+                            <img src="/portalialogo/portal-ia-assitente-dark.svg" alt="Logo Dark" style={{ maxHeight: '60px' }} />
+                        </Box>
+                        <Paper bg="gray.1" p="sm" radius="md">
+                            <Text size="sm">Olá! Eu sou o assistente do Portal IA. Como posso te ajudar hoje?</Text>
+                        </Paper>
+                    </Paper>
+                </Box>
+
+                <Box>
+                    <Title order={5} mb="md">Portal IA Assistente (Light)</Title>
+                    <Paper withBorder p="md" style={{ maxWidth: '500px' }}>
+                        <Box style={{ display: 'flex', marginBottom: '12px' }}>
+                            <img src="/portalialogo/portal-ia-assitente-light.svg" alt="Logo Light" style={{ maxHeight: '60px' }} />
+                        </Box>
+                        <Paper bg="gray.1" p="sm" radius="md">
+                            <Text size="sm">Olá! Eu sou o assistente do Portal IA. Como posso te ajudar hoje?</Text>
+                        </Paper>
+                    </Paper>
+                </Box>
+
+                {/* Logos resumidos */}
+                <Box>
+                    <Title order={5} mb="md">Portal IA Assistente Resumido (Dark)</Title>
+                    <Paper withBorder p="md" style={{ maxWidth: '500px' }}>
+                        <Box style={{ display: 'flex', marginBottom: '12px' }}>
+                            <img src="/portalialogo/portal-ia-assitente-resumido-dark.svg" alt="Logo Resumido Dark" style={{ maxHeight: '60px' }} />
+                        </Box>
+                        <Paper bg="gray.1" p="sm" radius="md">
+                            <Text size="sm">Olá! Eu sou o assistente do Portal IA. Como posso te ajudar hoje?</Text>
+                        </Paper>
+                    </Paper>
+                </Box>
+
+                <Box>
+                    <Title order={5} mb="md">Portal IA Assistente Resumido (Gray)</Title>
+                    <Paper withBorder p="md" style={{ maxWidth: '500px' }}>
+                        <Box style={{ display: 'flex', marginBottom: '12px' }}>
+                            <img src="/portalialogo/portal-ia-assitente-resumido-gray.svg" alt="Logo Resumido Gray" style={{ maxHeight: '60px' }} />
+                        </Box>
+                        <Paper bg="gray.1" p="sm" radius="md">
+                            <Text size="sm">Olá! Eu sou o assistente do Portal IA. Como posso te ajudar hoje?</Text>
+                        </Paper>
+                    </Paper>
+                </Box>
+
+                <Box>
+                    <Title order={5} mb="md">Portal IA Assistente Resumido (Light)</Title>
+                    <Paper withBorder p="md" style={{ maxWidth: '500px' }}>
+                        <Box style={{ display: 'flex', marginBottom: '12px' }}>
+                            <img src="/portalialogo/portal-ia-assitente-resumido-light.svg" alt="Logo Resumido Light" style={{ maxHeight: '60px' }} />
+                        </Box>
+                        <Paper bg="gray.1" p="sm" radius="md">
+                            <Text size="sm">Olá! Eu sou o assistente do Portal IA. Como posso te ajudar hoje?</Text>
+                        </Paper>
+                    </Paper>
+                </Box>
+
+                <Box>
+                    <Title order={5} mb="md">Portal IA Assistente Resumido (White)</Title>
+                    <Paper withBorder p="md" bg="gray.9" style={{ maxWidth: '500px' }}>
+                        <Box style={{ display: 'flex', marginBottom: '12px' }}>
+                            <img src="/portalialogo/portal-ia-assitente-resumido-white.svg" alt="Logo Resumido White" style={{ maxHeight: '60px' }} />
+                        </Box>
+                        <Paper bg="gray.8" p="sm" radius="md">
+                            <Text size="sm" c="white">Olá! Eu sou o assistente do Portal IA. Como posso te ajudar hoje?</Text>
+                        </Paper>
+                    </Paper>
+                </Box>
+            </Stack>
+        </Paper>
+      </Stack>
+
       <Divider my="xl" label={<Title order={3}>ProcessoCard</Title>} labelPosition="center" />
 
       <Stack>
@@ -470,6 +614,25 @@ export default function ComponentGalleryPage() {
         onConfirm={handleArchiveConfirm}
       />
 
+      <ModalValidacaoNomeSocial
+        opened={modalValidacaoNomeSocialOpened}
+        onClose={() => setModalValidacaoNomeSocialOpened(false)}
+        nomeSocial="MARTHA WAYNE"
+        onConfirm={(acao) => {
+          console.log('Validação nome social na galeria:', acao);
+          setModalValidacaoNomeSocialOpened(false);
+        }}
+      />
+
+      <ModalEditarNomeSocial
+        opened={modalEditarNomeSocialOpened}
+        onClose={() => setModalEditarNomeSocialOpened(false)}
+        onConfirm={() => {
+          setModalEditarNomeSocialOpened(false);
+          alert('Edição liberada (na galeria é apenas demonstração).');
+        }}
+      />
+
       <ClassificarDocumentoDigitalizadoModal
         opened={classificarDocModalOpened}
         onClose={() => setClassificarDocModalOpened(false)}
@@ -491,6 +654,523 @@ export default function ComponentGalleryPage() {
           alert('Nova regra de IA criada com sucesso!');
         }}
       />
+
+      <IAChatModal
+        opened={iaChatModalOpened}
+        onClose={() => setIaChatModalOpened(false)}
+        defaultTool="criar-tarefa"
+        onCriarTarefa={(usuario, tipo) => {
+          console.log(`Tarefa criada para ${usuario} do tipo ${tipo}`);
+          alert(`Tarefa criada na galeria para ${usuario}!`);
+        }}
+      />
+
+      {/* IAChatModal com logo Dark */}
+      {iaChatDark && (
+        <Paper
+          shadow="xl"
+          radius="md"
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            width: '420px',
+            maxHeight: '600px',
+            display: 'flex',
+            flexDirection: 'column',
+            zIndex: 20001,
+            border: '1px solid #e9ecef',
+          }}
+        >
+          <Stack gap={0} style={{ display: 'flex', flexDirection: 'column' }}>
+            <Group justify="space-between" p="sm" style={{ borderBottom: '1px solid #e9ecef', backgroundColor: '#f8f9fa' }}>
+              <Group gap="xs">
+                <img 
+                  src="/portalialogo/portal-ia-assitente-dark.svg" 
+                  alt="Logo Dark" 
+                  style={{ height: '32px' }} 
+                />
+              </Group>
+              <Group gap="xs">
+                <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => setIaChatDark(false)} title="Fechar">
+                  <IconX size={16} />
+                </ActionIcon>
+              </Group>
+            </Group>
+            
+            <ScrollArea style={{ height: '280px' }} p="sm">
+              <Stack gap="md">
+                <Group align="flex-start" gap="xs" style={{ flexDirection: 'row' }}>
+                  <Box
+                    p="xs"
+                    radius="md"
+                    style={{
+                      backgroundColor: '#e3f2fd',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minWidth: '24px',
+                      height: '24px',
+                    }}
+                  >
+                    <IconBrain size={16} style={{ color: '#228be6' }} />
+                  </Box>
+                  <Paper p="xs" radius="md" style={{ backgroundColor: '#f1f3f5', borderLeft: '2px solid #228be6' }}>
+                    <Text size="xs" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.4 }}>
+                      Olá! Estou aqui para ajudá-lo a criar uma tarefa usando IA. Por favor, descreva a tarefa que você precisa criar.
+                    </Text>
+                  </Paper>
+                </Group>
+              </Stack>
+            </ScrollArea>
+
+            <Box p="xs" style={{ borderTop: '1px solid #e9ecef', backgroundColor: '#f8f9fa' }}>
+              <Group gap={4} justify="center">
+                <Chip variant="light" size="xs" icon={<IconCheck size={12} />} checked>Criar Tarefa</Chip>
+                <Chip variant="light" size="xs" icon={<IconClock size={12} />}>Criar Cota</Chip>
+                <Chip variant="light" size="xs" icon={<IconGavel size={12} />}>Registrar Audiência</Chip>
+              </Group>
+            </Box>
+
+            <Box p="xs" style={{ backgroundColor: '#ffffff', borderTop: '1px solid #e9ecef' }}>
+              <Group gap="xs">
+                <TextInput
+                  placeholder="Digite sua mensagem..."
+                  disabled
+                  style={{ flex: 1 }}
+                  size="xs"
+                />
+                <ActionIcon disabled color="blue" variant="filled" size="md">
+                  <IconSend size={16} />
+                </ActionIcon>
+              </Group>
+            </Box>
+          </Stack>
+        </Paper>
+      )}
+
+      {/* IAChatModal com logo Light */}
+      {iaChatLight && (
+        <Paper
+          shadow="xl"
+          radius="md"
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            width: '420px',
+            maxHeight: '600px',
+            display: 'flex',
+            flexDirection: 'column',
+            zIndex: 20001,
+            border: '1px solid #e9ecef',
+          }}
+        >
+          <Stack gap={0} style={{ display: 'flex', flexDirection: 'column' }}>
+            <Group justify="space-between" p="sm" style={{ borderBottom: '1px solid #e9ecef', backgroundColor: '#f8f9fa' }}>
+              <Group gap="xs">
+                <img 
+                  src="/portalialogo/portal-ia-assitente-light.svg" 
+                  alt="Logo Light" 
+                  style={{ height: '32px' }} 
+                />
+              </Group>
+              <Group gap="xs">
+                <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => setIaChatLight(false)} title="Fechar">
+                  <IconX size={16} />
+                </ActionIcon>
+              </Group>
+            </Group>
+            
+            <ScrollArea style={{ height: '280px' }} p="sm">
+              <Stack gap="md">
+                <Group align="flex-start" gap="xs" style={{ flexDirection: 'row' }}>
+                  <Box
+                    p="xs"
+                    radius="md"
+                    style={{
+                      backgroundColor: '#e3f2fd',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minWidth: '24px',
+                      height: '24px',
+                    }}
+                  >
+                    <IconBrain size={16} style={{ color: '#228be6' }} />
+                  </Box>
+                  <Paper p="xs" radius="md" style={{ backgroundColor: '#f1f3f5', borderLeft: '2px solid #228be6' }}>
+                    <Text size="xs" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.4 }}>
+                      Olá! Estou aqui para ajudá-lo a criar uma tarefa usando IA. Por favor, descreva a tarefa que você precisa criar.
+                    </Text>
+                  </Paper>
+                </Group>
+              </Stack>
+            </ScrollArea>
+
+            <Box p="xs" style={{ borderTop: '1px solid #e9ecef', backgroundColor: '#f8f9fa' }}>
+              <Group gap={4} justify="center">
+                <Chip variant="light" size="xs" icon={<IconCheck size={12} />} checked>Criar Tarefa</Chip>
+                <Chip variant="light" size="xs" icon={<IconClock size={12} />}>Criar Cota</Chip>
+                <Chip variant="light" size="xs" icon={<IconGavel size={12} />}>Registrar Audiência</Chip>
+              </Group>
+            </Box>
+
+            <Box p="xs" style={{ backgroundColor: '#ffffff', borderTop: '1px solid #e9ecef' }}>
+              <Group gap="xs">
+                <TextInput
+                  placeholder="Digite sua mensagem..."
+                  disabled
+                  style={{ flex: 1 }}
+                  size="xs"
+                />
+                <ActionIcon disabled color="blue" variant="filled" size="md">
+                  <IconSend size={16} />
+                </ActionIcon>
+              </Group>
+            </Box>
+          </Stack>
+        </Paper>
+      )}
+
+      {/* IAChatModal com logo Resumido Dark */}
+      {iaChatResumidoDark && (
+        <Paper
+          shadow="xl"
+          radius="md"
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            width: '420px',
+            maxHeight: '600px',
+            display: 'flex',
+            flexDirection: 'column',
+            zIndex: 20001,
+            border: '1px solid #e9ecef',
+          }}
+        >
+          <Stack gap={0} style={{ display: 'flex', flexDirection: 'column' }}>
+            <Group justify="space-between" p="sm" style={{ borderBottom: '1px solid #e9ecef', backgroundColor: '#f8f9fa' }}>
+              <Group gap="xs">
+                <img 
+                  src="/portalialogo/portal-ia-assitente-resumido-dark.svg" 
+                  alt="Logo Resumido Dark" 
+                  style={{ height: '32px' }} 
+                />
+              </Group>
+              <Group gap="xs">
+                <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => setIaChatResumidoDark(false)} title="Fechar">
+                  <IconX size={16} />
+                </ActionIcon>
+              </Group>
+            </Group>
+            
+            <ScrollArea style={{ height: '280px' }} p="sm">
+              <Stack gap="md">
+                <Group align="flex-start" gap="xs" style={{ flexDirection: 'row' }}>
+                  <Box
+                    p="xs"
+                    radius="md"
+                    style={{
+                      backgroundColor: '#e3f2fd',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minWidth: '24px',
+                      height: '24px',
+                    }}
+                  >
+                    <IconBrain size={16} style={{ color: '#228be6' }} />
+                  </Box>
+                  <Paper p="xs" radius="md" style={{ backgroundColor: '#f1f3f5', borderLeft: '2px solid #228be6' }}>
+                    <Text size="xs" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.4 }}>
+                      Olá! Estou aqui para ajudá-lo a criar uma tarefa usando IA. Por favor, descreva a tarefa que você precisa criar.
+                    </Text>
+                  </Paper>
+                </Group>
+              </Stack>
+            </ScrollArea>
+
+            <Box p="xs" style={{ borderTop: '1px solid #e9ecef', backgroundColor: '#f8f9fa' }}>
+              <Group gap={4} justify="center">
+                <Chip variant="light" size="xs" icon={<IconCheck size={12} />} checked>Criar Tarefa</Chip>
+                <Chip variant="light" size="xs" icon={<IconClock size={12} />}>Criar Cota</Chip>
+                <Chip variant="light" size="xs" icon={<IconGavel size={12} />}>Registrar Audiência</Chip>
+              </Group>
+            </Box>
+
+            <Box p="xs" style={{ backgroundColor: '#ffffff', borderTop: '1px solid #e9ecef' }}>
+              <Group gap="xs">
+                <TextInput
+                  placeholder="Digite sua mensagem..."
+                  disabled
+                  style={{ flex: 1 }}
+                  size="xs"
+                />
+                <ActionIcon disabled color="blue" variant="filled" size="md">
+                  <IconSend size={16} />
+                </ActionIcon>
+              </Group>
+            </Box>
+          </Stack>
+        </Paper>
+      )}
+
+      {/* IAChatModal com logo Resumido Gray */}
+      {iaChatResumidoGray && (
+        <Paper
+          shadow="xl"
+          radius="md"
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            width: '420px',
+            maxHeight: '600px',
+            display: 'flex',
+            flexDirection: 'column',
+            zIndex: 20001,
+            border: '1px solid #e9ecef',
+          }}
+        >
+          <Stack gap={0} style={{ display: 'flex', flexDirection: 'column' }}>
+            <Group justify="space-between" p="sm" style={{ borderBottom: '1px solid #e9ecef', backgroundColor: '#f8f9fa' }}>
+              <Group gap="xs">
+                <img 
+                  src="/portalialogo/portal-ia-assitente-resumido-gray.svg" 
+                  alt="Logo Resumido Gray" 
+                  style={{ height: '32px' }} 
+                />
+              </Group>
+              <Group gap="xs">
+                <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => setIaChatResumidoGray(false)} title="Fechar">
+                  <IconX size={16} />
+                </ActionIcon>
+              </Group>
+            </Group>
+            
+            <ScrollArea style={{ height: '280px' }} p="sm">
+              <Stack gap="md">
+                <Group align="flex-start" gap="xs" style={{ flexDirection: 'row' }}>
+                  <Box
+                    p="xs"
+                    radius="md"
+                    style={{
+                      backgroundColor: '#e3f2fd',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minWidth: '24px',
+                      height: '24px',
+                    }}
+                  >
+                    <IconBrain size={16} style={{ color: '#228be6' }} />
+                  </Box>
+                  <Paper p="xs" radius="md" style={{ backgroundColor: '#f1f3f5', borderLeft: '2px solid #228be6' }}>
+                    <Text size="xs" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.4 }}>
+                      Olá! Estou aqui para ajudá-lo a criar uma tarefa usando IA. Por favor, descreva a tarefa que você precisa criar.
+                    </Text>
+                  </Paper>
+                </Group>
+              </Stack>
+            </ScrollArea>
+
+            <Box p="xs" style={{ borderTop: '1px solid #e9ecef', backgroundColor: '#f8f9fa' }}>
+              <Group gap={4} justify="center">
+                <Chip variant="light" size="xs" icon={<IconCheck size={12} />} checked>Criar Tarefa</Chip>
+                <Chip variant="light" size="xs" icon={<IconClock size={12} />}>Criar Cota</Chip>
+                <Chip variant="light" size="xs" icon={<IconGavel size={12} />}>Registrar Audiência</Chip>
+              </Group>
+            </Box>
+
+            <Box p="xs" style={{ backgroundColor: '#ffffff', borderTop: '1px solid #e9ecef' }}>
+              <Group gap="xs">
+                <TextInput
+                  placeholder="Digite sua mensagem..."
+                  disabled
+                  style={{ flex: 1 }}
+                  size="xs"
+                />
+                <ActionIcon disabled color="blue" variant="filled" size="md">
+                  <IconSend size={16} />
+                </ActionIcon>
+              </Group>
+            </Box>
+          </Stack>
+        </Paper>
+      )}
+
+      {/* IAChatModal com logo Resumido Light */}
+      {iaChatResumidoLight && (
+        <Paper
+          shadow="xl"
+          radius="md"
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            width: '420px',
+            maxHeight: '600px',
+            display: 'flex',
+            flexDirection: 'column',
+            zIndex: 20001,
+            border: '1px solid #e9ecef',
+          }}
+        >
+          <Stack gap={0} style={{ display: 'flex', flexDirection: 'column' }}>
+            <Group justify="space-between" p="sm" style={{ borderBottom: '1px solid #e9ecef', backgroundColor: '#f8f9fa' }}>
+              <Group gap="xs">
+                <img 
+                  src="/portalialogo/portal-ia-assitente-resumido-light.svg" 
+                  alt="Logo Resumido Light" 
+                  style={{ height: '32px' }} 
+                />
+              </Group>
+              <Group gap="xs">
+                <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => setIaChatResumidoLight(false)} title="Fechar">
+                  <IconX size={16} />
+                </ActionIcon>
+              </Group>
+            </Group>
+            
+            <ScrollArea style={{ height: '280px' }} p="sm">
+              <Stack gap="md">
+                <Group align="flex-start" gap="xs" style={{ flexDirection: 'row' }}>
+                  <Box
+                    p="xs"
+                    radius="md"
+                    style={{
+                      backgroundColor: '#e3f2fd',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minWidth: '24px',
+                      height: '24px',
+                    }}
+                  >
+                    <IconBrain size={16} style={{ color: '#228be6' }} />
+                  </Box>
+                  <Paper p="xs" radius="md" style={{ backgroundColor: '#f1f3f5', borderLeft: '2px solid #228be6' }}>
+                    <Text size="xs" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.4 }}>
+                      Olá! Estou aqui para ajudá-lo a criar uma tarefa usando IA. Por favor, descreva a tarefa que você precisa criar.
+                    </Text>
+                  </Paper>
+                </Group>
+              </Stack>
+            </ScrollArea>
+
+            <Box p="xs" style={{ borderTop: '1px solid #e9ecef', backgroundColor: '#f8f9fa' }}>
+              <Group gap={4} justify="center">
+                <Chip variant="light" size="xs" icon={<IconCheck size={12} />} checked>Criar Tarefa</Chip>
+                <Chip variant="light" size="xs" icon={<IconClock size={12} />}>Criar Cota</Chip>
+                <Chip variant="light" size="xs" icon={<IconGavel size={12} />}>Registrar Audiência</Chip>
+              </Group>
+            </Box>
+
+            <Box p="xs" style={{ backgroundColor: '#ffffff', borderTop: '1px solid #e9ecef' }}>
+              <Group gap="xs">
+                <TextInput
+                  placeholder="Digite sua mensagem..."
+                  disabled
+                  style={{ flex: 1 }}
+                  size="xs"
+                />
+                <ActionIcon disabled color="blue" variant="filled" size="md">
+                  <IconSend size={16} />
+                </ActionIcon>
+              </Group>
+            </Box>
+          </Stack>
+        </Paper>
+      )}
+
+      {/* IAChatModal com logo Resumido White */}
+      {iaChatResumidoWhite && (
+        <Paper
+          shadow="xl"
+          radius="md"
+          bg="gray.9"
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            width: '420px',
+            maxHeight: '600px',
+            display: 'flex',
+            flexDirection: 'column',
+            zIndex: 20001,
+            border: '1px solid #495057',
+          }}
+        >
+          <Stack gap={0} style={{ display: 'flex', flexDirection: 'column' }}>
+            <Group justify="space-between" p="sm" style={{ borderBottom: '1px solid #495057', backgroundColor: '#343a40' }}>
+              <Group gap="xs">
+                <img 
+                  src="/portalialogo/portal-ia-assitente-resumido-white.svg" 
+                  alt="Logo Resumido White" 
+                  style={{ height: '32px' }} 
+                />
+              </Group>
+              <Group gap="xs">
+                <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => setIaChatResumidoWhite(false)} title="Fechar">
+                  <IconX size={16} />
+                </ActionIcon>
+              </Group>
+            </Group>
+            
+            <ScrollArea style={{ height: '280px' }} p="sm">
+              <Stack gap="md">
+                <Group align="flex-start" gap="xs" style={{ flexDirection: 'row' }}>
+                  <Box
+                    p="xs"
+                    radius="md"
+                    style={{
+                      backgroundColor: 'rgba(255,255,255,0.1)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minWidth: '24px',
+                      height: '24px',
+                    }}
+                  >
+                    <IconBrain size={16} style={{ color: 'white' }} />
+                  </Box>
+                  <Paper p="xs" radius="md" style={{ backgroundColor: '#495057', borderLeft: '2px solid white' }}>
+                    <Text size="xs" c="white" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.4 }}>
+                      Olá! Estou aqui para ajudá-lo a criar uma tarefa usando IA. Por favor, descreva a tarefa que você precisa criar.
+                    </Text>
+                  </Paper>
+                </Group>
+              </Stack>
+            </ScrollArea>
+
+            <Box p="xs" style={{ borderTop: '1px solid #495057', backgroundColor: '#343a40' }}>
+              <Group gap={4} justify="center">
+                <Chip variant="light" size="xs" icon={<IconCheck size={12} />} checked c="white">Criar Tarefa</Chip>
+                <Chip variant="light" size="xs" icon={<IconClock size={12} />} c="white">Criar Cota</Chip>
+                <Chip variant="light" size="xs" icon={<IconGavel size={12} />} c="white">Registrar Audiência</Chip>
+              </Group>
+            </Box>
+
+            <Box p="xs" style={{ backgroundColor: '#212529', borderTop: '1px solid #495057' }}>
+              <Group gap="xs">
+                <TextInput
+                  placeholder="Digite sua mensagem..."
+                  disabled
+                  style={{ flex: 1 }}
+                  size="xs"
+                  bg="gray.8"
+                  c="white"
+                />
+                <ActionIcon disabled color="blue" variant="filled" size="md">
+                  <IconSend size={16} />
+                </ActionIcon>
+              </Group>
+            </Box>
+          </Stack>
+        </Paper>
+      )}
 
       <Divider my="xl" />
       <Flex justify="center">

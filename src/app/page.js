@@ -524,6 +524,31 @@ export default function HomePage() {
           </Card>
         </Grid.Col>
 
+        {/* Card: Dados Pessoais */}
+        <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
+          <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
+            <Group justify="space-between" mt="md" mb="xs">
+              <Text fw={500}>Dados Pessoais</Text>
+            </Group>
+
+            <Text size="sm" c="dimmed" mb="md">
+              Formulário de dados pessoais, filiação e dados socioeconômicos.
+            </Text>
+
+            <Button
+              variant="light"
+              color="blue"
+              fullWidth
+              mt="auto"
+              radius="md"
+              component={Link}
+              href="/dados-pessoais"
+            >
+              Acessar Dados Pessoais
+            </Button>
+          </Card>
+        </Grid.Col>
+
         {/* NOVO Card: Contatos v2 */}
         <Grid.Col span={{ base: 12, xs: 6, sm: 4 }}>
           <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">

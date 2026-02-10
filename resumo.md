@@ -23,10 +23,13 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
  poc2/
  ├── coverage/             # Relatórios de cobertura de testes gerados pelo Jest
  ├── public/
- │   ├── menulateral.png   # Imagem do menu lateral estático (usado em /listadepastas, /pasta)
- │   ├── menulateralminhadefensoria.png # Imagem do menu lateral para /minha-defensoria e /solicitacoes
- │   ├── menucadastro.png  # Imagem do menu superior estático (usado em /listadepastas)
+ │   ├── menulateral.png   # Menu lateral (listadepastas, pasta, etc.)
+ │   ├── menulaterallistadepastasv4.png # Menu lateral em /listadepastas-v4
+ │   ├── menulateralminhadefensoria.png # Menu para /minha-defensoria e /solicitacoes
+ │   ├── menuia.png        # Menu para /area-de-trabalho, /inteligencia-artificial, /historico-atividades, /portal-ia
+ │   ├── menucadastro.png  # Menu superior (usado em /listadepastas)
  │   ├── atintimacoes.jpg  # Imagem de intimação para /intimacoes
+ │   ├── portalialogo/     # SVGs do Portal IA (assistente dark/light, resumido)
  │   └── ... (outros arquivos como SVGs)
  ├── src/
  │   ├── app/
@@ -56,6 +59,12 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
  │   │   │   └── page.js
  │   │   ├── pasta-v2/         # Evolução da UI
  │   │   │   └── page.js
+ │   │   ├── pasta-v3/        # Digitalizar documentos na pasta
+ │   │   │   └── page.js
+ │   │   ├── minuta-ia-inicial/
+ │   │   │   └── page.js      # Protótipo de minutas com IA
+ │   │   ├── componentes/     # Galeria de componentes reutilizáveis
+ │   │   │   └── page.js
  │   │   ├── solicitacoes/   # Rota confirmada
  │   │   │   └── page.js     # Componente da página de Solicitações (placeholder para cadastro)
  │   │   ├── documentos/     # Nova seção (placeholder)
@@ -68,6 +77,8 @@ Este projeto serve como uma Prova de Conceito (PoC) para desenvolver e testar pr
  │   │   │   └── page.js     # Página simples com imagem de intimação
  │   │   ├── historico-atividades/  # Nova seção para histórico
  │   │   │   └── page.js     # Página de consulta de histórico
+ │   │   ├── portal-ia/
+ │   │   │   └── page.js     # Portal de Inteligência Artificial
  │   │   └── ... (outras pastas como hooks, utils, etc. se houver)
  │   ├── contexts/
  │   │   └── ChatManagerContext.js              # Contexto global para gerenciamento de múltiplos chats
@@ -449,7 +460,7 @@ O sistema está integrado no `layout.js` raiz através do `ChatManagerProvider`,
 
 14. **Área de Trabalho (`/area-de-trabalho`)** + **Spotlight Command Palette e Chat com IA**
     *   **Objetivo:** Página principal para gerenciamento de intimações e processos, baseada na página de configurações.
-    *   **Layout:** Segue o padrão de duas colunas com `menulateral.png` (que funciona como link para `/intimacoes`).
+    *   **Layout:** Segue o padrão de duas colunas com `menuia.png` (que funciona como link para `/historico-atividades`).
     *   **Navegação por Abas:** Sete abas coloridas para diferentes categorias:
         *   **"Tarefas"** - `#337ab7` (azul)
         *   **"Peças para aprovação"** - `#f0ad4e` (laranja)
@@ -539,12 +550,12 @@ O sistema está integrado no `layout.js` raiz através do `ChatManagerProvider`,
         *   **Histórico:** Visualização de histórico de interações com os contatos.
     *   **`/contatos-v2`:** Cópia da página para novos desenvolvimentos.
 
-17. **Intimações (`/intimacoes`)**
+16. **Intimações (`/intimacoes`)**
     *   **Objetivo:** Página simples para exibir uma grande imagem de intimação.
     *   **Conteúdo:** Apenas uma imagem (`atintimacoes.jpg`) centralizada na tela.
     *   **Navegação:** A imagem funciona como link para `/historico-atividades`.
 
-18. **Histórico de Atividades (`/historico-atividades`)** - *VER item 13 acima (consolidado)*
+17. **Histórico de Atividades (`/historico-atividades`)** - *VER item 13 acima (consolidado)*
 
 ## Integração com RAG (Retrieval-Augmented Generation)
 
