@@ -7,6 +7,7 @@ import { ColorSchemeScript, MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { ChatManagerProvider } from "../contexts/ChatManagerContext";
 import ChatManager from "../components/ChatManager/ChatManager";
+import FacilitadorModoReuniaoComPostIts from "../components/FacilitadorModoReuniaoComPostIts/FacilitadorModoReuniaoComPostIts";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,8 +38,14 @@ export default function RootLayout({ children }) {
             containerWidth={400}
           />
           <ChatManagerProvider>
-            {children}
+            <div
+              id="facilitador-scroll-root"
+              style={{ position: 'relative', minHeight: '100%', isolation: 'isolate' }}
+            >
+              {children}
+            </div>
             <ChatManager />
+            <FacilitadorModoReuniaoComPostIts scrollRootSelector="#facilitador-scroll-root" />
           </ChatManagerProvider>
         </MantineProvider>
       </body>

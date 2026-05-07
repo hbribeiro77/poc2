@@ -576,6 +576,13 @@ O sistema está integrado no `layout.js` raiz através do `ChatManagerProvider`,
 
 17. **Histórico de Atividades (`/historico-atividades`)** - *VER item 13 acima (consolidado)*
 
+18. **Facilitador – Modo de Reunião com post-its (`FacilitadorModoReuniaoComPostIts.js`)**
+    *   Atalhos (evita conflito com Chrome): **Ctrl+Alt+M** painel modo reunião; **Ctrl+Alt+N** novo post-it.
+    *   Overlay do facilitador em páginas da PoC com post-its arrastáveis; estado persistido em `localStorage` por rota.
+    *   **Prints colados (“clar print” / Ctrl+V):** no post-it expandido, colar imagem do clipboard (captura de tela) no `Textarea`; a imagem é convertida para JPEG redimensionado (largura máx. ~900px), até **6 prints por nota**, miniaturas com remoção individual; clique na miniatura abre modal ampliado.
+    *   **Exportação Markdown:** cabeçalho curto (“Notas da reunião” + data/hora local). Notas por rota em **tabela GFM** (Nota, Cor com **círculo HTML** + hex, Texto, Prints colados). **Copiar** cola só texto leve: **sem** screenshot da página, **sem** miniaturas base64 na coluna (só **número** de prints); não dispara `html2canvas`. **Baixar .md** mantém versão completa (screenshot opcional com minimizar antes, miniaturas na tabela). Utilitário: `src/utils/captura-elemento-dom-para-data-url-jpeg-export-markdown-modo-reuniao-facilitador.js`.
+    *   Chip **minimizado** exibe o **número da nota** (1…N na página), alinhado ao índice da coluna “Nota” no Markdown.
+
 ## Integração com RAG (Retrieval-Augmented Generation)
 
 *   **Sistema RAG de Defensoria:**

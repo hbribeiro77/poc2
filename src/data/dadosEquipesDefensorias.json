@@ -43,6 +43,19 @@
       "matricula": "t123789",
       "cargo": "Terceirizado",
       "funcoes": []
+    },
+    {
+      "id": "terCamila_1",
+      "nome": "Camila Rodrigues",
+      "matricula": "t300003",
+      "cargo": "Terceirizado",
+      "funcoes": [],
+      "badgeIndisponibilidadeDemonstracaoUi": {
+        "label": "Indisponível",
+        "tooltipMotivoCompleto": "motivo: férias, de 04/05/2026 a 22/05/2026",
+        "dataInicioDdMmYyyy": "04/05/2026",
+        "dataFimDdMmYyyy": "22/05/2026"
+      }
     }
   ],
   "2ª DEFENSORIA PÚBLICA ESPECIALIZADA DO JÚRI DO FORO CENTRAL": [
@@ -120,7 +133,19 @@
     },
     { "id": "estFernanda_3", "nome": "Fernanda Barbosa", "matricula": "e300000001", "cargo": "Estagiário", "funcoes": [] },
     { "id": "estGustavo_3", "nome": "Gustavo Azevedo", "matricula": "e300000002", "cargo": "Estagiário", "funcoes": [] },
-    { "id": "terCamila_3", "nome": "Camila Rodrigues", "matricula": "t300003", "cargo": "Terceirizado", "funcoes": [] },
+    {
+      "id": "terCamila_3",
+      "nome": "Camila Rodrigues",
+      "matricula": "t300003",
+      "cargo": "Terceirizado",
+      "funcoes": [],
+      "badgeIndisponibilidadeDemonstracaoUi": {
+        "label": "Indisponível",
+        "tooltipMotivoCompleto": "motivo: férias, de 04/05/2026 a 22/05/2026",
+        "dataInicioDdMmYyyy": "04/05/2026",
+        "dataFimDdMmYyyy": "22/05/2026"
+      }
+    },
     {
       "id": "tecHumberto",
       "nome": "Humberto Borges Ribeiro",

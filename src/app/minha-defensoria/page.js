@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Group,
   Text,
@@ -24,7 +24,9 @@ import {
   Modal,
   Select as MantineSelect,
   Switch,
+  TextInput,
 } from '@mantine/core';
+import { DatePickerInput } from '@mantine/dates';
 import Link from 'next/link';
 import {
   IconUserCircle,
@@ -34,9 +36,8 @@ import {
   IconUserOff,
   IconUsers,
   IconAlertTriangle,
-  IconChevronDown,
-  IconChevronUp,
   IconInfoCircle,
+  IconCalendar,
 } from '@tabler/icons-react';
 
 // Importa os dados das equipes do arquivo JSON
@@ -45,6 +46,9 @@ import equipesData from '../../data/dadosEquipesDefensorias.json';
 import EquipeTrabalhoTable from '../../components/EquipeTrabalhoTable/EquipeTrabalhoTable';
 // IMPORTA o novo componente de botões de ação
 import DefensoriaActionButtons from '../../components/DefensoriaActionButtons/DefensoriaActionButtons';
+import MinhaDefensoriaNavegacaoSecoesEmCartoesComIconeEBadge, {
+  CHAVES_SECOES_MINHA_DEFENSORIA,
+} from '../../components/MinhaDefensoriaNavegacaoSecoesEmCartoesComIconesEBadge/MinhaDefensoriaNavegacaoSecoesEmCartoesComIconeEBadge';
 
 // Definição das descrições das funções para o tooltip do cabeçalho da seção
 const funcoesDescricoes = {
@@ -73,19 +77,97 @@ const loggedUser = {
   defensoriaOriginal: "1ª DEFENSORIA PÚBLICA ESPECIALIZADA DO JÚRI DO FORO CENTRAL"
 };
 
+const LABEL_GRUPO_SELECT_DEFENSORIAS_MINHAS_DO_USUARIO_LOGADO = 'Minhas defensorias';
+const LABEL_GRUPO_SELECT_DEFENSORIAS_DEMAIS_SEM_VINCULO_DIRETO_NA_EQUIPE = 'Demais defensorias';
+
+/** Nomes de defensoria (chaves do JSON) em que o usuário aparece como membro da equipe. */
+function listaChavesDefensoriasOndeUsuarioConstaNaEquipe(mapaEquipesPorNomeDefensoria, idUsuarioLogado) {
+  return Object.keys(mapaEquipesPorNomeDefensoria)
+    .filter((nomeDefensoria) => nomeDefensoria !== '_genericTeam')
+    .filter((nomeDefensoria) =>
+      (mapaEquipesPorNomeDefensoria[nomeDefensoria] || []).some((membro) => membro.id === idUsuarioLogado)
+    );
+}
+
+const MOTIVOS_INDISPONIBILIDADE_INTEGRANTE_MODAL_EQUIPE_SELECT_DATA = [
+  { value: 'ferias', label: 'Férias' },
+  { value: 'folga', label: 'Folga' },
+  { value: 'licenca', label: 'Licença' },
+  { value: 'afastamento', label: 'Afastamento' },
+  { value: 'outro', label: 'Outro' },
+];
+
+function parseDataDdMmYyyyStringParaObjetoDateOuNullParaInputsDatePicker(textoDdMmYyyy) {
+  if (!textoDdMmYyyy || typeof textoDdMmYyyy !== 'string') return null;
+  const partes = textoDdMmYyyy.trim().split('/');
+  if (partes.length !== 3) return null;
+  const dd = parseInt(partes[0], 10);
+  const mm = parseInt(partes[1], 10);
+  const yyyy = parseInt(partes[2], 10);
+  if (!yyyy || !mm || !dd) return null;
+  const d = new Date(yyyy, mm - 1, dd);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function formataObjetoDateParaStringDdMmYyyyBrasil(dateObjetoJavascriptNativo) {
+  if (!dateObjetoJavascriptNativo || !(dateObjetoJavascriptNativo instanceof Date)) return '';
+  if (Number.isNaN(dateObjetoJavascriptNativo.getTime())) return '';
+  const d = String(dateObjetoJavascriptNativo.getDate()).padStart(2, '0');
+  const m = String(dateObjetoJavascriptNativo.getMonth() + 1).padStart(2, '0');
+  const y = dateObjetoJavascriptNativo.getFullYear();
+  return `${d}/${m}/${y}`;
+}
+
 export default function MinhaDefensoriaPage() {
   const theme = useMantineTheme();
-  
-  const defensoriasOptions = Array.from({ length: 8 }, (_, i) => ({
-    value: `${i + 1}ª DEFENSORIA PÚBLICA ESPECIALIZADA DO JÚRI DO FORO CENTRAL`,
-    label: `${i + 1}ª DEFENSORIA PÚBLICA ESPECIALIZADA DO JÚRI DO FORO CENTRAL`,
-  }));
 
-  const [selectedDefensoria, setSelectedDefensoria] = useState(defensoriasOptions[0].value);
+  const listaPlanaOitoDefensoriasValorELabelIdenticos = useMemo(
+    () =>
+      Array.from({ length: 8 }, (_, i) => {
+        const value = `${i + 1}ª DEFENSORIA PÚBLICA ESPECIALIZADA DO JÚRI DO FORO CENTRAL`;
+        return { value, label: value };
+      }),
+    []
+  );
+
+  /** Select agrupado: defensorias em que Humberto está na equipe vs. as outras. */
+  const dadosSelectDefensoriasAgrupadoMinhasVersusDemaisRestantes = useMemo(() => {
+    const chavesMinhasSet = new Set(
+      listaChavesDefensoriasOndeUsuarioConstaNaEquipe(equipesPorDefensoria, loggedUser.id)
+    );
+    const opcoesMinhas = listaPlanaOitoDefensoriasValorELabelIdenticos.filter((opt) =>
+      chavesMinhasSet.has(opt.value)
+    );
+    const opcoesDemais = listaPlanaOitoDefensoriasValorELabelIdenticos.filter(
+      (opt) => !chavesMinhasSet.has(opt.value)
+    );
+    const gruposComRotuloMantineSelect = [];
+    if (opcoesMinhas.length > 0) {
+      gruposComRotuloMantineSelect.push({
+        group: LABEL_GRUPO_SELECT_DEFENSORIAS_MINHAS_DO_USUARIO_LOGADO,
+        items: opcoesMinhas,
+      });
+    }
+    if (opcoesDemais.length > 0) {
+      gruposComRotuloMantineSelect.push({
+        group: LABEL_GRUPO_SELECT_DEFENSORIAS_DEMAIS_SEM_VINCULO_DIRETO_NA_EQUIPE,
+        items: opcoesDemais,
+      });
+    }
+    return gruposComRotuloMantineSelect.length > 0
+      ? gruposComRotuloMantineSelect
+      : [{ group: 'Defensorias', items: listaPlanaOitoDefensoriasValorELabelIdenticos }];
+  }, [listaPlanaOitoDefensoriasValorELabelIdenticos]);
+
+  const [selectedDefensoria, setSelectedDefensoria] = useState(
+    listaPlanaOitoDefensoriasValorELabelIdenticos[0].value
+  );
   const [teamMembers, setTeamMembers] = useState(equipesPorDefensoria[selectedDefensoria] || []);
   const [showNotInTeamAlert, setShowNotInTeamAlert] = useState(false); // Estado para o alerta
-  const [isLoading, setIsLoading] = useState(true); // Estado para o Skeleton
-  const [isTeamSectionCollapsed, setIsTeamSectionCollapsed] = useState(false); // Estado para colapso da seção
+  const [isLoading, setIsLoading] = useState(true); // Estado para o Skeleton (só na aba Equipe)
+  const [secaoMinhaDefensoriaAtivaSlug, setSecaoMinhaDefensoriaAtivaSlug] = useState(
+    CHAVES_SECOES_MINHA_DEFENSORIA.EQUIPE
+  );
 
   // Estados para paginação da tabela
   const [currentPage, setCurrentPage] = useState(1);
@@ -95,6 +177,13 @@ export default function MinhaDefensoriaPage() {
   const [isAddFuncaoModalOpen, setIsAddFuncaoModalOpen] = useState(false);
   const [selectedMemberIdForFuncao, setSelectedMemberIdForFuncao] = useState(null);
   const [funcaoSelecionadaParaAdicionar, setFuncaoSelecionadaParaAdicionar] = useState('');
+  /** Ao abrir a modal: havia indisponível salvo pelo gerente OU só badge JSON de demo — usado para permitir “Salvar” só limpando indisponível. */
+  const aoAbrirModalMemberEstavaIndisponivelOuComBadgeDemoRef = useRef(false);
+  const [integranteMarcadoComoIndisponivelNoModal, setIntegranteMarcadoComoIndisponivelNoModal] = useState(false);
+  const [dataInicioIndisponibilidadeModalDate, setDataInicioIndisponibilidadeModalDate] = useState(null);
+  const [dataFimIndisponibilidadeModalDate, setDataFimIndisponibilidadeModalDate] = useState(null);
+  const [motivoIndisponibilidadeChaveSelectModal, setMotivoIndisponibilidadeChaveSelectModal] = useState('ferias');
+  const [textoMotivoOutroQuandoSelecionadoNoModal, setTextoMotivoOutroQuandoSelecionadoNoModal] = useState('');
   const [isUserGerenteNaDefensoriaSelecionada, setIsUserGerenteNaDefensoriaSelecionada] = useState(false);
 
   // Estados para a Modal de Informações do Usuário
@@ -147,6 +236,55 @@ export default function MinhaDefensoriaPage() {
 
   }, [selectedDefensoria]); // Dependência principal é selectedDefensoria
 
+  /** Contadores exibidos nos badges dos cartões (PoC: parte fixa / demonstração). */
+  const mapaBadgesContagemSecoesMinhaDefensoriaParaCartoesNavegacao = useMemo(
+    () => ({
+      equipeCount: teamMembers.length,
+      smsCount: 1,
+      solicitacoesCount: 0,
+      pecasCount: 0,
+      promptsCount: 0,
+      assistidosCount: 0,
+    }),
+    [teamMembers.length]
+  );
+
+  /** Humberto na equipe da defensoria atualmente carregada → pode ver SMS, favoritos etc.; senão só Equipe (leitura). */
+  const usuarioLogadoFazParteDaEquipeNaDefensoriaSelecionada = useMemo(
+    () => teamMembers.some((membro) => membro.id === loggedUser.id),
+    [teamMembers]
+  );
+
+  useEffect(() => {
+    if (!usuarioLogadoFazParteDaEquipeNaDefensoriaSelecionada) {
+      setSecaoMinhaDefensoriaAtivaSlug(CHAVES_SECOES_MINHA_DEFENSORIA.EQUIPE);
+    }
+  }, [usuarioLogadoFazParteDaEquipeNaDefensoriaSelecionada]);
+
+  const formularioIndisponibilidadeInvalidoModalAtual = useMemo(
+    () =>
+      integranteMarcadoComoIndisponivelNoModal &&
+      (!dataInicioIndisponibilidadeModalDate ||
+        !dataFimIndisponibilidadeModalDate ||
+        !motivoIndisponibilidadeChaveSelectModal ||
+        (motivoIndisponibilidadeChaveSelectModal === 'outro' &&
+          !textoMotivoOutroQuandoSelecionadoNoModal.trim())),
+    [
+      integranteMarcadoComoIndisponivelNoModal,
+      dataInicioIndisponibilidadeModalDate,
+      dataFimIndisponibilidadeModalDate,
+      motivoIndisponibilidadeChaveSelectModal,
+      textoMotivoOutroQuandoSelecionadoNoModal,
+    ]
+  );
+
+  /** ref não dispara re-render; lemos .current no render ao montar o botão (usuário já alterou o Switch). */
+  const podeConfirmarSalvarModalFuncaoDisponibilidadeMembro =
+    !formularioIndisponibilidadeInvalidoModalAtual &&
+    (Boolean(funcaoSelecionadaParaAdicionar) ||
+      integranteMarcadoComoIndisponivelNoModal ||
+      (aoAbrirModalMemberEstavaIndisponivelOuComBadgeDemoRef.current && !integranteMarcadoComoIndisponivelNoModal));
+
   const handleRemoveFuncao = (memberId, funcaoNameToRemove) => {
     setTeamMembers((currentMembers) =>
       currentMembers.map((member) => {
@@ -175,35 +313,101 @@ export default function MinhaDefensoriaPage() {
     console.log("Remover usuário:", memberId);
   };
 
-  // Lógica para abrir o modal de adicionar função
-  const handleOpenAddFuncaoModal = (memberId) => {
-    setSelectedMemberIdForFuncao(memberId);
-    setIsAddFuncaoModalOpen(true);
-    setFuncaoSelecionadaParaAdicionar(''); // Reseta a seleção ao abrir
+  const resetarSomenteCamposDisponibilidadeModalAdicionarFuncaoAoMembro = () => {
+    setIntegranteMarcadoComoIndisponivelNoModal(false);
+    setDataInicioIndisponibilidadeModalDate(null);
+    setDataFimIndisponibilidadeModalDate(null);
+    setMotivoIndisponibilidadeChaveSelectModal('ferias');
+    setTextoMotivoOutroQuandoSelecionadoNoModal('');
   };
 
-  // Lógica para confirmar a adição da função
-  const handleConfirmAddFuncao = () => {
-    if (!selectedMemberIdForFuncao || !funcaoSelecionadaParaAdicionar) return;
-
-    setTeamMembers(currentMembers =>
-      currentMembers.map(member => {
-        if (member.id === selectedMemberIdForFuncao) {
-          // Verifica se a função já existe para não duplicar
-          const funcaoJaExiste = member.funcoes.some(f => f.nome === funcaoSelecionadaParaAdicionar);
-          if (!funcaoJaExiste) {
-            return {
-              ...member,
-              funcoes: [...member.funcoes, { nome: funcaoSelecionadaParaAdicionar, removivel: true }],
-            };
-          }
-        }
-        return member;
-      })
-    );
+  const fecharModalAdicionarFuncaoELimparEstadoCompletoDoFormularioInterno = () => {
     setIsAddFuncaoModalOpen(false);
     setSelectedMemberIdForFuncao(null);
     setFuncaoSelecionadaParaAdicionar('');
+    resetarSomenteCamposDisponibilidadeModalAdicionarFuncaoAoMembro();
+  };
+
+  // Lógica para abrir o modal de adicionar função / disponibilidade
+  const handleOpenAddFuncaoModal = (memberId) => {
+    const membroAlvo = teamMembers.find((m) => m.id === memberId);
+    setSelectedMemberIdForFuncao(memberId);
+    setFuncaoSelecionadaParaAdicionar('');
+    aoAbrirModalMemberEstavaIndisponivelOuComBadgeDemoRef.current = Boolean(
+      membroAlvo?.registroDisponibilidadeGerenciadaNaModal?.indisponivel === true ||
+        membroAlvo?.badgeIndisponibilidadeDemonstracaoUi?.label
+    );
+    const regDisponibilidadePersistidoNoMembro = membroAlvo?.registroDisponibilidadeGerenciadaNaModal;
+    if (regDisponibilidadePersistidoNoMembro?.indisponivel === true) {
+      setIntegranteMarcadoComoIndisponivelNoModal(true);
+      setDataInicioIndisponibilidadeModalDate(
+        parseDataDdMmYyyyStringParaObjetoDateOuNullParaInputsDatePicker(regDisponibilidadePersistidoNoMembro.dataInicioDdMmYyyy)
+      );
+      setDataFimIndisponibilidadeModalDate(
+        parseDataDdMmYyyyStringParaObjetoDateOuNullParaInputsDatePicker(regDisponibilidadePersistidoNoMembro.dataFimDdMmYyyy)
+      );
+      setMotivoIndisponibilidadeChaveSelectModal(regDisponibilidadePersistidoNoMembro.motivoChave || 'ferias');
+      setTextoMotivoOutroQuandoSelecionadoNoModal(regDisponibilidadePersistidoNoMembro.textoMotivoQuandoOutroOpcional || '');
+    } else {
+      resetarSomenteCamposDisponibilidadeModalAdicionarFuncaoAoMembro();
+    }
+    setIsAddFuncaoModalOpen(true);
+  };
+
+  // Confirma função nova e/ou disponibilidade do integrante (reflete na badge laranja da tabela).
+  const handleConfirmAddFuncao = () => {
+    if (!selectedMemberIdForFuncao) return;
+
+    const formularioIndisponibilidadeInvalido =
+      integranteMarcadoComoIndisponivelNoModal &&
+      (!dataInicioIndisponibilidadeModalDate ||
+        !dataFimIndisponibilidadeModalDate ||
+        !motivoIndisponibilidadeChaveSelectModal ||
+        (motivoIndisponibilidadeChaveSelectModal === 'outro' &&
+          !textoMotivoOutroQuandoSelecionadoNoModal.trim()));
+
+    if (formularioIndisponibilidadeInvalido) return;
+
+    const vaiAdicionarFuncaoNovaNaEquipe = Boolean(funcaoSelecionadaParaAdicionar);
+    const vaiRegistrarOuLimparIndisponibilidadeDoIntegrante =
+      integranteMarcadoComoIndisponivelNoModal ||
+      (aoAbrirModalMemberEstavaIndisponivelOuComBadgeDemoRef.current && !integranteMarcadoComoIndisponivelNoModal);
+
+    if (!vaiAdicionarFuncaoNovaNaEquipe && !vaiRegistrarOuLimparIndisponibilidadeDoIntegrante) return;
+
+    setTeamMembers((currentMembers) =>
+      currentMembers.map((member) => {
+        if (member.id !== selectedMemberIdForFuncao) return member;
+
+        let atualizado = { ...member };
+
+        if (vaiAdicionarFuncaoNovaNaEquipe) {
+          const funcaoJaExiste = member.funcoes.some((f) => f.nome === funcaoSelecionadaParaAdicionar);
+          if (!funcaoJaExiste) {
+            atualizado.funcoes = [...atualizado.funcoes, { nome: funcaoSelecionadaParaAdicionar, removivel: true }];
+          }
+        }
+
+        if (integranteMarcadoComoIndisponivelNoModal) {
+          atualizado.registroDisponibilidadeGerenciadaNaModal = {
+            indisponivel: true,
+            dataInicioDdMmYyyy: formataObjetoDateParaStringDdMmYyyyBrasil(dataInicioIndisponibilidadeModalDate),
+            dataFimDdMmYyyy: formataObjetoDateParaStringDdMmYyyyBrasil(dataFimIndisponibilidadeModalDate),
+            motivoChave: motivoIndisponibilidadeChaveSelectModal,
+            textoMotivoQuandoOutroOpcional:
+              motivoIndisponibilidadeChaveSelectModal === 'outro'
+                ? textoMotivoOutroQuandoSelecionadoNoModal.trim()
+                : '',
+          };
+        } else if (aoAbrirModalMemberEstavaIndisponivelOuComBadgeDemoRef.current) {
+          atualizado.registroDisponibilidadeGerenciadaNaModal = { indisponivel: false };
+        }
+
+        return atualizado;
+      })
+    );
+
+    fecharModalAdicionarFuncaoELimparEstadoCompletoDoFormularioInterno();
   };
 
   // Função para gerar uma data de entrada fictícia (para a modal de informações)
@@ -291,10 +495,20 @@ export default function MinhaDefensoriaPage() {
               <Select
                 label="Selecione a Defensoria"
                 placeholder="Escolha uma defensoria"
-                data={defensoriasOptions}
+                data={dadosSelectDefensoriasAgrupadoMinhasVersusDemaisRestantes}
                 value={selectedDefensoria}
                 onChange={setSelectedDefensoria}
-                mb="xl"
+                searchable
+                nothingFoundMessage="Nenhuma defensoria encontrada"
+                maxDropdownHeight={360}
+                mb="lg"
+              />
+
+              <MinhaDefensoriaNavegacaoSecoesEmCartoesComIconeEBadge
+                secaoAtivaChaveSlug={secaoMinhaDefensoriaAtivaSlug}
+                aoAlterarSecaoAtivaSomenteCliente={setSecaoMinhaDefensoriaAtivaSlug}
+                badgesNumerosPorPropriedadeNome={mapaBadgesContagemSecoesMinhaDefensoriaParaCartoesNavegacao}
+                exibirTodasSecoesMinhaDefensoria={usuarioLogadoFazParteDaEquipeNaDefensoriaSelecionada}
               />
 
               {/* Adiciona o novo grupo de botões de ação aqui, condicionalmente */}
@@ -316,114 +530,124 @@ export default function MinhaDefensoriaPage() {
                 </Alert>
               )}
 
-              {/* Conteúdo condicional: Skeleton ou Tabela da Equipe */}
-              {isLoading ? (
-                <>
-                  {/* Skeleton para o Cabeçalho da Seção da Equipe */}
-                  <Box mt="xl">
-                    <Group 
-                      justify="space-between" 
-                      align="center" 
-                      p="sm"
-                      style={{ backgroundColor: '#f1f3f5', borderRadius: theme.radius.sm }}
-                    >
-                      <Skeleton height={24} width={300} radius="sm" />
-                      <Skeleton height={36} width={150} radius="sm" /> 
+              {secaoMinhaDefensoriaAtivaSlug === CHAVES_SECOES_MINHA_DEFENSORIA.EQUIPE &&
+                (isLoading ? (
+                  <>
+                    <Group justify="space-between" align="center" mb="md">
+                      <Skeleton height={28} width={280} radius="sm" />
+                      <Skeleton height={36} width={140} radius="sm" />
                     </Group>
-                    <Divider my="md" />
-                  </Box>
-                  {/* Skeleton para a Tabela */}
-                  <Stack>
-                    <Skeleton height={40} radius="sm" /> {/* Cabeçalho da tabela */}
-                    <Skeleton height={30} radius="sm" /> {/* Linha 1 */}
-                    <Skeleton height={30} radius="sm" /> {/* Linha 2 */}
-                    <Skeleton height={30} radius="sm" /> {/* Linha 3 */}
-                    <Skeleton height={30} radius="sm" /> {/* Linha 4 */}
-                  </Stack>
-                </>
-              ) : (
-                <>
-                  {/* Seção Composição da Equipe de Trabalho - Cabeçalho Estilizado */}
-                  <Box mt="xl">
-                    <Group 
-                      justify="space-between" 
-                      align="center" 
-                      p="sm"
-                      style={{ backgroundColor: '#f1f3f5', borderRadius: theme.radius.sm, cursor: 'pointer' }}
-                      onClick={() => setIsTeamSectionCollapsed(!isTeamSectionCollapsed)}
-                    >
-                      <Group gap="sm" align="center">
-                        <ActionIcon variant="transparent" size="lg">
-                          {isTeamSectionCollapsed ? <IconChevronDown size={20} /> : <IconChevronUp size={20} />}
-                        </ActionIcon>
+                    <Stack gap="xs">
+                      <Skeleton height={40} radius="sm" />
+                      <Skeleton height={30} radius="sm" />
+                      <Skeleton height={30} radius="sm" />
+                      <Skeleton height={30} radius="sm" />
+                    </Stack>
+                  </>
+                ) : (
+                  <Box mt="xs">
+                    <Group justify="space-between" align="flex-start" mb="md" wrap="wrap">
+                      <Group gap="sm" align="flex-start">
                         <ThemeIcon variant="light" size="lg" radius="md" style={{ backgroundColor: 'transparent' }}>
-                          <IconUsers size={20} color='#1c7ed6' />
+                          <IconUsers size={22} color="#1c7ed6" />
                         </ThemeIcon>
-                        <Text fw={500} size="lg" style={{ color: '#1c7ed6', display: 'flex', alignItems: 'center' }}>
-                          Equipe de Trabalho e suas Funções
-                          <Tooltip 
-                            label={(
-                              <>
-                                <Text fw={700} mb={5}>Funções disponíveis:</Text>
-                                {Object.entries(funcoesDescricoes).map(([nome, desc]) => (
-                                  <div key={nome} style={{ marginBottom: '0.5em' }}>
-                                    <Text fw={700} component="span">{nome}:</Text>
-                                    <Text component="span"> {desc}</Text>
-                                  </div>
-                                ))}
-                              </>
-                            )}
-                            withArrow 
-                            multiline
-                            w={300} // Ajuste a largura conforme necessário
-                            position="top-start"
-                            events={{ hover: true, focus: true, touch: true }}
-                          >
-                            <ActionIcon variant="transparent" size="sm" radius="xl" style={{ marginLeft: '4px', marginBottom: '2px' }}> {/* Ajuste de margem para colar e alinhar */} 
-                              <IconInfoCircle size={18} color='#1c7ed6' /> {/* Tamanho um pouco menor para não destoar */} 
-                            </ActionIcon>
-                          </Tooltip>
-                        </Text>
+                        <Box>
+                          <Group gap={6} align="center">
+                            <Text fw={600} size="md" c="#1c7ed6">
+                              Equipe de trabalho e suas funções
+                            </Text>
+                            <Tooltip
+                              label={
+                                <>
+                                  <Text fw={700} mb={5}>
+                                    Funções disponíveis:
+                                  </Text>
+                                  {Object.entries(funcoesDescricoes).map(([nome, desc]) => (
+                                    <div key={nome} style={{ marginBottom: '0.5em' }}>
+                                      <Text fw={700} component="span">
+                                        {nome}:
+                                      </Text>
+                                      <Text component="span"> {desc}</Text>
+                                    </div>
+                                  ))}
+                                </>
+                              }
+                              withArrow
+                              multiline
+                              w={300}
+                              position="top-start"
+                              events={{ hover: true, focus: true, touch: true }}
+                            >
+                              <ActionIcon variant="subtle" color="blue" size="sm" radius="xl" aria-label="Sobre as funções">
+                                <IconInfoCircle size={18} />
+                              </ActionIcon>
+                            </Tooltip>
+                          </Group>
+                          <Text size="xs" c="dimmed" mt={4}>
+                            Membros e papéis na defensoria selecionada.
+                          </Text>
+                        </Box>
                       </Group>
-                      {!isTeamSectionCollapsed && isUserGerenteNaDefensoriaSelecionada && (
-                        <Button 
-                          leftSection={<IconPlus size={16} />}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddUsuario();
-                          }}
-                        >
-                          Adicionar Usuário
+                      {isUserGerenteNaDefensoriaSelecionada && !showNotInTeamAlert && (
+                        <Button leftSection={<IconPlus size={16} />} onClick={handleAddUsuario}>
+                          Adicionar usuário
                         </Button>
                       )}
                     </Group>
-                    
-                    {!isTeamSectionCollapsed && (
-                      <>
-                        <Divider my="md" />
-                        {/* Tabela da Equipe agora como Componente */}
-                        <EquipeTrabalhoTable 
-                          teamMembers={teamMembers}
-                          onRemoveFuncao={handleRemoveFuncao}
-                          onAddFuncao={handleOpenAddFuncaoModal}
-                          onRemoveUsuario={handleRemoveUsuario}
-                          acoesHabilitadas={isUserGerenteNaDefensoriaSelecionada && !showNotInTeamAlert}
-                          // Props de Paginação
-                          currentPage={currentPage}
-                          onPageChange={setCurrentPage}
-                          itemsPerPage={itemsPerPage}
-                          onItemsPerPageChange={(value) => {
-                            setItemsPerPage(value);
-                            setCurrentPage(1); // Volta para a primeira página ao mudar itens por página
-                          }}
-                          totalItems={teamMembers.length}
-                          onShowUserInfo={handleShowUserInfo}
-                        />
-                      </>
-                    )}
+                    <Divider mb="md" />
+                    <EquipeTrabalhoTable
+                      teamMembers={teamMembers}
+                      onRemoveFuncao={handleRemoveFuncao}
+                      onAddFuncao={handleOpenAddFuncaoModal}
+                      onRemoveUsuario={handleRemoveUsuario}
+                      acoesHabilitadas={isUserGerenteNaDefensoriaSelecionada && !showNotInTeamAlert}
+                      currentPage={currentPage}
+                      onPageChange={setCurrentPage}
+                      itemsPerPage={itemsPerPage}
+                      onItemsPerPageChange={(value) => {
+                        setItemsPerPage(value);
+                        setCurrentPage(1);
+                      }}
+                      totalItems={teamMembers.length}
+                      onShowUserInfo={handleShowUserInfo}
+                    />
                   </Box>
-                </>
-              )}
+                ))}
+
+              {usuarioLogadoFazParteDaEquipeNaDefensoriaSelecionada &&
+                secaoMinhaDefensoriaAtivaSlug === CHAVES_SECOES_MINHA_DEFENSORIA.SMS && (
+                  <Alert variant="light" color="gray" title="SMS recebidos">
+                    Esta seção será integrada aos dados de SMS na PoC. Use os cartões acima para alternar entre módulos.
+                  </Alert>
+                )}
+
+              {usuarioLogadoFazParteDaEquipeNaDefensoriaSelecionada &&
+                secaoMinhaDefensoriaAtivaSlug === CHAVES_SECOES_MINHA_DEFENSORIA.SOLICITACOES_DOCUMENTO && (
+                  <Alert variant="light" color="gray" title="Solicitações de documento">
+                    Conteúdo em construção — placeholder para lista de solicitações vinculada à defensoria.
+                  </Alert>
+                )}
+
+              {usuarioLogadoFazParteDaEquipeNaDefensoriaSelecionada &&
+                secaoMinhaDefensoriaAtivaSlug === CHAVES_SECOES_MINHA_DEFENSORIA.PECAS_FAVORITAS && (
+                  <Alert variant="light" color="gray" title="Peças favoritas">
+                    Conteúdo em construção — aqui poderão aparecer atalhos às peças marcadas pelo usuário.
+                  </Alert>
+                )}
+
+              {usuarioLogadoFazParteDaEquipeNaDefensoriaSelecionada &&
+                secaoMinhaDefensoriaAtivaSlug === CHAVES_SECOES_MINHA_DEFENSORIA.PROMPTS_TRIAGEM && (
+                  <Alert variant="light" color="gray" title="Prompts de triagem">
+                    Conteúdo em construção — modelo de prompts usados na triagem da defensoria.
+                  </Alert>
+                )}
+
+              {usuarioLogadoFazParteDaEquipeNaDefensoriaSelecionada &&
+                secaoMinhaDefensoriaAtivaSlug === CHAVES_SECOES_MINHA_DEFENSORIA.ASSISTIDOS_ATENDIDOS && (
+                  <Alert variant="light" color="gray" title="Assistidos atendidos">
+                    Conteúdo em construção — visão de assistidos relacionados aos atendimentos desta equipe.
+                  </Alert>
+                )}
             </Box>
           </Card>
         </Box>
@@ -444,58 +668,105 @@ export default function MinhaDefensoriaPage() {
         />
       </Group>
 
-      {/* Modal para Adicionar Função */}
+      {/* Modal: função + disponibilidade (badge na tabela) */}
       <Modal
         opened={isAddFuncaoModalOpen}
-        onClose={() => setIsAddFuncaoModalOpen(false)}
+        onClose={fecharModalAdicionarFuncaoELimparEstadoCompletoDoFormularioInterno}
         withCloseButton={false}
         padding={0}
         radius="md"
         centered
-        size="md"
+        size="lg"
       >
         <Box bg="dark.6" px="md" py="sm" style={{ borderTopLeftRadius: 'var(--mantine-radius-md)', borderTopRightRadius: 'var(--mantine-radius-md)' }}>
           <Group justify="space-between" align="center">
             <Group gap="xs" align="center">
               <IconPlaylistAdd size={20} color={theme.white} />
-              <Text fw={500} c={theme.white}>Adicionar Função ao Membro</Text>
+              <Text fw={500} c={theme.white}>Função e disponibilidade do membro</Text>
             </Group>
-            <ActionIcon variant="transparent" onClick={() => setIsAddFuncaoModalOpen(false)} aria-label="Fechar modal">
+            <ActionIcon
+              variant="transparent"
+              onClick={fecharModalAdicionarFuncaoELimparEstadoCompletoDoFormularioInterno}
+              aria-label="Fechar modal"
+            >
               <IconX size={20} color={theme.white} />
             </ActionIcon>
           </Group>
         </Box>
 
         {selectedMemberIdForFuncao && (
-          <Stack gap="lg" p="md">
+          <Stack gap="md" p="md">
             <MantineSelect
               label="Selecione a função para adicionar"
-              description="Apenas funções que o membro ainda não possui são listadas."
-              placeholder="Escolha uma função"
+              description="Opcional se você só for atualizar disponibilidade. Apenas funções que o membro ainda não possui."
+              placeholder="Escolha uma função (opcional)"
+              clearable
               data={funcoesDisponiveisParaAdicao
-                .filter(funcao => {
-                  const member = teamMembers.find(m => m.id === selectedMemberIdForFuncao);
-                  return !member?.funcoes.some(f => f.nome === funcao);
+                .filter((funcao) => {
+                  const member = teamMembers.find((m) => m.id === selectedMemberIdForFuncao);
+                  return !member?.funcoes.some((f) => f.nome === funcao);
                 })
-                .map(funcaoNome => ({ value: funcaoNome, label: funcaoNome }))
-              }
+                .map((funcaoNome) => ({ value: funcaoNome, label: funcaoNome }))}
               value={funcaoSelecionadaParaAdicionar}
-              onChange={setFuncaoSelecionadaParaAdicionar}
+              onChange={(valorOuNull) => setFuncaoSelecionadaParaAdicionar(valorOuNull ?? '')}
               searchable
               nothingFoundMessage="Nenhuma função disponível ou todas já atribuídas"
             />
-            <Group justify="flex-end" mt="md">
-              <Button variant="default" onClick={() => setIsAddFuncaoModalOpen(false)}>
+
+            <Divider label="Disponibilidade do integrante" labelPosition="center" />
+
+            <Switch
+              label="Integrante indisponível neste período"
+              description="Ao marcar, informe período e motivo. Isso atualiza o selo laranja na tabela."
+              checked={integranteMarcadoComoIndisponivelNoModal}
+              onChange={(event) => setIntegranteMarcadoComoIndisponivelNoModal(event.currentTarget.checked)}
+              color="orange"
+            />
+
+            {integranteMarcadoComoIndisponivelNoModal && (
+              <>
+                <Group grow align="flex-start">
+                  <DatePickerInput
+                    label="Início"
+                    placeholder="dd/mm/aaaa"
+                    value={dataInicioIndisponibilidadeModalDate}
+                    onChange={setDataInicioIndisponibilidadeModalDate}
+                    valueFormat="DD/MM/YYYY"
+                    leftSection={<IconCalendar size={16} />}
+                  />
+                  <DatePickerInput
+                    label="Fim"
+                    placeholder="dd/mm/aaaa"
+                    value={dataFimIndisponibilidadeModalDate}
+                    onChange={setDataFimIndisponibilidadeModalDate}
+                    valueFormat="DD/MM/YYYY"
+                    leftSection={<IconCalendar size={16} />}
+                  />
+                </Group>
+                <MantineSelect
+                  label="Motivo"
+                  placeholder="Selecione"
+                  data={MOTIVOS_INDISPONIBILIDADE_INTEGRANTE_MODAL_EQUIPE_SELECT_DATA}
+                  value={motivoIndisponibilidadeChaveSelectModal}
+                  onChange={(v) => setMotivoIndisponibilidadeChaveSelectModal(v || 'ferias')}
+                />
+                {motivoIndisponibilidadeChaveSelectModal === 'outro' && (
+                  <TextInput
+                    label="Descreva o motivo"
+                    placeholder="Ex.: consulta médica, curso externo…"
+                    value={textoMotivoOutroQuandoSelecionadoNoModal}
+                    onChange={(e) => setTextoMotivoOutroQuandoSelecionadoNoModal(e.currentTarget.value)}
+                  />
+                )}
+              </>
+            )}
+
+            <Group justify="flex-end" mt="sm">
+              <Button variant="default" onClick={fecharModalAdicionarFuncaoELimparEstadoCompletoDoFormularioInterno}>
                 Cancelar
               </Button>
-              <Button 
-                onClick={handleConfirmAddFuncao} 
-                disabled={!funcaoSelecionadaParaAdicionar || funcoesDisponiveisParaAdicao.filter(funcao => {
-                  const member = teamMembers.find(m => m.id === selectedMemberIdForFuncao);
-                  return !member?.funcoes.some(f => f.nome === funcao);
-                }).length === 0}
-              >
-                Adicionar Função
+              <Button onClick={handleConfirmAddFuncao} disabled={!podeConfirmarSalvarModalFuncaoDisponibilidadeMembro}>
+                Salvar
               </Button>
             </Group>
           </Stack>
